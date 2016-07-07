@@ -70,7 +70,7 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
-### POST /api/v0/steder/:sted/besok
+### POST /api/v1/steder/:sted/besok
 
 **Status codes:**
 
@@ -79,7 +79,7 @@ Returns `201 Created` on successfull checkin.
 **Example:**
 
 ```http
-> POST /api/v0/steder/524081f9b8cb77df15001660/besok HTTP/1.1
+> POST /api/v1/steder/524081f9b8cb77df15001660/besok HTTP/1.1
 > Accept: application/json
 > X-User-Id: 123
 > X-User-Token asdf123
@@ -91,7 +91,7 @@ Returns `201 Created` on successfull checkin.
 
 < HTTP/1.1 201 Created
 < Content-Type: application/json
-< Location: /api/v0/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
+< Location: /api/v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 <
 {
   "message": "Ok",
