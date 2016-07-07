@@ -46,4 +46,57 @@ docker-compose run --rm node npm run test
 docker-compose run --rm node npm run lint
 ```
 
+## API
+
+### Authentication
+
+Some API endpoints requires the following user authentication headers:
+
+* `X-User-Id` - DNT Connect User ID
+* `X-User-Token` - DNT Connect OAuth 2 token
+
+### Response codes
+
+Unless otherwise statet API endpoints will return the following HTTP status
+codes:
+
+* `200 Ok` - Successfull GET request
+* `201 Created` - Successfull POST or PUT request
+* `204 No Content` - Successfull HEAD or DELETE request
+* `400 Bad Request` - Bad user supplied data
+* `401 Unauthorized` - Missing or invalid user authentication
+* `403 Forbidden` - Missing or invalid user permissions
+* `404 Not Found` - Resource or endpoint not found
+* `500 Internal Server Error` - Internal server error
+* `501 Not Implemented` - API endpoint is not implemented yet
+
+### POST /api/v0/steder/:sted/besok
+
+**Status codes:**
+
+Returns `201 Created` on successfull checkin.
+
+**Example:**
+
+```http
+> POST /api/v0/steder/524081f9b8cb77df15001660/besok HTTP/1.1
+> Accept: application/json
+> X-User-Id: 123
+> X-User-Token asdf123
+>
+{
+  "lat": 12.3456,
+  "lon": 98.7654
+}
+
+< HTTP/1.1 201 Created
+< Content-Type: application/json
+< Location: /api/v0/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
+<
+{
+  "message": "Ok",
+  "data": { ... }
+}
+```
+
 ## [MIT lisenced](https://github.com/Turistforeningen/Verdandi/blob/master/LICENSE)

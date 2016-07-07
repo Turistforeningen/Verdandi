@@ -1,0 +1,68 @@
+{
+  "name": "verdandi",
+  "version": null,
+  "description": "Verðandi; API backend for Sjekk UT mobile application",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib"
+  ],
+  "scripts": {
+    "codacy-coverage": "codacy-coverage",
+    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -r test/support/env -R spec test/**",
+    "grunt:watch": "grunt watch",
+    "lint": "eslint test/ lib/ index.js",
+    "nsp": "nsp check",
+    "semantic-release": "semantic-release",
+    "start": "supervisor -w index.js,lib -e js index.js",
+    "test": "mocha -b -c --check-leaks -R tap -r test/support/env test/**",
+    "test:watch": "mocha -w -b -c --check-leaks -R progress -r test/support/env test/**",
+    "greenkeeper-postpublish": "greenkeeper-postpublish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Turistforeningen/Verdandi.git"
+  },
+  "keywords": [
+    "fotoware",
+    "fotoweb",
+    "cors",
+    "proxy",
+    "api"
+  ],
+  "author": "Hans Kristian Flaatten <hans@starefossen.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Turistforeningen/Verdandi/issues"
+  },
+  "homepage": "https://github.com/Turistforeningen/Verdandi#readme",
+  "dependencies": {
+    "@starefossen/express-cors": "^1.0.0",
+    "@starefossen/express-health": "^1.0.0",
+    "@starefossen/http-error": "^1.0.0",
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "express": "^4.13.4",
+    "newrelic": "^1.28.0",
+    "raven": "^0.11.0",
+    "response-time": "^2.3.1",
+    "rethinkdb": "^2.3.2"
+  },
+  "devDependencies": {
+    "codacy-coverage": "^1.1.3",
+    "eslint": "^2.11.0",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-import": "^1.8.1",
+    "greenkeeper-postpublish": "^1.0.0",
+    "istanbul": "^0.4.3",
+    "joi": "^8.4.0",
+    "mocha": "^2.5.3",
+    "nsp": "^2.4.0",
+    "semantic-release": "^4.3.5",
+    "supertest": "^1.2.0",
+    "supervisor": "^0.11.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}
