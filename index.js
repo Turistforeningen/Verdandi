@@ -52,14 +52,14 @@ router.get('/', (req, res) => {
   });
 });
 
-router.use((req, res, next) => {
+const requireAuth = (req, res, next) => {
   if (!req.headers['x-user-id']) {
     next(new HttpError('X-User-Id header is required'), 401);
   } else {
     req.user = { id: parseInt(req.headers['x-user-id'], 10) };
     next();
   }
-});
+};
 
 const notImplementedYet = (req, res) => {
   res.status(418);
@@ -69,7 +69,7 @@ const notImplementedYet = (req, res) => {
 router.get('/steder/:sted/stats', notImplementedYet);
 router.get('/steder/:sted/logg', notImplementedYet);
 
-router.post('/steder/:sted/besok', (req, res, next) => {
+router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
   r.r.table('checkins').insert({
     timestamp: new Date(),
     location: r.r.point(req.body.lon, req.body.lat),
