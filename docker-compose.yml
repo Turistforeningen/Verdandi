@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  rethink:
+    image: rethinkdb:2
+
+  node:
+    image: node:6
+    working_dir: /usr/src/app
+    links:
+      - rethink
+    depends_on:
+      - rethink
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=silent
+      - NPM_CONFIG_PROGRESS=false
+      - NPM_CONFIG_SPIN=false
+    command: npm start
