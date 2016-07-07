@@ -39,5 +39,34 @@ describe('GET /steder/:sted/stats', () => {
 });
 
 describe('GET /steder/:sted/logg', () => {
-  it('returns the most recent checkins');
+  const url = '/api/dev/steder/524081f9b8cb77df15001660/logg';
+
+  it('returns the most recent checkins', done => {
+    app.get(url)
+      .expect(200)
+      .expect(res => {
+        assert.deepEqual(res.body, { data: [{
+          dnt_user_id: 1234,
+          id: '7644aaf2-9928-4231-aa68-4e65e31bf219',
+          location: {
+            $reql_type$: 'GEOMETRY',
+            coordinates: [-117.220406, 32.719464],
+            type: 'Point',
+          },
+          ntb_steder_id: '524081f9b8cb77df15001660',
+          timestamp: '2016-07-07T23:32:49.923Z',
+        }, {
+          dnt_user_id: 5678,
+          id: '7644aaf2-9928-4231-aa68-4e65e31bf217',
+          location: {
+            $reql_type$: 'GEOMETRY',
+            coordinates: [-117.220406, 32.719464],
+            type: 'Point',
+          },
+          ntb_steder_id: '524081f9b8cb77df15001660',
+          timestamp: '2016-07-06T23:32:58.923Z',
+        }] });
+      })
+      .end(done);
+  });
 });

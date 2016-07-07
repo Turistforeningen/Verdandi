@@ -67,7 +67,24 @@ const notImplementedYet = (req, res) => {
 };
 
 router.get('/steder/:sted/stats', notImplementedYet);
-router.get('/steder/:sted/logg', notImplementedYet);
+
+router.get('/steder/:sted/logg', (req, res, next) => {
+  r.r.table('checkins').filter(
+    r.r.row('ntb_steder_id').eq(req.params.sted)
+  ).orderBy(r.r.desc('timestamp'))
+  .limit(50)
+  .run(r.c, (runErr, cursor) => {
+    if (runErr) {
+      next(new HttpError('Database failure', 500, runErr));
+    } else {
+      cursor.toArray((arrErr, data) => {
+        if (arrErr) { return next(new HttpError('Database failure', 500, arrErr)); }
+
+        return res.json({ data });
+      });
+    }
+  });
+});
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
   r.r.table('checkins').insert({
