@@ -48,8 +48,7 @@ router.get('/CloudHealthCheck', healthCheck({
 
 router.get('/', (req, res) => {
   res.json({
-    albums_url: `${req.fullUrl}/albums`,
-    photos_url: `${req.fullUrl}/albums/{album}/photos`,
+    checkin_new: `${req.fullUrl}/steder/:sted/besok`,
   });
 });
 
