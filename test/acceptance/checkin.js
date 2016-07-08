@@ -35,7 +35,14 @@ describe('POST /steder/:sted/besok', () => {
 });
 
 describe('GET /steder/:sted/stats', () => {
-  it('returns checkin statistics for this place');
+  it('returns checkin statistics for a given place', done => {
+    const url = '/api/dev/steder/524081f9b8cb77df15001660/stats';
+
+    app.get(url)
+      .expect(200)
+      .expect({ data: { count: 2 } })
+      .end(done);
+  });
 });
 
 describe('GET /steder/:sted/logg', () => {

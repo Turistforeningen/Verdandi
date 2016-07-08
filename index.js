@@ -50,6 +50,7 @@ router.get('/', (req, res) => {
   res.json({
     checkin_new: `${req.fullUrl}/steder/{sted}/besok`,
     checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
+    checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
   });
 });
 
@@ -67,7 +68,17 @@ const notImplementedYet = (req, res) => {
   res.json({ message: 'Not implemented yet, come back later' });
 };
 
-router.get('/steder/:sted/stats', notImplementedYet);
+router.get('/steder/:sted/stats', (req, res, next) => {
+  r.checkins('ntb_steder_id')
+    .count(req.params.sted)
+    .run(r.c, (runErr, count) => {
+      if (runErr) {
+        next(new HttpError('Database failure', 500, runErr));
+      } else {
+        res.json({ data: { count } });
+      }
+    });
+});
 
 router.get('/steder/:sted/logg', (req, res, next) => {
   r.checkins

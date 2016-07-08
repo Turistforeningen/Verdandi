@@ -70,6 +70,28 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
+### GET /v1/steder/:sted/stats
+
+**Status codes:**
+
+Returns `200 Ok` on successfull request.
+
+**Example:**
+
+```http
+GET /v1/steder/524081f9b8cb77df15001660/stats HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "data": [
+    count: 2,
+  ]
+}
+```
+
 ### GET /v1/steder/:sted/logg
 
 **Status codes:**
