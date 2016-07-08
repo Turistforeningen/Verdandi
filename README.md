@@ -79,12 +79,12 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-> GET /v1/steder/524081f9b8cb77df15001660/logg HTTP/1.1
-> Accept: application/json
->
-< HTTP/1.1 Ok
-< Content-Type: application/json
-<
+GET /v1/steder/524081f9b8cb77df15001660/logg HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
 {
   "data": [
     {...},
@@ -102,20 +102,20 @@ Returns `201 Created` on successfull checkin.
 **Example:**
 
 ```http
-> POST /v1/steder/524081f9b8cb77df15001660/besok HTTP/1.1
-> Accept: application/json
-> X-User-Id: 123
-> X-User-Token asdf123
->
+POST /v1/steder/524081f9b8cb77df15001660/besok HTTP/1.1
+Accept: application/json
+X-User-Id: 123
+X-User-Token asdf123
+
 {
   "lat": 12.3456,
   "lon": 98.7654
 }
 
-< HTTP/1.1 201 Created
-< Content-Type: application/json
-< Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
-<
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
+
 {
   "message": "Ok",
   "data": { ... }
