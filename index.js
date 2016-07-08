@@ -49,6 +49,7 @@ router.get('/CloudHealthCheck', healthCheck({
 router.get('/', (req, res) => {
   res.json({
     checkin_new: `${req.fullUrl}/steder/{sted}/besok`,
+    checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
   });
 });
 
