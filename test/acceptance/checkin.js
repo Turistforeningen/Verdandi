@@ -14,7 +14,7 @@ describe('POST /steder/:sted/besok', () => {
       .expect(401)
       .expect({
         code: 401,
-        message: 'X-User-Id header is required'
+        message: 'X-User-Id header is required',
       }, done);
   });
 
@@ -26,7 +26,7 @@ describe('POST /steder/:sted/besok', () => {
       .expect(400)
       .expect({
         code: 400,
-        message: 'Longitude must be between -180 and 180.  Got 1337.'
+        message: 'Longitude must be between -180 and 180.  Got 1337.',
       })
       .end(done);
   });
@@ -66,7 +66,7 @@ describe('GET /steder/:sted/besok/:id', () => {
       .expect(404)
       .expect({
         code: 404,
-        message: 'Checkin not found'
+        message: 'Checkin not found',
       })
       .end(done);
   });
