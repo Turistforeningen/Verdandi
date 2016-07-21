@@ -86,9 +86,9 @@ HTTP/1.1 Ok
 Content-Type: application/json
 
 {
-  "data": [
+  "data": {
     "count": 2,
-  ]
+  }
 }
 ```
 
@@ -140,7 +140,7 @@ Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 
 {
   "message": "Ok",
-  "data": { ... }
+  "data": {...}
 }
 ```
 
@@ -160,7 +160,7 @@ HTTP/1.1 200 Ok
 Content-Type: application/json
 
 {
-  "data": { ... }
+  "data": {...}
 }
 ```
 
