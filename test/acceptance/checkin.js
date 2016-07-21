@@ -7,6 +7,19 @@ const app = request(require('../../index'));
 describe('POST /steder/:sted/besok', () => {
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
+  it('returns error for invalid coordinates', done => {
+    app.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send({ lon: 1337, lat: 4444 })
+      .expect(400)
+      .expect({
+        code: 400,
+        message: 'Longitude must be between -180 and 180.  Got 1337.'
+      })
+      .end(done);
+  });
+
   it('stores new checkin to the database', done => {
     app.post(url)
       .set('X-User-Id', '1234')
