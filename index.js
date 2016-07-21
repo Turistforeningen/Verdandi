@@ -69,15 +69,9 @@ const notImplementedYet = (req, res) => {
 };
 
 router.get('/steder/:sted/stats', (req, res, next) => {
-  r.checkins('ntb_steder_id')
-    .count(req.params.sted)
-    .run(r.c, (runErr, count) => {
-      if (runErr) {
-        next(new HttpError('Database failure', 500, runErr));
-      } else {
-        res.json({ data: { count } });
-      }
-    });
+  r.checkins('ntb_steder_id').count(req.params.sted).run(r.c)
+    .then(count => res.json({ data: { count } }))
+    .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/steder/:sted/logg', (req, res, next) => {
@@ -85,41 +79,38 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .filter(r.r.row('ntb_steder_id').eq(req.params.sted))
     .orderBy(r.r.desc('timestamp'))
     .limit(50)
-    .run(r.c, (runErr, cursor) => {
-      if (runErr) {
-        next(new HttpError('Database failure', 500, runErr));
-      } else {
-        cursor.toArray((arrErr, data) => {
-          if (arrErr) {
-            next(new HttpError('Database failure', 500, arrErr));
-          } else {
-            res.json({ data });
-          }
-        });
-      }
-    });
+    .run(r.c)
+    .then(cursor => cursor.toArray())
+    .then(data => res.json({ data }))
+    .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
-  r.checkins.insert({
-    timestamp: new Date(),
-    location: r.r.point(req.body.lon, req.body.lat),
-    ntb_steder_id: req.params.sted,
-    dnt_user_id: req.user.id,
-  }, { returnChanges: true }).run(r.c, (err, data) => {
-    if (err) {
-      if (err.name === 'ReqlQueryLogicError') {
-        next(new HttpError(err.msg, 400, err));
-      } else {
-        next(new HttpError('Database connection failed', 500, err));
-      }
-    } else {
+  r.checkins
+    .insert({
+      timestamp: new Date(),
+      location: r.r.point(req.body.lon, req.body.lat),
+      ntb_steder_id: req.params.sted,
+      dnt_user_id: req.user.id,
+    }, {
+      returnChanges: true,
+    })
+    .run(r.c)
+
+    .then(data => {
       const id = data.generated_keys[0];
 
       res.set('Location', `${req.fullUrl}${req.url}/${id}`);
       res.json({ message: 'Ok', data: data.changes[0].new_val });
-    }
-  });
+    })
+
+    .catch(error => {
+      if (error.name === 'ReqlQueryLogicError') {
+        next(new HttpError(error.msg, 400, error));
+      } else {
+        next(new HttpError('Database connection failed', 500, error));
+      }
+    });
 });
 
 router.post('/steder/:sted/besok/:checkin', notImplementedYet);
