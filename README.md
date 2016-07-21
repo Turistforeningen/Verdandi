@@ -87,7 +87,7 @@ Content-Type: application/json
 
 {
   "data": [
-    count: 2,
+    "count": 2,
   ]
 }
 ```
