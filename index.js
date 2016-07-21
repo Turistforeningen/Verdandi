@@ -49,6 +49,7 @@ router.get('/CloudHealthCheck', healthCheck({
 router.get('/', (req, res) => {
   res.json({
     checkin_new: `${req.fullUrl}/steder/{sted}/besok`,
+    checkin_get: `${req.fullUrl}/steder/{sted}/besok/{uuid}`,
     checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
     checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
   });
@@ -113,7 +114,21 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
     });
 });
 
-router.post('/steder/:sted/besok/:checkin', notImplementedYet);
+router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
+  // @TODO redirect to correct cononical URL for checkin ID
+
+  r.checkins
+    .get(req.params.checkin)
+    .run(r.c)
+    .then(data => {
+      if (!data) {
+        next(new HttpError('Checkin not found', 404));
+      } else {
+        res.json({ data });
+      }
+    })
+    .catch(error => next(new HttpError('Database failure', 500, error)));
+});
 
 router.get('/lister/:liste/stats', notImplementedYet);
 router.get('/lister/:liste/logg', notImplementedYet);

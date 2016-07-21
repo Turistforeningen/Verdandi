@@ -57,6 +57,39 @@ describe('POST /steder/:sted/besok', () => {
   });
 });
 
+describe('GET /steder/:sted/besok/:id', () => {
+  const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
+
+  it('returns 404 for non-existing checkin', done => {
+    app.get(`${url}/does-not-exist`)
+      .expect(404)
+      .expect({
+        code: 404,
+        message: 'Checkin not found'
+      })
+      .end(done);
+  });
+
+  it('returns 200 for existing checkin', done => {
+    app.get(`${url}/7644aaf2-9928-4231-aa68-4e65e31bf219`)
+      .expect(200)
+      .expect({
+        data: {
+          id: '7644aaf2-9928-4231-aa68-4e65e31bf219',
+          dnt_user_id: 1234,
+          ntb_steder_id: '524081f9b8cb77df15001660',
+          location: {
+            $reql_type$: 'GEOMETRY',
+            coordinates: [ -117.220406, 32.719464 ],
+            type: 'Point',
+          },
+          timestamp: '2016-07-07T23:32:49.923Z',
+        },
+      })
+      .end(done);
+  });
+});
+
 describe('GET /steder/:sted/stats', () => {
   it('returns checkin statistics for a given place', done => {
     const url = '/api/dev/steder/524081f9b8cb77df15001660/stats';

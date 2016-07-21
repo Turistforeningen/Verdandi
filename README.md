@@ -144,4 +144,24 @@ Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 }
 ```
 
+### POST /v1/steder/:sted/besok/:uuid
+
+**Status codes:**
+
+Returns `200 Ok` for valid checkin.
+
+**Example:**
+
+```http
+GET /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234 HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "data": { ... }
+}
+```
+
 ## [MIT lisenced](https://github.com/Turistforeningen/Verdandi/blob/master/LICENSE)
