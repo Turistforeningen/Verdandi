@@ -81,7 +81,7 @@ describe('GET /steder/:sted/besok/:id', () => {
           ntb_steder_id: '524081f9b8cb77df15001660',
           location: {
             $reql_type$: 'GEOMETRY',
-            coordinates: [ -117.220406, 32.719464 ],
+            coordinates: [-117.220406, 32.719464],
             type: 'Point',
           },
           timestamp: '2016-07-07T23:32:49.923Z',
