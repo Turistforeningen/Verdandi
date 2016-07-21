@@ -24,11 +24,15 @@
     "url": "git+https://github.com/Turistforeningen/Verdandi.git"
   },
   "keywords": [
-    "fotoware",
-    "fotoweb",
-    "cors",
-    "proxy",
-    "api"
+    "UT",
+    "UT.no",
+    "DNT",
+    "SjekkUT",
+    "Sjekk UT",
+    "backend",
+    "api",
+    "iOS",
+    "Andoid"
   ],
   "author": "Hans Kristian Flaatten <hans@starefossen.com>",
   "license": "MIT",
