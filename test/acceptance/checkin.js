@@ -7,6 +7,16 @@ const app = request(require('../../index'));
 describe('POST /steder/:sted/besok', () => {
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
+  it('returns error for missing user auth', done => {
+    app.post(url)
+      .send({ lon: -117.220406, lat: 32.719464 })
+      .expect(401)
+      .expect({
+        code: 401,
+        message: 'X-User-Id header is required'
+      }, done);
+  });
+
   it('returns error for invalid coordinates', done => {
     app.post(url)
       .set('X-User-Id', '1234')
