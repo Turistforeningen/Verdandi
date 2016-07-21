@@ -70,7 +70,7 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
-### GET /v1/steder/:sted/stats
+### GET /v1/steder/{sted}/stats
 
 **Status codes:**
 
@@ -92,7 +92,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v1/steder/:sted/logg
+### GET /v1/steder/{sted}/logg
 
 **Status codes:**
 
@@ -115,7 +115,7 @@ Content-Type: application/json
 }
 ```
 
-### POST /v1/steder/:sted/besok
+### POST /v1/steder/{sted}/besok
 
 **Status codes:**
 
@@ -144,7 +144,7 @@ Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 }
 ```
 
-### POST /v1/steder/:sted/besok/:uuid
+### POST /v1/steder/{sted}/besok/{uuid}
 
 **Status codes:**
 
