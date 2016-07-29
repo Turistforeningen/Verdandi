@@ -50,6 +50,7 @@ router.get('/', (req, res) => {
     checkin_get: `${req.fullUrl}/steder/{sted}/besok/{uuid}`,
     checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
     checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
+    profile_view: `${req.fullUrl}/brukere/{bruker}`,
   });
 });
 
@@ -131,6 +132,30 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 router.get('/lister/:liste/stats', notImplementedYet);
 router.get('/lister/:liste/logg', notImplementedYet);
 router.post('/lister/:liste/blimed', notImplementedYet);
+
+router.param('bruker', (req, res, next, bruker) => {
+  const brukerId = parseInt(bruker, 10);
+
+  // Assert valid user ID
+  if (isNaN(brukerId)) {
+    return next(new HttpError(`Invalid user id "${bruker}"`, 400));
+  }
+
+  // Get user profile from database
+  return r.profiles.get(brukerId).run(r.c).then(user => {
+    req.user = user;
+    next();
+  })
+  .catch(error => next(new HttpError('Database failure', 500, error)));
+});
+
+router.get('/brukere/:bruker', (req, res, next) => {
+  if (!req.user) {
+    return next(new HttpError(`User "${req.params.bruker}" Not Found`, 404));
+  }
+
+  return res.json({ data: req.user });
+});
 
 router.get('/brukere/:bruker/stats', notImplementedYet);
 router.get('/brukere/:bruker/logg', notImplementedYet);

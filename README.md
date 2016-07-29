@@ -164,4 +164,23 @@ Content-Type: application/json
 }
 ```
 
+### GET /v1/brukere/{bruker}
+
+**Status codes:**
+
+Returns `200 Ok` on successfull request.
+
+**Example:**
+
+```http
+GET /v1/brukere/1234 HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "data": {...}
+}
+```
 ## [MIT lisenced](https://github.com/Turistforeningen/Verdandi/blob/master/LICENSE)
