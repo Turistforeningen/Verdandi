@@ -29,15 +29,14 @@ router.use(responseTime());
 router.use(bodyParser.json());
 
 // Full URL
-const fullUrl = require('./lib/express-full-url');
-router.use(fullUrl);
+router.use(require('./lib/express-full-url'));
 
 // Cors Headers
-const corsHeaders = require('@starefossen/express-cors');
-router.use(corsHeaders.middleware);
+router.use(require('@starefossen/express-cors').middleware);
 
 // Health Check
 const healthCheck = require('@starefossen/express-health');
+
 router.get('/CloudHealthCheck', healthCheck({
   name: 'RethinkDB',
   check: cb => {
