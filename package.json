@@ -50,8 +50,7 @@
     "express": "^4.13.4",
     "newrelic": "^1.28.0",
     "raven": "^0.11.0",
-    "response-time": "^2.3.1",
-    "rethinkdb": "^2.3.2"
+    "response-time": "^2.3.1"
   },
   "devDependencies": {
     "codacy-coverage": "^1.1.3",

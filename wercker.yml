@@ -2,10 +2,6 @@ box: node:6
 
 build:
   services:
-    - name: rethink
-      id: rethinkdb:2
-
-  services:
     - name: mongo
       id: mongo:3
 

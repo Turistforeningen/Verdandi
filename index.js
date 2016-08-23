@@ -10,7 +10,6 @@ if (process.env.NODE_ENV === 'production') {
 
 const raven = require('raven');
 const sentry = require('./lib/sentry');
-const r = require('./lib/rethink');
 
 const User = require('./models/User');
 const Checkin = require('./models/Checkin');
