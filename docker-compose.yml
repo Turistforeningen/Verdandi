@@ -3,20 +3,28 @@ version: '2'
 services:
   rethink:
     image: rethinkdb:2
+    network_mode: 'bridge'
+
+  mongo:
+    image: mongo:3
+    network_mode: 'bridge'
 
   node:
     image: node:6
     working_dir: /usr/src/app
+    network_mode: 'bridge'
     links:
       - rethink
+      - mongo
     depends_on:
       - rethink
+      - mongo
     volumes:
       - .:/usr/src/app
-    env_file: .env
     environment:
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
+      - MONGO_DB=test
     command: npm start

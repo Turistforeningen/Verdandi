@@ -46,6 +46,7 @@
     "@starefossen/http-error": "^1.0.0",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
+    "mongoose": "^4.4.13",
     "express": "^4.13.4",
     "newrelic": "^1.28.0",
     "raven": "^0.11.0",

@@ -5,6 +5,10 @@ build:
     - name: rethink
       id: rethinkdb:2
 
+  services:
+    - name: mongo
+      id: mongo:3
+
   steps:
     - script:
         name: echo nodejs information
