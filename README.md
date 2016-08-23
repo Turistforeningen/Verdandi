@@ -70,7 +70,7 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
-### GET /v1/steder/{sted}/stats
+### GET /v2/steder/{sted}/stats
 
 **Status codes:**
 
@@ -79,7 +79,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v1/steder/524081f9b8cb77df15001660/stats HTTP/1.1
+GET /v2/steder/524081f9b8cb77df15001660/stats HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -92,7 +92,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v1/steder/{sted}/logg
+### GET /v2/steder/{sted}/logg
 
 **Status codes:**
 
@@ -101,7 +101,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v1/steder/524081f9b8cb77df15001660/logg HTTP/1.1
+GET /v2/steder/524081f9b8cb77df15001660/logg HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -115,7 +115,7 @@ Content-Type: application/json
 }
 ```
 
-### POST /v1/steder/{sted}/besok
+### POST /v2/steder/{sted}/besok
 
 **Status codes:**
 
@@ -124,7 +124,7 @@ Returns `201 Created` on successfull checkin.
 **Example:**
 
 ```http
-POST /v1/steder/524081f9b8cb77df15001660/besok HTTP/1.1
+POST /v2/steder/524081f9b8cb77df15001660/besok HTTP/1.1
 Accept: application/json
 X-User-Id: 123
 X-User-Token asdf123
@@ -136,7 +136,7 @@ X-User-Token asdf123
 
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
+Location: /v2/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 
 {
   "message": "Ok",
@@ -144,7 +144,7 @@ Location: /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
 }
 ```
 
-### POST /v1/steder/{sted}/besok/{uuid}
+### GET /v2/steder/{sted}/besok/{oid}
 
 **Status codes:**
 
@@ -153,7 +153,7 @@ Returns `200 Ok` for valid checkin.
 **Example:**
 
 ```http
-GET /v1/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234 HTTP/1.1
+GET /v2/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234 HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 200 Ok
@@ -164,7 +164,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v1/brukere/{bruker}
+### GET /v2/brukere/{bruker}
 
 **Status codes:**
 
@@ -173,7 +173,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v1/brukere/1234 HTTP/1.1
+GET /v2/brukere/1234 HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok

@@ -2,8 +2,8 @@ box: node:6
 
 build:
   services:
-    - name: rethink
-      id: rethinkdb:2
+    - name: mongo
+      id: mongo:3
 
   steps:
     - script:
