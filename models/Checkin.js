@@ -7,8 +7,12 @@ const Schema = mongoose.Schema;
 const checkinSchema = new Schema({
   timestamp: Date,
   location: {
-    type: String,
-    coordinates: [],
+    type: { type: String },
+    coordinates: [{
+      type: Number,
+      min: -180,
+      max: 180,
+    }],
   },
   ntb_steder_id: Schema.Types.ObjectId,
   dnt_user_id: { type: Number, ref: 'User' },

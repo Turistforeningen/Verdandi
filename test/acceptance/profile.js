@@ -1,10 +1,11 @@
-'use strict';
 /* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
+'use strict';
 
 const request = require('supertest');
 const app = request(require('../../index'));
 
-const profiles = require('../support/data/profiles.js');
+const users = require('../fixtures/users.js');
+const checkins = require('../fixtures/checkins.js');
 
 describe('GET /brukere/:bruker', () => {
   const url = '/api/dev/brukere';
@@ -28,8 +29,15 @@ describe('GET /brukere/:bruker', () => {
   });
 
   it('returns user profile for existing user', done => {
+    const user = JSON.parse(JSON.stringify(users[0]));
+
+    user.innsjekkinger = [
+      JSON.parse(JSON.stringify(checkins[0])),
+      JSON.parse(JSON.stringify(checkins[1])),
+    ];
+
     app.get(`${url}/1234`)
       .expect(200)
-      .expect({ data: profiles[0] }, done);
+      .expect({ data: user }, done);
   });
 });

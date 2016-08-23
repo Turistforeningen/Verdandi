@@ -12,6 +12,9 @@ const raven = require('raven');
 const sentry = require('./lib/sentry');
 const r = require('./lib/rethink');
 
+const User = require('./models/User');
+const Checkin = require('./models/Checkin');
+
 const express = require('express');
 const compression = require('compression');
 const responseTime = require('response-time');
@@ -68,65 +71,88 @@ const notImplementedYet = (req, res) => {
   res.json({ message: 'Not implemented yet, come back later' });
 };
 
+router.param('checkin', (req, res, next) => {
+  // @TODO validate sted _id
+
+  next();
+});
+
 router.get('/steder/:sted/stats', (req, res, next) => {
-  r.checkins('ntb_steder_id').count(req.params.sted).run(r.c)
+  Checkin
+    .find({ ntb_steder_id: req.params.sted })
+    .count()
     .then(count => res.json({ data: { count } }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/steder/:sted/logg', (req, res, next) => {
-  r.checkins
-    .filter(r.r.row('ntb_steder_id').eq(req.params.sted))
-    .orderBy(r.r.desc('timestamp'))
+  Checkin
+    .find({ ntb_steder_id: req.params.sted })
     .limit(50)
-    .run(r.c)
-    .then(cursor => cursor.toArray())
+    .sort({ timestamp: -1 })
+    .exec()
     .then(data => res.json({ data }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
-  r.checkins
-    .insert({
-      timestamp: new Date(),
-      location: r.r.point(req.body.lon, req.body.lat),
-      ntb_steder_id: req.params.sted,
-      dnt_user_id: req.user.id,
-    }, {
-      returnChanges: true,
-    })
-    .run(r.c)
+  const checkin = new Checkin({
+    timestamp: new Date(),
+    location: {
+      type: 'Point',
+      coordinates: [req.body.lon, req.body.lat],
+    },
+    ntb_steder_id: req.params.sted,
+    dnt_user_id: req.user.id,
+  });
 
-    .then(data => {
-      const id = data.generated_keys[0];
+  const promise = checkin.save();
 
-      res.set('Location', `${req.fullUrl}${req.url}/${id}`);
-      res.json({ message: 'Ok', data: data.changes[0].new_val });
-    })
+  // @TODO add checkin to user profile
 
-    .catch(error => {
-      if (error.name === 'ReqlQueryLogicError') {
-        next(new HttpError(error.msg, 400, error));
-      } else {
-        next(new HttpError('Database connection failed', 500, error));
-      }
+  promise.then(() => {
+    res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
+    res.json({
+      message: 'Ok',
+      data: checkin.toJSON({
+        getters: false,
+        virtuals: false,
+        versionKey: false,
+      }),
     });
+  });
+
+  promise.catch(error => {
+    // @TODO better error message exists in error.errors
+
+    if (error.name === 'ValidationError') {
+      next(new HttpError(error.message, 400, error));
+    } else {
+      next(new HttpError('Database connection failed', 500, error));
+    }
+  });
+});
+
+router.param('checkin', (req, res, next) => {
+  // @TODO validate checkin _id
+
+  next();
 });
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
 
-  r.checkins
-    .get(req.params.checkin)
-    .run(r.c)
-    .then(data => {
-      if (!data) {
-        next(new HttpError('Checkin not found', 404));
-      } else {
-        res.json({ data });
-      }
-    })
-    .catch(error => next(new HttpError('Database failure', 500, error)));
+  const promise = Checkin.findOne({ _id: req.params.checkin });
+
+  promise.then(data => {
+    if (!data) {
+      next(new HttpError('Checkin not found', 404));
+    } else {
+      res.json({ data });
+    }
+  });
+
+  promise.catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/lister/:liste/stats', notImplementedYet);
@@ -142,11 +168,11 @@ router.param('bruker', (req, res, next, bruker) => {
   }
 
   // Get user profile from database
-  return r.profiles.get(brukerId).run(r.c).then(user => {
-    req.user = user;
-    next();
-  })
-  .catch(error => next(new HttpError('Database failure', 500, error)));
+  return User
+    .findOne({ _id: brukerId })
+    .populate('innsjekkinger')
+    .then(user => { req.user = user; next(); })
+    .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/brukere/:bruker', (req, res, next) => {

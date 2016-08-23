@@ -1,5 +1,5 @@
-'use strict';
 /* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
+'use strict';
 
 const assert = require('assert');
 const request = require('supertest');
@@ -8,17 +8,17 @@ const app = request(require('../../index'));
 describe('POST /steder/:sted/besok', () => {
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
-  it('returns error for missing user auth', done => {
+  it('returns error for missing user auth', () => (
     app.post(url)
       .send({ lon: -117.220406, lat: 32.719464 })
       .expect(401)
       .expect({
         code: 401,
         message: 'X-User-Id header is required',
-      }, done);
-  });
+      })
+  ));
 
-  it('returns error for invalid coordinates', done => {
+  it('returns error for invalid coordinates', () => (
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
@@ -26,12 +26,11 @@ describe('POST /steder/:sted/besok', () => {
       .expect(400)
       .expect({
         code: 400,
-        message: 'Longitude must be between -180 and 180.  Got 1337.',
+        message: 'Checkin validation failed',
       })
-      .end(done);
-  });
+  ));
 
-  it('stores new checkin to the database', done => {
+  it('stores new checkin to the database', () => (
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
@@ -42,10 +41,9 @@ describe('POST /steder/:sted/besok', () => {
         assert.deepEqual(res.body, {
           message: 'Ok',
           data: {
+            _id: res.body.data._id,
             dnt_user_id: 1234,
-            id: res.body.data.id,
             location: {
-              $reql_type$: 'GEOMETRY',
               coordinates: [-117.220406, 32.719464],
               type: 'Point',
             },
@@ -54,83 +52,71 @@ describe('POST /steder/:sted/besok', () => {
           },
         });
       })
-      .end(done);
-  });
+  ));
 });
 
 describe('GET /steder/:sted/besok/:id', () => {
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
-  it('returns 404 for non-existing checkin', done => {
-    app.get(`${url}/does-not-exist`)
+  it('returns 400 for invalid checkin _id');
+
+  it('returns 404 for non-existing checkin', () => (
+    app.get(`${url}/000000000000000000000000`)
       .expect(404)
       .expect({
         code: 404,
         message: 'Checkin not found',
       })
-      .end(done);
-  });
+  ));
 
-  it('returns 200 for existing checkin', done => {
-    app.get(`${url}/7644aaf2-9928-4231-aa68-4e65e31bf219`)
+  it('returns 200 for existing checkin', () => (
+    app.get(`${url}/200000000000000000000000`)
       .expect(200)
       .expect({
         data: {
-          id: '7644aaf2-9928-4231-aa68-4e65e31bf219',
+          _id: '200000000000000000000000',
           dnt_user_id: 1234,
-          ntb_steder_id: '524081f9b8cb77df15001660',
           location: {
-            $reql_type$: 'GEOMETRY',
             coordinates: [-117.220406, 32.719464],
             type: 'Point',
           },
+          ntb_steder_id: '300000000000000000000000',
           timestamp: '2016-07-07T23:32:49.923Z',
         },
       })
-      .end(done);
-  });
+  ));
 });
 
 describe('GET /steder/:sted/stats', () => {
-  it('returns checkin statistics for a given place', done => {
-    const url = '/api/dev/steder/524081f9b8cb77df15001660/stats';
+  const url = '/api/dev/steder/300000000000000000000001/stats';
 
+  it('returns checkin statistics for a given place', () => (
     app.get(url)
       .expect(200)
       .expect({ data: { count: 2 } })
-      .end(done);
-  });
+  ));
 });
 
 describe('GET /steder/:sted/logg', () => {
-  const url = '/api/dev/steder/524081f9b8cb77df15001660/logg';
+  const url = '/api/dev/steder/300000000000000000000001/logg';
 
-  it('returns the most recent checkins', done => {
+  it('returns the most recent checkins', () => (
     app.get(url)
       .expect(200)
       .expect(res => {
         assert.deepEqual(res.body, { data: [{
+          _id: '200000000000000000000001',
+          timestamp: '2016-07-07T23:32:50.923Z',
+          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
+          ntb_steder_id: '300000000000000000000001',
           dnt_user_id: 1234,
-          id: '7644aaf2-9928-4231-aa68-4e65e31bf219',
-          location: {
-            $reql_type$: 'GEOMETRY',
-            coordinates: [-117.220406, 32.719464],
-            type: 'Point',
-          },
-          ntb_steder_id: '524081f9b8cb77df15001660',
-          timestamp: '2016-07-07T23:32:49.923Z',
         }, {
-          dnt_user_id: 5678,
-          id: '7644aaf2-9928-4231-aa68-4e65e31bf217',
-          location: {
-            $reql_type$: 'GEOMETRY',
-            coordinates: [-117.220406, 32.719464],
-            type: 'Point',
-          },
-          ntb_steder_id: '524081f9b8cb77df15001660',
+          _id: '200000000000000000000002',
           timestamp: '2016-07-06T23:32:58.923Z',
+          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
+          ntb_steder_id: '300000000000000000000001',
+          dnt_user_id: 5678,
         }] });
       })
-      .end(done);
-  });
+  ));
 });
