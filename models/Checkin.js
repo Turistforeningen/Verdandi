@@ -18,6 +18,6 @@ const checkinSchema = new Schema({
   dnt_user_id: { type: Number, ref: 'User' },
 });
 
-checkinSchema.index({location: '2dsphere'});
+checkinSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Checkin', checkinSchema);
