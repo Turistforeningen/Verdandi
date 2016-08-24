@@ -2,6 +2,7 @@
 
 const auth = require('../../lib/auth');
 const assert = require('assert');
+const users = require('../fixtures/dnt-users');
 
 describe('auth', () => {
   describe('#getUserData()', () => {
@@ -23,6 +24,30 @@ describe('auth', () => {
           done();
         }))
         .catch(done);
+    });
+  });
+
+  describe.only('#setOrUpdateUserData()', () => {
+    it('creates user profile for new user', done => {
+      const userData = users[0];
+      auth.setOrUpdateUserData(0, userData).then(user => {
+        assert.equal(user._id, userData.sherpa_id);
+        assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
+        assert.equal(user.epost, userData.epost);
+        done();
+      });
+    });
+
+    it('updates user profile for existing user', done => {
+      // NOTE: How do we know that this is a  previous user that has been updated?
+      const userData = users[0];
+      userData.epost = 'ukjent@ukjentsen.com';
+      auth.setOrUpdateUserData(0, userData).then(user => {
+        assert.equal(user._id, userData.sherpa_id);
+        assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
+        assert.equal(user.epost, userData.epost);
+        done();
+      });
     });
   });
 
