@@ -12,4 +12,9 @@ const userSchema = new Schema({
   innsjekkinger: [{ type: Schema.Types.ObjectId, ref: 'Checkin' }],
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Fix for https://github.com/Automattic/mongoose/issues/1251
+try {
+  module.exports = mongoose.model('User');
+} catch (_) {
+  module.exports = mongoose.model('User', userSchema);
+}
