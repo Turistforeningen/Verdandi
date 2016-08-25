@@ -88,7 +88,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
 });
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
-  const checkin = new Checkin({
+  const promise = Checkin.create({
     timestamp: new Date(),
     location: {
       type: 'Point',
@@ -98,11 +98,14 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
     dnt_user_id: req.user.id,
   });
 
-  const promise = checkin.save();
+  // Save new checkin to user profile
+  promise.then(checkin => {
+    req.user.innsjekkinger.push(checkin);
+    req.user.save();
+  });
 
-  // @TODO add checkin to user profile
-
-  promise.then(() => {
+  // Return new checkin object
+  promise.then(checkin => {
     res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
     res.json({
       message: 'Ok',

@@ -6,11 +6,14 @@ const request = require('supertest');
 const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
+const User = require('../../models/User');
+const users = require('../fixtures/dnt-users');
+
 const getUserData = auth.getUserData;
 
 describe('POST /steder/:sted/besok', () => {
   before(() => {
-    auth.getUserData = () => Promise.resolve({ sherpa_id: 1234 });
+    auth.getUserData = () => Promise.resolve(users[1]);
   });
 
   after(() => {
@@ -64,6 +67,29 @@ describe('POST /steder/:sted/besok', () => {
         });
       })
   ));
+
+  it('saves reference to new checkin to user profile', done => {
+    app.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send({ lon: -117.220406, lat: 32.719464 })
+      .end((err, res) => {
+        assert.ifError(err);
+
+        User.findOne({ _id: 1234 }).then(user => process.nextTick(() => {
+          // Convert checkin ObjectIDs to Strings
+          const innsjekkinger = user.innsjekkinger.map(i => i.toString());
+
+          assert.deepEqual(innsjekkinger, [
+            '200000000000000000000000',
+            '200000000000000000000001',
+            res.body.data._id,
+          ]);
+
+          done();
+        }));
+      });
+  });
 });
 
 describe('GET /steder/:sted/besok/:id', () => {
