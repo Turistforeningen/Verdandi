@@ -4,8 +4,19 @@
 const assert = require('assert');
 const request = require('supertest');
 const app = request(require('../../index'));
+const auth = require('../../lib/auth');
+
+const getUserData = auth.getUserData;
 
 describe('POST /steder/:sted/besok', () => {
+  before(() => {
+    auth.getUserData = () => Promise.resolve({ sherpa_id: 1234 });
+  });
+
+  after(() => {
+    auth.getUserData = getUserData;
+  });
+
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
   it('returns error for missing user auth', () => (

@@ -15,6 +15,7 @@ services:
       - mongo
     volumes:
       - .:/usr/src/app
+    env_file: .env
     environment:
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=silent

@@ -20,6 +20,8 @@ const responseTime = require('response-time');
 const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
 
+const { middleware: requireAuth } = require('./lib/auth');
+
 const app = module.exports = express();
 const router = new express.Router();
 
@@ -55,15 +57,6 @@ router.get('/', (req, res) => {
     profile_view: `${req.fullUrl}/brukere/{bruker}`,
   });
 });
-
-const requireAuth = (req, res, next) => {
-  if (!req.headers['x-user-id']) {
-    next(new HttpError('X-User-Id header is required', 401));
-  } else {
-    req.user = { id: parseInt(req.headers['x-user-id'], 10) };
-    next();
-  }
-};
 
 const notImplementedYet = (req, res) => {
   res.status(418);
