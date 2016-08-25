@@ -27,7 +27,7 @@ describe('auth', () => {
     });
   });
 
-  describe.only('#setOrUpdateUserData()', () => {
+  describe('#setOrUpdateUserData()', () => {
     it('creates user profile for new user', done => {
       const userData = users[0];
       auth.setOrUpdateUserData(0, userData).then(user => {
