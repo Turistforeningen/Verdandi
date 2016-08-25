@@ -33,7 +33,7 @@ describe('auth', () => {
     it('creates user profile for new user', done => {
       const userData = dntUsers[0];
 
-      auth.setOrUpdateUserData(0, userData).then(user => {
+      auth.setOrUpdateUserData(userData).then(user => {
         assert.equal(user._id, userData.sherpa_id);
         assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
         assert.equal(user.epost, userData.epost);
@@ -49,7 +49,7 @@ describe('auth', () => {
       // Update the new user data with a new email address
       newUserData.epost = 'ole@olsen.com';
 
-      auth.setOrUpdateUserData(newUserData.sherpa_id, newUserData).then(() => {
+      auth.setOrUpdateUserData(newUserData).then(() => {
         User.findOne({ _id: newUserData.sherpa_id })
           .then(user => {
             assert.equal(user._id, newUserData.sherpa_id);
