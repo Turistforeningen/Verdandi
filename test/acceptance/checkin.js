@@ -117,7 +117,7 @@ describe('GET /steder/:sted/besok/:id', () => {
             coordinates: [-117.220406, 32.719464],
             type: 'Point',
           },
-          ntb_steder_id: '300000000000000000000000',
+          ntb_steder_id: '400000000000000000000000',
           timestamp: '2016-07-07T23:32:49.923Z',
         },
       })
@@ -125,7 +125,7 @@ describe('GET /steder/:sted/besok/:id', () => {
 });
 
 describe('GET /steder/:sted/stats', () => {
-  const url = '/api/dev/steder/300000000000000000000001/stats';
+  const url = '/api/dev/steder/400000000000000000000001/stats';
 
   it('returns checkin statistics for a given place', () => (
     app.get(url)
@@ -135,7 +135,7 @@ describe('GET /steder/:sted/stats', () => {
 });
 
 describe('GET /steder/:sted/logg', () => {
-  const url = '/api/dev/steder/300000000000000000000001/logg';
+  const url = '/api/dev/steder/400000000000000000000001/logg';
 
   it('returns the most recent checkins', () => (
     app.get(url)
@@ -145,13 +145,13 @@ describe('GET /steder/:sted/logg', () => {
           _id: '200000000000000000000001',
           timestamp: '2016-07-07T23:32:50.923Z',
           location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '300000000000000000000001',
+          ntb_steder_id: '400000000000000000000001',
           dnt_user_id: 1234,
         }, {
           _id: '200000000000000000000002',
           timestamp: '2016-07-06T23:32:58.923Z',
           location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '300000000000000000000001',
+          ntb_steder_id: '400000000000000000000001',
           dnt_user_id: 5678,
         }] });
       })
