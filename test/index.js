@@ -1,6 +1,5 @@
 'use strict';
 
-const mongoose = require('mongoose');
 const mongo = require('../lib/db');
 
 const User = require('../models/User');
@@ -12,9 +11,6 @@ const checkins = require('./fixtures/checkins');
 // mongodb connect
 before(function before(done) {
   this.timeout(10000);
-
-  mongoose.models = {};
-  mongoose.modelSchemas = {};
 
   if (mongo.connection._hasOpened) {
     process.nextTick(done);

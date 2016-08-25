@@ -20,4 +20,9 @@ const checkinSchema = new Schema({
 
 checkinSchema.index({ location: '2dsphere' });
 
-module.exports = mongoose.model('Checkin', checkinSchema);
+// Fix for https://github.com/Automattic/mongoose/issues/1251
+try {
+  module.exports = mongoose.model('Checkin');
+} catch (_) {
+  module.exports = mongoose.model('Checkin', checkinSchema);
+}
