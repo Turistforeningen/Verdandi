@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "codacy-coverage": "codacy-coverage",
-    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -r test/support/env -R spec test/**",
+    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -t 10000 -r test/support/env -R spec test/**",
     "grunt:watch": "grunt watch",
     "lint": "eslint *.js lib/ models/ test/",
     "nsp": "nsp check",
