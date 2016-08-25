@@ -9,15 +9,15 @@
   ],
   "scripts": {
     "codacy-coverage": "codacy-coverage",
-    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -t 10000 -r test/support/env -R spec test/**",
+    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -t 10000 -r test/support/env -R spec test/*.js test/**/*.js",
     "grunt:watch": "grunt watch",
     "lint": "eslint *.js lib/ models/ test/",
     "lint:watch": "esw --watch *.js lib/ models/ test/",
     "nsp": "nsp check",
     "semantic-release": "semantic-release",
     "start": "supervisor -w index.js,lib -e js index.js",
-    "test": "mocha -b -c -t 10000 --check-leaks -R tap -r test/support/env test/**",
-    "test:watch": "mocha -w -b -c -t 10000 --check-leaks -R progress -r test/support/env test/**",
+    "test": "mocha -b -c -t 10000 --check-leaks -R tap -r test/support/env test/*.js test/**/*.js",
+    "test:watch": "mocha -w -b -c -t 10000 --check-leaks -R progress -r test/support/env test/*.js test/**/*.js",
     "greenkeeper-postpublish": "greenkeeper-postpublish"
   },
   "repository": {
