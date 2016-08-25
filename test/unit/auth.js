@@ -2,7 +2,9 @@
 
 const auth = require('../../lib/auth');
 const assert = require('assert');
-const users = require('../fixtures/dnt-users');
+const dntUsers = require('../fixtures/dnt-users');
+const users = require('../fixtures/users');
+const User = require('../../models/User');
 
 describe('auth', () => {
   describe('#getUserData()', () => {
@@ -29,7 +31,8 @@ describe('auth', () => {
 
   describe('#setOrUpdateUserData()', () => {
     it('creates user profile for new user', done => {
-      const userData = users[0];
+      const userData = dntUsers[0];
+
       auth.setOrUpdateUserData(0, userData).then(user => {
         assert.equal(user._id, userData.sherpa_id);
         assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
@@ -39,14 +42,22 @@ describe('auth', () => {
     });
 
     it('updates user profile for existing user', done => {
-      // NOTE: How do we know that this is a  previous user that has been updated?
-      const userData = users[0];
-      userData.epost = 'ukjent@ukjentsen.com';
-      auth.setOrUpdateUserData(0, userData).then(user => {
-        assert.equal(user._id, userData.sherpa_id);
-        assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
-        assert.equal(user.epost, userData.epost);
-        done();
+      // Old user data
+      const oldUserData = users[0];
+      // Set userData to the fixture user matching test case user id
+      const newUserData = dntUsers.find(element => oldUserData._id === element.sherpa_id);
+      // Update the new user data with a new email address
+      newUserData.epost = 'ole@olsen.com';
+
+      auth.setOrUpdateUserData(newUserData.sherpa_id, newUserData).then(() => {
+        User.findOne({ _id: newUserData.sherpa_id })
+          .then(user => {
+            assert.equal(user._id, newUserData.sherpa_id);
+            assert.equal(user.navn, `${newUserData.fornavn} ${newUserData.etternavn}`);
+            assert.equal(user.epost, newUserData.epost);
+            assert.notEqual(user.epost, oldUserData.epost);
+            done();
+          });
       });
     });
   });
