@@ -55,6 +55,8 @@ router.get('/', (req, res) => {
     checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
     checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
     profile_view: `${req.fullUrl}/brukere/{bruker}`,
+    list_join: `${req.fullUrl}/lister/{liste}/blimed`,
+    list_leave: `${req.fullUrl}/lister/{liste}/meldav`,
   });
 });
 
@@ -152,7 +154,25 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 
 router.get('/lister/:liste/stats', notImplementedYet);
 router.get('/lister/:liste/logg', notImplementedYet);
-router.post('/lister/:liste/blimed', notImplementedYet);
+router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
+  const user = req.user;
+  user.lister.push(req.params.liste);
+  user.save();
+  res.json({
+    message: 'Ok',
+    data: user,
+  });
+});
+
+router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
+  const user = req.user;
+  user.lister.splice(user.lister.indexOf(req.params.liste), 1);
+  user.save();
+  res.json({
+    message: 'Ok',
+    data: user,
+  });
+});
 
 router.param('bruker', (req, res, next, bruker) => {
   const brukerId = parseInt(bruker, 10);
