@@ -22,4 +22,5 @@ services:
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
       - MONGO_DB=test
+      - CHOKIDAR_USEPOLLING=true
     command: npm start
