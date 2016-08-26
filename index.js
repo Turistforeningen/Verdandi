@@ -113,7 +113,6 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
       message: 'Ok',
       data: checkin.toJSON({
         getters: false,
-        virtuals: false,
         versionKey: false,
       }),
     });
