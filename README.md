@@ -183,4 +183,50 @@ Content-Type: application/json
   "data": {...}
 }
 ```
+
+### GET /v2/lister/{liste}/blimed
+
+Add the list id to current user's `lister` array.
+
+**Status codes:**
+
+Returns `200 Ok` on successfull request.
+
+**Example:**
+
+```http
+GET /v2/lister/300000000000000000000001/blimed HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "message": "Ok",
+  "data": {...}
+}
+```
+
+### GET /v2/lister/{liste}/meldav
+
+Remove the list id from current user's `lister` array.
+
+**Status codes:**
+
+Returns `200 Ok` on successfull request.
+
+**Example:**
+
+```http
+GET /v2/lister/300000000000000000000001/meldav HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "message": "Ok",
+  "data": {...}
+}
+```
 ## [MIT lisenced](https://github.com/Turistforeningen/Verdandi/blob/master/LICENSE)
