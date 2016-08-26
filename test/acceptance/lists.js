@@ -19,8 +19,9 @@ describe.only('POST /lister/:liste/blimed', () => {
     auth.getUserData = getUserData;
   });
 
+  const listId = '57974036b565590001a98884';
   // Append `/blimed` or `/meldav` to join or leave a list
-  const url = '/api/dev/lister/57974036b565590001a98884';
+  const url = `/api/dev/lister/${listId}`;
 
   it('returns error for missing user auth', () => (
     app.post(`${url}/blimed`)
@@ -38,7 +39,7 @@ describe.only('POST /lister/:liste/blimed', () => {
       .expect(200)
       .end((req, res) => {
         assert.equal(res.body.message, 'Ok');
-        assert.notEqual(res.body.data.lister.indexOf('57974036b565590001a98884'), -1);
+        assert.notEqual(res.body.data.lister.indexOf(listId), -1);
         done();
       });
   });
@@ -50,7 +51,7 @@ describe.only('POST /lister/:liste/blimed', () => {
       .expect(200)
       .end((req, res) => {
         assert.equal(res.body.message, 'Ok');
-        assert.equal(res.body.data.lister.indexOf('57974036b565590001a98884'), -1);
+        assert.equal(res.body.data.lister.indexOf(listId), -1);
         done();
       });
   });
