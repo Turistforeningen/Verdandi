@@ -55,6 +55,8 @@ router.get('/', (req, res) => {
     checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
     checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
     profile_view: `${req.fullUrl}/brukere/{bruker}`,
+    list_join: `${req.fullUrl}/lister/{liste}/blimed`,
+    list_leave: `${req.fullUrl}/lister/{liste}/meldav`,
   });
 });
 
