@@ -8,6 +8,7 @@ const auth = require('../../lib/auth');
 
 const User = require('../../models/User');
 const users = require('../fixtures/dnt-users');
+const checkins = require('../fixtures/checkins.js');
 
 const getUserData = auth.getUserData;
 
@@ -61,10 +62,22 @@ describe('POST /steder/:sted/besok', () => {
               coordinates: [-117.220406, 32.719464],
               type: 'Point',
             },
+            public: false,
             ntb_steder_id: '524081f9b8cb77df15001660',
             timestamp: res.body.data.timestamp,
           },
         });
+      })
+  ));
+
+  it('stores new checkins as public when public=true', () => (
+    app.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send({ lon: -117.220406, lat: 32.719464, public: true })
+      .expect(200)
+      .expect(res => {
+        assert.equal(res.body.data.public, true);
       })
   ));
 
@@ -110,16 +123,7 @@ describe('GET /steder/:sted/besok/:id', () => {
     app.get(`${url}/200000000000000000000000`)
       .expect(200)
       .expect({
-        data: {
-          _id: '200000000000000000000000',
-          dnt_user_id: 1234,
-          location: {
-            coordinates: [-117.220406, 32.719464],
-            type: 'Point',
-          },
-          ntb_steder_id: '400000000000000000000000',
-          timestamp: '2016-07-07T23:32:49.923Z',
-        },
+        data: JSON.parse(JSON.stringify(checkins[0])),
       })
   ));
 });
@@ -141,6 +145,7 @@ describe('GET /steder/:sted/logg', () => {
     app.get(url)
       .expect(200)
       .expect(res => {
+<<<<<<< 94ed9926acc0a8fe586d85eb31b8a601f4c173b9
         assert.deepEqual(res.body, { data: [{
           _id: '200000000000000000000001',
           timestamp: '2016-07-07T23:32:50.923Z',
@@ -154,6 +159,26 @@ describe('GET /steder/:sted/logg', () => {
           ntb_steder_id: '400000000000000000000001',
           dnt_user_id: 5678,
         }] });
+||||||| merged common ancestors
+        assert.deepEqual(res.body, { data: [{
+          _id: '200000000000000000000001',
+          timestamp: '2016-07-07T23:32:50.923Z',
+          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
+          ntb_steder_id: '300000000000000000000001',
+          dnt_user_id: 1234,
+        }, {
+          _id: '200000000000000000000002',
+          timestamp: '2016-07-06T23:32:58.923Z',
+          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
+          ntb_steder_id: '300000000000000000000001',
+          dnt_user_id: 5678,
+        }] });
+=======
+        assert.deepEqual(res.body, { data: [
+          JSON.parse(JSON.stringify(checkins[1])),
+          JSON.parse(JSON.stringify(checkins[2])),
+        ] });
+>>>>>>> feat(checkin): optionally set checkins as publicly viewable
       })
   ));
 });

@@ -24,6 +24,11 @@ const checkinSchema = new Schema({
     }],
   },
 
+  public: {
+    type: Boolean,
+    default: false,
+  },
+
   ntb_steder_id: {
     type: Schema.Types.ObjectId,
     required: true,

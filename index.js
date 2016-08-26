@@ -96,6 +96,7 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
       type: 'Point',
       coordinates: [req.body.lon, req.body.lat],
     },
+    public: !!req.body.public,
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
   });
