@@ -92,7 +92,6 @@ router.get('/steder/:sted/logg', (req, res, next) => {
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
   const promise = Checkin.create({
-    timestamp: new Date(),
     location: {
       type: 'Point',
       coordinates: [req.body.lon, req.body.lat],
