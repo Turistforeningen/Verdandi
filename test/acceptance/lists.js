@@ -11,7 +11,7 @@ const users = require('../fixtures/dnt-users');
 
 const getUserData = auth.getUserData;
 
-describe('POST /lister/:liste/*', () => {
+describe('lister', () => {
   before(() => {
     auth.getUserData = () => Promise.resolve(users[1]);
   });
@@ -62,7 +62,7 @@ describe('POST /lister/:liste/*', () => {
     });
   });
 
-  describe.only('GET /lister/:liste/logg', () => {
+  describe('GET /lister/:liste/logg', () => {
     before(() => mockery.enable({
       useCleanCache: true,
       warnOnReplace: false,
