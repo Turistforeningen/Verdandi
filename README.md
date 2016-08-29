@@ -229,4 +229,28 @@ Content-Type: application/json
   "data": {...}
 }
 ```
+
+### GET /v2/lister/{liste}/logg
+
+**Status codes:**
+
+Returns `200 Ok` on successfull request.
+
+**Example:**
+
+```http
+GET /v2/lister/57974036b565590001a98884/logg HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "data": [
+    {...},
+    {...}
+  ]
+}
+```
+
 ## [MIT lisenced](https://github.com/Turistforeningen/Verdandi/blob/master/LICENSE)
