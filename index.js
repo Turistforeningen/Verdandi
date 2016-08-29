@@ -57,6 +57,7 @@ router.get('/', (req, res) => {
     profile_view: `${req.fullUrl}/brukere/{bruker}`,
     list_join: `${req.fullUrl}/lister/{liste}/blimed`,
     list_leave: `${req.fullUrl}/lister/{liste}/meldav`,
+    list_log: `${req.fullUrl}/lister/{liste}/logg`,
   });
 });
 
@@ -153,7 +154,14 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 });
 
 router.get('/lister/:liste/stats', notImplementedYet);
-router.get('/lister/:liste/logg', notImplementedYet);
+
+router.get('/lister/:liste/logg', (req, res) => {
+  Checkin.getCheckinsForList(req.params.liste)
+    .then(checkins => {
+      res.json({ checkins: checkins });
+    });
+});
+
 router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
   const user = req.user;
   user.lister.push(req.params.liste);
