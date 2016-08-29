@@ -192,17 +192,39 @@ router.param('bruker', (req, res, next, bruker) => {
   // Get user profile from database
   return User
     .findOne({ _id: brukerId })
+
+    // Expand user checkins
     .populate('innsjekkinger')
-    .then(user => { req.user = user; next(); })
-    .catch(error => next(new HttpError('Database failure', 500, error)));
+
+    // Check if user exists
+    .then(user => {
+      if (!user) {
+        throw new HttpError(`User "${req.params.bruker}" Not Found`, 404);
+      }
+
+      return user;
+    })
+
+    // Conditionally hide private user checkins
+    // @TODO authenticate X-User-ID header before use
+    .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
+
+    // Attach user instance to request object
+    .then(user => { req.user = user; })
+
+    .then(() => next())
+
+    .catch(error => {
+      if (error instanceof HttpError) {
+        next(error);
+      } else {
+        next(new HttpError('Database failure', 500, error));
+      }
+    });
 });
 
-router.get('/brukere/:bruker', (req, res, next) => {
-  if (!req.user) {
-    return next(new HttpError(`User "${req.params.bruker}" Not Found`, 404));
-  }
-
-  return res.json({ data: req.user });
+router.get('/brukere/:bruker', (req, res) => {
+  res.json({ data: req.user });
 });
 
 router.get('/brukere/:bruker/stats', notImplementedYet);

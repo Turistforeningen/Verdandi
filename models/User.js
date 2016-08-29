@@ -12,6 +12,14 @@ const userSchema = new Schema({
   innsjekkinger: [{ type: Schema.Types.ObjectId, ref: 'Checkin' }],
 });
 
+userSchema.methods.filterCheckins = function filterCheckins(userId) {
+  if (userId !== this._id) {
+    this.innsjekkinger = this.innsjekkinger.filter(i => !!i.public);
+  }
+
+  return this;
+};
+
 // Fix for https://github.com/Automattic/mongoose/issues/1251
 try {
   module.exports = mongoose.model('User');
