@@ -62,7 +62,7 @@ describe('POST /lister/:liste/*', () => {
     });
   });
 
-  describe.only('GET /lister/:liste/logg', () => {
+  describe('GET /lister/:liste/logg', () => {
     before(() => mockery.enable({
       useCleanCache: true,
       warnOnReplace: false,
