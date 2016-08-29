@@ -11,7 +11,7 @@ const users = require('../fixtures/dnt-users');
 
 const getUserData = auth.getUserData;
 
-describe('POST /lister/:liste/*', () => {
+describe('lister', () => {
   before(() => {
     auth.getUserData = () => Promise.resolve(users[1]);
   });
