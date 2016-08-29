@@ -3,6 +3,7 @@
 
 const assert = require('assert');
 const request = require('supertest');
+const mockery = require('mockery');
 const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
@@ -56,6 +57,40 @@ describe('POST /lister/:liste/*', () => {
         .end((req, res) => {
           assert.equal(res.body.message, 'Ok');
           assert.equal(res.body.data.lister.indexOf(listId), -1);
+          done();
+        });
+    });
+  });
+
+  describe.only('GET /lister/:liste/logg', () => {
+    before(() => mockery.enable({
+      useCleanCache: true,
+      warnOnReplace: false,
+      warnOnUnregistered: false,
+    }));
+
+    afterEach(() => mockery.deregisterMock('node-fetch'));
+
+    after(() => mockery.disable());
+
+    it('returns a log of checkins to a place in a list', done => {
+      // Mock node-fetch
+      mockery.registerMock('node-fetch', () => Promise.resolve({
+        status: 200,
+        json: () => ({
+          steder: ['400000000000000000000001'],
+        }),
+      }));
+
+      // Require new app to apply mocked data
+      const appMocked = request(require('../../index')); // eslint-disable-line global-require
+
+      appMocked.get(`${url}/logg`)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(200)
+        .end((req, res) => {
+          assert.equal(res.body.data.length, 2);
           done();
         });
     });

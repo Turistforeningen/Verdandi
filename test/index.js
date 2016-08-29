@@ -19,6 +19,11 @@ before(function before(done) {
   }
 });
 
+after(() => {
+  mongo.models = {};
+  mongo.modelSchemas = {};
+});
+
 // mongodb clean
 beforeEach(() => mongo.connection.db.dropDatabase());
 
