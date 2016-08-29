@@ -141,44 +141,19 @@ describe('GET /steder/:sted/stats', () => {
 describe('GET /steder/:sted/logg', () => {
   const url = '/api/dev/steder/400000000000000000000001/logg';
 
+  const data = [
+    JSON.parse(JSON.stringify(checkins[1])),
+    JSON.parse(JSON.stringify(checkins[2])),
+  ].map(c => {
+    delete c.dnt_user_id;
+    return c;
+  });
+
   it('returns the most recent checkins', () => (
     app.get(url)
       .expect(200)
       .expect(res => {
-<<<<<<< 94ed9926acc0a8fe586d85eb31b8a601f4c173b9
-        assert.deepEqual(res.body, { data: [{
-          _id: '200000000000000000000001',
-          timestamp: '2016-07-07T23:32:50.923Z',
-          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '400000000000000000000001',
-          dnt_user_id: 1234,
-        }, {
-          _id: '200000000000000000000002',
-          timestamp: '2016-07-06T23:32:58.923Z',
-          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '400000000000000000000001',
-          dnt_user_id: 5678,
-        }] });
-||||||| merged common ancestors
-        assert.deepEqual(res.body, { data: [{
-          _id: '200000000000000000000001',
-          timestamp: '2016-07-07T23:32:50.923Z',
-          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '300000000000000000000001',
-          dnt_user_id: 1234,
-        }, {
-          _id: '200000000000000000000002',
-          timestamp: '2016-07-06T23:32:58.923Z',
-          location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
-          ntb_steder_id: '300000000000000000000001',
-          dnt_user_id: 5678,
-        }] });
-=======
-        assert.deepEqual(res.body, { data: [
-          JSON.parse(JSON.stringify(checkins[1])),
-          JSON.parse(JSON.stringify(checkins[2])),
-        ] });
->>>>>>> feat(checkin): optionally set checkins as publicly viewable
+        assert.deepEqual(res.body, { data });
       })
   ));
 });

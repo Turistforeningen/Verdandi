@@ -85,7 +85,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .find({ ntb_steder_id: req.params.sted })
     .limit(50)
     .sort({ timestamp: -1 })
-    .exec()
+    .select('-dnt_user_id')
     .then(data => res.json({ data }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
