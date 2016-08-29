@@ -9,6 +9,8 @@ services:
     image: node:6
     working_dir: /usr/src/app
     network_mode: 'bridge'
+    ports:
+      - "8080:8080"
     links:
       - mongo
     depends_on:
@@ -23,4 +25,7 @@ services:
       - NPM_CONFIG_SPIN=false
       - MONGO_DB=test
       - CHOKIDAR_USEPOLLING=true
+      - VIRTUAL_HOST=sjekkut.app.dnt.privat
+      - VIRTUAL_PORT=8080
+      - VIRTUAL_PATH=/api/v2/
     command: npm start
