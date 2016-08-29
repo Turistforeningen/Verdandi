@@ -158,7 +158,7 @@ router.get('/lister/:liste/stats', notImplementedYet);
 router.get('/lister/:liste/logg', (req, res) => {
   Checkin.getCheckinsForList(req.params.liste)
     .then(checkins => {
-      res.json({ checkins });
+      res.json({ data: { checkins } });
     });
 });
 

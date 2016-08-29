@@ -90,7 +90,7 @@ describe('POST /lister/:liste/*', () => {
         .set('X-User-Token', 'abc123')
         .expect(200)
         .end((req, res) => {
-          assert.equal(res.body.checkins.length, 2);
+          assert.equal(res.body.data.checkins.length, 2);
           done();
         });
     });
