@@ -73,16 +73,16 @@ router.param('checkin', (req, res, next) => {
 });
 
 router.get('/steder/:sted/stats', (req, res, next) => {
-  Checkin
-    .find({ ntb_steder_id: req.params.sted })
+  Checkin.find()
+    .where('ntb_steder_id').equals(req.params.sted)
     .count()
     .then(count => res.json({ data: { count } }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/steder/:sted/logg', (req, res, next) => {
-  Checkin
-    .find({ ntb_steder_id: req.params.sted })
+  Checkin.find()
+    .where('ntb_steder_id').equals(req.params.sted)
     .limit(50)
     .sort({ timestamp: -1 })
     .select('-dnt_user_id')
