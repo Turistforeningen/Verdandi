@@ -41,6 +41,14 @@ const checkinSchema = new Schema({
   },
 });
 
+checkinSchema.methods.anonymize = function anonymize(userId) {
+  if (userId !== this._id && !this.public) {
+    this.set('dnt_user_id', undefined);
+  }
+
+  return this;
+};
+
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;

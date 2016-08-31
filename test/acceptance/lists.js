@@ -63,36 +63,47 @@ describe('lister', () => {
   });
 
   describe('GET /lister/:liste/logg', () => {
+    let appMocked;
+
     before(() => mockery.enable({
       useCleanCache: true,
       warnOnReplace: false,
       warnOnUnregistered: false,
     }));
 
-    afterEach(() => mockery.deregisterMock('node-fetch'));
+    before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
+      status: 200,
+      json: () => ({
+        steder: ['400000000000000000000001'],
+      }),
+    })));
 
+    before(() => {
+      appMocked = request(require('../../index')); // eslint-disable-line global-require
+    });
+
+    after(() => mockery.deregisterMock('node-fetch'));
     after(() => mockery.disable());
 
-    it('returns a log of checkins to a place in a list', done => {
-      // Mock node-fetch
-      mockery.registerMock('node-fetch', () => Promise.resolve({
-        status: 200,
-        json: () => ({
-          steder: ['400000000000000000000001'],
-        }),
-      }));
-
-      // Require new app to apply mocked data
-      const appMocked = request(require('../../index')); // eslint-disable-line global-require
-
+    it('returns a log of checkins to a place in a list', () => (
       appMocked.get(`${url}/logg`)
         .set('X-User-Id', '1234')
         .set('X-User-Token', 'abc123')
         .expect(200)
-        .end((req, res) => {
+        .expect(res => {
           assert.equal(res.body.data.length, 2);
-          done();
-        });
-    });
+        })
+    ));
+
+    it('removes user data if checkin is not public', () => (
+      appMocked.get(`${url}/logg`)
+        .expect(200)
+        .expect(res => {
+          assert.equal(res.body.data.length, 2);
+
+          assert.equal(typeof res.body.data[0].dnt_user_id, 'number');
+          assert.equal(typeof res.body.data[1].dnt_user_id, 'undefined');
+        })
+    ));
   });
 });

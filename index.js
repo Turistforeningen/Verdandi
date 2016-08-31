@@ -138,6 +138,7 @@ router.param('checkin', (req, res, next) => {
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
+  // @TODO validate visibility
 
   const promise = Checkin.findOne({ _id: req.params.checkin });
 
@@ -156,9 +157,8 @@ router.get('/lister/:liste/stats', notImplementedYet);
 
 router.get('/lister/:liste/logg', (req, res) => {
   Checkin.getCheckinsForList(req.params.liste)
-    .then(checkins => {
-      res.json({ data: checkins });
-    });
+    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
+    .then(checkins => res.json({ data: checkins }));
 });
 
 router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
