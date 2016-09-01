@@ -7,18 +7,47 @@ const fetch = require('node-fetch');
 const HttpError = require('@starefossen/http-error');
 
 const checkinSchema = new Schema({
-  timestamp: Date,
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+
   location: {
-    type: { type: String },
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
     coordinates: [{
       type: Number,
       min: -180,
       max: 180,
     }],
   },
-  ntb_steder_id: Schema.Types.ObjectId,
-  dnt_user_id: { type: Number, ref: 'User' },
+
+  public: {
+    type: Boolean,
+    default: false,
+  },
+
+  ntb_steder_id: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+
+  dnt_user_id: {
+    type: Number,
+    ref: 'User',
+    required: true,
+  },
 });
+
+checkinSchema.methods.anonymize = function anonymize(userId) {
+  if (userId !== this._id && !this.public) {
+    this.set('dnt_user_id', undefined);
+  }
+
+  return this;
+};
 
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';

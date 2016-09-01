@@ -119,7 +119,14 @@ Content-Type: application/json
 
 **Status codes:**
 
-Returns `201 Created` on successfull checkin.
+* `201 Created` on successfull checkin.
+* `400 Bad Request` on validation error.
+
+**POST body:**
+
+* **number** `lat` - decimal latitude (required)
+* **number** `lon` - decimal longitude (required)
+* **boolean** `public` - (default `false`)
 
 **Example:**
 
@@ -131,7 +138,8 @@ X-User-Token asdf123
 
 {
   "lat": 12.3456,
-  "lon": 98.7654
+  "lon": 98.7654,
+  "public": true
 }
 
 HTTP/1.1 201 Created

@@ -73,30 +73,30 @@ router.param('checkin', (req, res, next) => {
 });
 
 router.get('/steder/:sted/stats', (req, res, next) => {
-  Checkin
-    .find({ ntb_steder_id: req.params.sted })
+  Checkin.find()
+    .where('ntb_steder_id').equals(req.params.sted)
     .count()
     .then(count => res.json({ data: { count } }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.get('/steder/:sted/logg', (req, res, next) => {
-  Checkin
-    .find({ ntb_steder_id: req.params.sted })
+  Checkin.find()
+    .where('ntb_steder_id').equals(req.params.sted)
     .limit(50)
     .sort({ timestamp: -1 })
-    .exec()
+    .select('-dnt_user_id')
     .then(data => res.json({ data }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
   const promise = Checkin.create({
-    timestamp: new Date(),
     location: {
       type: 'Point',
       coordinates: [req.body.lon, req.body.lat],
     },
+    public: !!req.body.public,
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
   });
@@ -114,7 +114,6 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
       message: 'Ok',
       data: checkin.toJSON({
         getters: false,
-        virtuals: false,
         versionKey: false,
       }),
     });
@@ -139,6 +138,7 @@ router.param('checkin', (req, res, next) => {
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
+  // @TODO validate visibility
 
   const promise = Checkin.findOne({ _id: req.params.checkin });
 
@@ -157,9 +157,8 @@ router.get('/lister/:liste/stats', notImplementedYet);
 
 router.get('/lister/:liste/logg', (req, res) => {
   Checkin.getCheckinsForList(req.params.liste)
-    .then(checkins => {
-      res.json({ data: checkins });
-    });
+    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
+    .then(checkins => res.json({ data: checkins }));
 });
 
 router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
@@ -193,17 +192,39 @@ router.param('bruker', (req, res, next, bruker) => {
   // Get user profile from database
   return User
     .findOne({ _id: brukerId })
+
+    // Expand user checkins
     .populate('innsjekkinger')
-    .then(user => { req.user = user; next(); })
-    .catch(error => next(new HttpError('Database failure', 500, error)));
+
+    // Check if user exists
+    .then(user => {
+      if (!user) {
+        throw new HttpError(`User "${req.params.bruker}" Not Found`, 404);
+      }
+
+      return user;
+    })
+
+    // Conditionally hide private user checkins
+    // @TODO authenticate X-User-ID header before use
+    .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
+
+    // Attach user instance to request object
+    .then(user => { req.user = user; })
+
+    .then(() => next())
+
+    .catch(error => {
+      if (error instanceof HttpError) {
+        next(error);
+      } else {
+        next(new HttpError('Database failure', 500, error));
+      }
+    });
 });
 
-router.get('/brukere/:bruker', (req, res, next) => {
-  if (!req.user) {
-    return next(new HttpError(`User "${req.params.bruker}" Not Found`, 404));
-  }
-
-  return res.json({ data: req.user });
+router.get('/brukere/:bruker', (req, res) => {
+  res.json({ data: req.user });
 });
 
 router.get('/brukere/:bruker/stats', notImplementedYet);

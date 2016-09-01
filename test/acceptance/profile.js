@@ -37,6 +37,20 @@ describe('GET /brukere/:bruker', () => {
     ];
 
     app.get(`${url}/1234`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .expect(200)
+      .expect({ data: user }, done);
+  });
+
+  it('hides private checkins for unauthenticated request', done => {
+    const user = JSON.parse(JSON.stringify(users[0]));
+
+    user.innsjekkinger = [
+      JSON.parse(JSON.stringify(checkins[1])),
+    ];
+
+    app.get(`${url}/1234`)
       .expect(200)
       .expect({ data: user }, done);
   });
