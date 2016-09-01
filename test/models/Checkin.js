@@ -34,4 +34,46 @@ describe('Checkin', () => {
         });
     });
   });
+
+  describe.only('#saveCheckin()', () => {
+    let Checkin;
+
+    beforeEach(() => {
+      // Mock node-fetch
+      mockery.registerMock('node-fetch', () => Promise.resolve({
+        status: 200,
+        json: () => ({
+          geojson: { type: 'Point', coordinates: [8.31323888888889, 61.63635277777777] },
+        }),
+      }));
+
+      // Require Checkin (it now uses the mock above)
+      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
+    });
+
+    it('rejects checkin from position outside radius', done => {
+      const checkin = new Checkin({
+        ntb_steder_id: '400000000000000000000000',
+        location: { coordinates: [8.304591, 61.635695] },
+      });
+      checkin.save((err, doc) => {
+        assert.equal(typeof doc, 'undefined');
+        done();
+      });
+    });
+
+    it('saves checkin from position inside radius', done => {
+      const checkinData = {
+        ntb_steder_id: '400000000000000000000000',
+        location: { coordinates: [8.312466144561768, 61.63644183145977] },
+      };
+      const checkin = new Checkin(checkinData);
+
+      checkin.save((err, doc) => {
+        assert.equal(err, null);
+        assert.equal(doc.ntb_steder_id, checkinData.ntb_steder_id);
+        done();
+      });
+    });
+  });
 });
