@@ -43,6 +43,7 @@ describe('Checkin', () => {
       mockery.registerMock('node-fetch', () => Promise.resolve({
         status: 200,
         json: () => ({
+          _id: '400000000000000000000000',
           geojson: { type: 'Point', coordinates: [8.31323888888889, 61.63635277777777] },
         }),
       }));
@@ -76,6 +77,22 @@ describe('Checkin', () => {
       checkin.save((err, doc) => {
         assert.equal(err, null);
         assert.equal(doc.ntb_steder_id, checkinData.ntb_steder_id);
+        done();
+      });
+    });
+
+    it('rejects a second checkin before checkin timeout', done => {
+      const checkinData = {
+        dnt_user_id: 1234,
+        ntb_steder_id: '400000000000000000000000',
+        timestamp: '2016-07-07T23:50:50.923Z',
+        location: { coordinates: [8.312466144561768, 61.63644183145977] },
+      };
+      const checkin = new Checkin(checkinData);
+
+      checkin.save((err, doc) => {
+        assert.equal(typeof doc, 'undefined');
+        assert.equal(typeof err.errors.timestamp, 'object');
         done();
       });
     });
