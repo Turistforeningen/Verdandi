@@ -50,7 +50,7 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
   return this;
 };
 
-checkinSchema.path('location.coordinates').validate((value, cb) => {
+checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;
 
