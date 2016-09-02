@@ -96,5 +96,21 @@ describe('Checkin', () => {
         done();
       });
     });
+
+    it('rejects a checkin in the future', done => {
+      const checkinData = {
+        dnt_user_id: 1234,
+        ntb_steder_id: '400000000000000000000000',
+        timestamp: '2999-12-31T23:59:59.923Z',
+        location: { coordinates: [8.312466144561768, 61.63644183145977] },
+      };
+      const checkin = new Checkin(checkinData);
+
+      checkin.save((err, doc) => {
+        assert.equal(typeof doc, 'undefined');
+        assert.equal(typeof err.errors.timestamp, 'object');
+        done();
+      });
+    });
   });
 });
