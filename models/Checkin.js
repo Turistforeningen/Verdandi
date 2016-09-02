@@ -51,6 +51,10 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
 };
 
 checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+  if (new Date(value) > new Date()) {
+    cb(false);
+  }
+
   const Checkin = mongoose.model('Checkin', checkinSchema);
   const checkinQuarantine = new Date(value);
   checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
