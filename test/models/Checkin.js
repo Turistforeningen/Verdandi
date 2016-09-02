@@ -35,7 +35,7 @@ describe('Checkin', () => {
     });
   });
 
-  describe.only('#saveCheckin()', () => {
+  describe('#saveCheckin()', () => {
     let Checkin;
 
     beforeEach(() => {
