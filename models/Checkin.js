@@ -54,6 +54,7 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
   const Checkin = mongoose.model('Checkin', checkinSchema);
   const checkinQuarantine = new Date(value);
   checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
+
   Checkin.find()
     .where('dnt_user_id')
     .equals(this.dnt_user_id)
