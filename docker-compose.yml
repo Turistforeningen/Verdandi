@@ -29,4 +29,5 @@ services:
       - VIRTUAL_PORT=8080
       - VIRTUAL_PATH=/api/v2/
       - CHECKIN_MAX_DISTANCE=200
+      - CHECKIN_TIMEOUT=86400
     command: npm start

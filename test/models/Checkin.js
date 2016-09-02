@@ -53,7 +53,9 @@ describe('Checkin', () => {
 
     it('rejects checkin from position outside radius', done => {
       const checkin = new Checkin({
+        dnt_user_id: 1234,
         ntb_steder_id: '400000000000000000000000',
+        timestamp: '2016-07-09T23:50:50.923Z',
         location: { coordinates: [8.304591, 61.635695] },
       });
       checkin.save((err, doc) => {
@@ -64,7 +66,9 @@ describe('Checkin', () => {
 
     it('saves checkin from position inside radius', done => {
       const checkinData = {
+        dnt_user_id: 1234,
         ntb_steder_id: '400000000000000000000000',
+        timestamp: '2016-07-09T23:50:50.923Z',
         location: { coordinates: [8.312466144561768, 61.63644183145977] },
       };
       const checkin = new Checkin(checkinData);
