@@ -176,7 +176,9 @@ router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
 
 router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
   const user = req.user;
-  user.lister.splice(user.lister.indexOf(req.params.liste), 1);
+  if (user.lister.indexOf(req.params.liste) > -1) {
+    user.lister.splice(user.lister.indexOf(req.params.liste), 1);
+  }
   user.save();
   res.json({
     message: 'Ok',
