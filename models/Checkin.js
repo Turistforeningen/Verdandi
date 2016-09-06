@@ -3,7 +3,7 @@
 const { Schema, Types: { ObjectId: objectId } } = require('../lib/db');
 const mongoose = require('../lib/db');
 
-const fetch = require('node-fetch');
+let fetch = require('node-fetch');
 const HttpError = require('@starefossen/http-error');
 const geoutil = require('geoutil');
 
@@ -70,6 +70,9 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
 }, `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`);
 
 checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
+  // NOTE: Necessary for test mocks to be applied
+  fetch = require('node-fetch'); // eslint-disable-line global-require
+
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;
 
