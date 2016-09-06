@@ -164,7 +164,9 @@ router.get('/lister/:liste/logg', (req, res) => {
 
 router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
   const user = req.user;
-  user.lister.push(req.params.liste);
+  if (user.lister.indexOf(req.params.liste) === -1) {
+    user.lister.push(req.params.liste);
+  }
   user.save();
   res.json({
     message: 'Ok',

@@ -46,6 +46,24 @@ describe('lister', () => {
           done();
         });
     });
+
+    it('should only join a list once', done => {
+      app.post(`${url}/blimed`)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(200)
+        .end(() => {
+          app.post(`${url}/blimed`)
+            .set('X-User-Id', '1234')
+            .set('X-User-Token', 'abc123')
+            .expect(200)
+            .end((req, res) => {
+              assert.equal(res.body.message, 'Ok');
+              assert.equal(res.body.data.lister.indexOf(listId), res.body.data.lister.lastIndexOf(listId));
+              done();
+            });
+        });
+    });
   });
 
   describe('POST /lister/:liste/meldav', () => {
