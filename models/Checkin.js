@@ -44,6 +44,7 @@ const checkinSchema = new Schema({
 checkinSchema.methods.anonymize = function anonymize(userId) {
   if (userId !== this._id && !this.public) {
     this.set('dnt_user_id', undefined);
+    this.set('location', undefined);
   }
 
   return this;
