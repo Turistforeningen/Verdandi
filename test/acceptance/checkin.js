@@ -49,7 +49,7 @@ describe('POST /steder/:sted/besok', () => {
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464 })
+      .send({ lon: -117.220406, lat: 32.719464, timestamp: '2016-07-07T23:32:50.923Z' })
       .expect(200)
       .expect('Location', /api\/dev\/steder\/524081f9b8cb77df15001660/)
       .expect(res => {
@@ -64,7 +64,7 @@ describe('POST /steder/:sted/besok', () => {
             },
             public: false,
             ntb_steder_id: '524081f9b8cb77df15001660',
-            timestamp: res.body.data.timestamp,
+            timestamp: '2016-07-07T23:32:50.923Z',
           },
         });
       })
