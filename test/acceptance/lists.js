@@ -59,7 +59,10 @@ describe('lister', () => {
             .expect(200)
             .end((req, res) => {
               assert.equal(res.body.message, 'Ok');
-              assert.equal(res.body.data.lister.indexOf(listId), res.body.data.lister.lastIndexOf(listId));
+              assert.equal(
+                res.body.data.lister.indexOf(listId),
+                res.body.data.lister.lastIndexOf(listId)
+              );
               done();
             });
         });
