@@ -121,9 +121,10 @@ describe('lister', () => {
         .expect(200)
         .expect(res => {
           assert.equal(res.body.data.length, 2);
-
           assert.equal(typeof res.body.data[0].dnt_user_id, 'number');
+          assert.equal(typeof res.body.data[0].location, 'object');
           assert.equal(typeof res.body.data[1].dnt_user_id, 'undefined');
+          assert.equal(typeof res.body.data[1].location, 'undefined');
         })
     ));
   });
