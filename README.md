@@ -127,6 +127,7 @@ Content-Type: application/json
 * **number** `lat` - decimal latitude (required)
 * **number** `lon` - decimal longitude (required)
 * **boolean** `public` - (default `false`)
+* **string** `timestamp` - date and time ISO 8601 (default `Date.now()`)
 
 **Example:**
 
@@ -139,7 +140,8 @@ X-User-Token asdf123
 {
   "lat": 12.3456,
   "lon": 98.7654,
-  "public": true
+  "public": true,
+  "timestamp": "2016-09-06T12:27:21.594Z"
 }
 
 HTTP/1.1 201 Created
