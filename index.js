@@ -99,6 +99,7 @@ router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
     public: !!req.body.public,
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
+    timestamp: req.body.timestamp,
   });
 
   // Save new checkin to user profile
