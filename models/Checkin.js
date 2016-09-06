@@ -3,8 +3,9 @@
 const { Schema, Types: { ObjectId: objectId } } = require('../lib/db');
 const mongoose = require('../lib/db');
 
-const fetch = require('node-fetch');
+let fetch = require('node-fetch');
 const HttpError = require('@starefossen/http-error');
+const geoutil = require('geoutil');
 
 const checkinSchema = new Schema({
   timestamp: {
@@ -48,6 +49,49 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
 
   return this;
 };
+
+checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+  if (new Date(value) > new Date()) {
+    cb(false);
+  }
+
+  const Checkin = mongoose.model('Checkin', checkinSchema);
+  const checkinQuarantine = new Date(value);
+  checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
+
+  Checkin.find()
+    .where('dnt_user_id')
+    .equals(this.dnt_user_id)
+    .where('timestamp')
+    .gt(checkinQuarantine)
+    .exec((err, result) => {
+      cb(!result.length);
+    });
+}, `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`);
+
+checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
+  // NOTE: Necessary for test mocks to be applied
+  fetch = require('node-fetch'); // eslint-disable-line global-require
+
+  const env = process.env.NTB_API_ENV || 'api';
+  const key = process.env.NTB_API_KEY;
+
+  const headers = { Authorization: `Token ${key}` };
+
+  fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
+    .then(res => {
+      if (res.status !== 200) {
+        throw new HttpError(`Status Code ${res.status}`, res.status);
+      } else {
+        return res;
+      }
+    })
+    .then(res => res.json())
+    .then(sted => {
+      const distance = geoutil.pointDistance(value, sted.geojson.coordinates, true);
+      cb(distance <= process.env.CHECKIN_MAX_DISTANCE);
+    });
+}, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';

@@ -48,6 +48,7 @@
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "express": "^4.13.4",
+    "geoutil": "^1.2.0",
     "mongoose": "^4.4.13",
     "newrelic": "^1.28.0",
     "node-fetch": "^1.6.0",

@@ -3,6 +3,7 @@
 
 const assert = require('assert');
 const request = require('supertest');
+const mockery = require('mockery');
 const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
@@ -13,6 +14,30 @@ const checkins = require('../fixtures/checkins.js');
 const getUserData = auth.getUserData;
 
 describe('POST /steder/:sted/besok', () => {
+  before(() => mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false,
+  }));
+
+  // Don't have to re-require app after registering mock this time
+  before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
+    status: 200,
+    json: () => ({
+      _id: '400000000000000000000000',
+      geojson: {
+        type: 'Point',
+        coordinates: [
+          8.31323888888889,
+          61.63635277777777,
+        ],
+      },
+    }),
+  })));
+
+  after(() => mockery.deregisterMock('node-fetch'));
+  after(() => mockery.disable());
+
   before(() => {
     auth.getUserData = () => Promise.resolve(users[1]);
   });
@@ -21,7 +46,7 @@ describe('POST /steder/:sted/besok', () => {
     auth.getUserData = getUserData;
   });
 
-  const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
+  const url = '/api/dev/steder/400000000000000000000000/besok';
 
   it('returns error for missing user auth', () => (
     app.post(url)
@@ -49,21 +74,22 @@ describe('POST /steder/:sted/besok', () => {
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464 })
+      .send({
+        sted: '400000000000000000000000',
+        lon: 8.312466144561768,
+        lat: 61.63644183145977,
+      })
       .expect(200)
-      .expect('Location', /api\/dev\/steder\/524081f9b8cb77df15001660/)
+      .expect('Location', /api\/dev\/steder\/400000000000000000000000/)
       .expect(res => {
         assert.deepEqual(res.body, {
           message: 'Ok',
           data: {
             _id: res.body.data._id,
             dnt_user_id: 1234,
-            location: {
-              coordinates: [-117.220406, 32.719464],
-              type: 'Point',
-            },
+            location: { type: 'Point', coordinates: [8.312466144561768, 61.63644183145977] },
             public: false,
-            ntb_steder_id: '524081f9b8cb77df15001660',
+            ntb_steder_id: '400000000000000000000000',
             timestamp: res.body.data.timestamp,
           },
         });
@@ -74,7 +100,12 @@ describe('POST /steder/:sted/besok', () => {
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464, public: true })
+      .send({
+        sted: '400000000000000000000000',
+        lon: 8.312466144561768,
+        lat: 61.63644183145977,
+        public: true,
+      })
       .expect(200)
       .expect(res => {
         assert.equal(res.body.data.public, true);
@@ -85,7 +116,11 @@ describe('POST /steder/:sted/besok', () => {
     app.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464 })
+      .send({
+        sted: '400000000000000000000000',
+        lon: 8.312466144561768,
+        lat: 61.63644183145977,
+      })
       .end((err, res) => {
         assert.ifError(err);
 
