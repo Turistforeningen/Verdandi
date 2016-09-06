@@ -18,12 +18,11 @@ describe('Checkin', () => {
   describe('#getCheckinsForList()', () => {
     // Mock node-fetch
     before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
-        status: 200,
-        json: () => ({
-          steder: ['400000000000000000000000', '400000000000000000000001'],
-        })
-      }))
-    );
+      status: 200,
+      json: () => ({
+        steder: ['400000000000000000000000', '400000000000000000000001'],
+      }),
+    })));
 
     it('it returns existing checkins for existing list', () => {
       // Require Checkin (it now uses the mock above)
