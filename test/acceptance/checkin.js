@@ -146,6 +146,7 @@ describe('GET /steder/:sted/logg', () => {
     JSON.parse(JSON.stringify(checkins[2])),
   ].map(c => {
     delete c.dnt_user_id;
+    delete c.location;
     return c;
   });
 
