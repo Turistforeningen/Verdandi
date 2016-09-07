@@ -19,14 +19,15 @@ services:
       - .:/usr/src/app
     env_file: .env
     environment:
+      - CHECKIN_MAX_DISTANCE=200
+      - CHECKIN_TIMEOUT=86400
+      - CHOKIDAR_USEPOLLING=true
+      - MONGO_DB=test
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
-      - MONGO_DB=test
-      - CHOKIDAR_USEPOLLING=true
       - VIRTUAL_HOST=sjekkut.app.dnt.privat
       - VIRTUAL_PORT=8080
       - VIRTUAL_PATH=/api/v2/
-      - CHECKIN_MAX_DISTANCE=200
     command: npm start
