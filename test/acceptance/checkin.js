@@ -9,23 +9,61 @@ const auth = require('../../lib/auth');
 const User = require('../../models/User');
 const users = require('../fixtures/dnt-users');
 const checkins = require('../fixtures/checkins.js');
+const mockery = require('mockery');
 
 const getUserData = auth.getUserData;
 
 describe('POST /steder/:sted/besok', () => {
+  let appMocked;
+  let authMocked;
+
+  before(() => mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false,
+  }));
+
+  before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
+    status: 200,
+    json: () => ({
+      _id: '400000000000000000000000',
+      geojson: {
+        type: 'Point',
+        coordinates: [
+          8.31323888888889,
+          61.63635277777777,
+        ],
+      },
+    }),
+  })));
+
   before(() => {
-    auth.getUserData = () => Promise.resolve(users[1]);
+    appMocked = request(require('../../index')); // eslint-disable-line global-require
+  });
+
+  before(() => {
+    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+    authMocked.getUserData = () => Promise.resolve(users[1]);
   });
 
   after(() => {
-    auth.getUserData = getUserData;
+    authMocked.getUserData = getUserData;
   });
 
-  const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
+  after(() => mockery.deregisterMock('node-fetch'));
+  after(() => mockery.disable());
+
+  const url = '/api/dev/steder/400000000000000000000000/besok';
+  const checkinData = {
+    lon: 8.312466144561768,
+    lat: 61.63644183145977,
+    timestamp: '2016-07-07T23:32:50.923Z',
+  };
 
   it('returns error for missing user auth', () => (
     app.post(url)
-      .send({ lon: -117.220406, lat: 32.719464 })
+      .send(checkinData)
       .expect(401)
       .expect({
         code: 401,
@@ -34,7 +72,7 @@ describe('POST /steder/:sted/besok', () => {
   ));
 
   it('returns error for invalid coordinates', () => (
-    app.post(url)
+    appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
       .send({ lon: 1337, lat: 4444 })
@@ -46,12 +84,12 @@ describe('POST /steder/:sted/besok', () => {
   ));
 
   it('stores new checkin to the database', () => (
-    app.post(url)
+    appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464, timestamp: '2016-07-07T23:32:50.923Z' })
+      .send(checkinData)
       .expect(200)
-      .expect('Location', /api\/dev\/steder\/524081f9b8cb77df15001660/)
+      .expect('Location', /api\/dev\/steder\/400000000000000000000000/)
       .expect(res => {
         assert.deepEqual(res.body, {
           message: 'Ok',
@@ -59,33 +97,36 @@ describe('POST /steder/:sted/besok', () => {
             _id: res.body.data._id,
             dnt_user_id: 1234,
             location: {
-              coordinates: [-117.220406, 32.719464],
+              coordinates: [checkinData.lon, checkinData.lat],
               type: 'Point',
             },
             public: false,
-            ntb_steder_id: '524081f9b8cb77df15001660',
-            timestamp: '2016-07-07T23:32:50.923Z',
+            ntb_steder_id: '400000000000000000000000',
+            timestamp: checkinData.timestamp,
           },
         });
       })
   ));
 
-  it('stores new checkins as public when public=true', () => (
-    app.post(url)
+  it('stores new checkins as public when public=true', () => {
+    const publicCheckinData = checkinData;
+    publicCheckinData.public = true;
+
+    return appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464, public: true })
+      .send(publicCheckinData)
       .expect(200)
       .expect(res => {
         assert.equal(res.body.data.public, true);
-      })
-  ));
+      });
+  });
 
   it('saves reference to new checkin to user profile', done => {
-    app.post(url)
+    appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
-      .send({ lon: -117.220406, lat: 32.719464 })
+      .send(checkinData)
       .end((err, res) => {
         assert.ifError(err);
 
