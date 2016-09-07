@@ -5,6 +5,7 @@ const mongoose = require('../lib/db');
 
 const fetch = require('node-fetch');
 const HttpError = require('@starefossen/http-error');
+const geoutil = require('geoutil');
 
 const checkinSchema = new Schema({
   timestamp: {
@@ -49,6 +50,27 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
 
   return this;
 };
+
+checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
+  const env = process.env.NTB_API_ENV || 'api';
+  const key = process.env.NTB_API_KEY;
+
+  const headers = { Authorization: `Token ${key}` };
+
+  fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
+    .then(res => {
+      if (res.status !== 200) {
+        throw new HttpError(`Status Code ${res.status}`, res.status);
+      } else {
+        return res;
+      }
+    })
+    .then(res => res.json())
+    .then(sted => {
+      const distance = geoutil.pointDistance(value, sted.geojson.coordinates, true);
+      cb(distance <= process.env.CHECKIN_MAX_DISTANCE);
+    });
+}, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';
