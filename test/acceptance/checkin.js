@@ -58,7 +58,7 @@ describe('POST /steder/:sted/besok', () => {
   const checkinData = {
     lon: 8.312466144561768,
     lat: 61.63644183145977,
-    timestamp: '2016-07-07T23:32:50.923Z',
+    timestamp: '2016-08-01T23:59:59.923Z',
   };
 
   it('returns error for missing user auth', () => (

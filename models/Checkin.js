@@ -72,6 +72,26 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
     });
 }, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
+checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+  // Check for checkins from the future
+  if (new Date(value) > new Date()) {
+    cb(false);
+  }
+
+  const Checkin = mongoose.model('Checkin', checkinSchema);
+  const checkinQuarantine = new Date(value);
+  checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
+
+  Checkin.find()
+    .where('dnt_user_id')
+    .equals(this.dnt_user_id)
+    .where('timestamp')
+    .gt(checkinQuarantine)
+    .exec((err, result) => {
+      cb(!result.length);
+    });
+}, `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`);
+
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;
