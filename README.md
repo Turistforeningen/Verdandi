@@ -46,7 +46,7 @@ docker-compose run --rm node npm run test
 docker-compose run --rm node npm run lint
 ```
 
-### Environment
+### Environment variables
 
 * `CHECKIN_MAX_DISTANCE=200` - Used to validate a users proximity to the coordinates it's checking in to. Distance in meters.
 * `CHECKIN_TIMEOUT=86400` - Used to validate that a user is not checking in to the same place more often than this timeout allows. Time in seconds.
