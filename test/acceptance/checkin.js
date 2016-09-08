@@ -62,7 +62,7 @@ describe('POST /steder/:sted/besok', () => {
   };
 
   it('returns error for missing user auth', () => (
-    app.post(url)
+    appMocked.post(url)
       .send(checkinData)
       .expect(401)
       .expect({
