@@ -58,7 +58,7 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
   const headers = { Authorization: `Token ${key}` };
 
   fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
-    .then(res => {
+    .then(res => { // eslint-disable-line consistent-return
       if (res.status !== 200) {
         // throw new HttpError(`Status Code ${res.status}`, res.status);
         cb(false);
