@@ -60,7 +60,8 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
   fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
     .then(res => {
       if (res.status !== 200) {
-        throw new HttpError(`Status Code ${res.status}`, res.status);
+        // throw new HttpError(`Status Code ${res.status}`, res.status);
+        cb(false);
       } else {
         return res;
       }
