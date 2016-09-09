@@ -116,10 +116,12 @@ router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) =
   });
 
   promise.catch(error => {
-    // @TODO better error message exists in error.errors
-
     if (error.name === 'ValidationError') {
-      next(new HttpError(error.message, 400, error));
+      res.status(400).json({
+        message: 'Checkin validation failed',
+        code: 400,
+        errors: error.errors,
+      });
     } else {
       next(new HttpError('Database connection failed', 500, error));
     }

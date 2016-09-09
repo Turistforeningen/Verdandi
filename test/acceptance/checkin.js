@@ -77,9 +77,11 @@ describe('POST /steder/:sted/besok', () => {
       .set('X-User-Token', 'abc123')
       .send({ lon: 1337, lat: 4444 })
       .expect(400)
-      .expect({
-        code: 400,
-        message: 'Checkin validation failed',
+      .expect(res => {
+        assert.equal(res.body.code, 400);
+        assert.equal(res.body.message, 'Checkin validation failed');
+        assert.equal(typeof res.body.errors['location.coordinates.0'], 'object');
+        assert.equal(typeof res.body.errors['location.coordinates.1'], 'object');
       })
   ));
 
