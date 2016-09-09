@@ -21,6 +21,7 @@ const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
 
 const { middleware: requireAuth } = require('./lib/auth');
+const { middleware: getNtbObject } = require('./lib/ntb');
 
 const app = module.exports = express();
 const router = new express.Router();
@@ -66,12 +67,6 @@ const notImplementedYet = (req, res) => {
   res.json({ message: 'Not implemented yet, come back later' });
 };
 
-router.param('checkin', (req, res, next) => {
-  // @TODO validate sted _id
-
-  next();
-});
-
 router.get('/steder/:sted/stats', (req, res, next) => {
   Checkin.find()
     .where('ntb_steder_id').equals(req.params.sted)
@@ -90,7 +85,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.post('/steder/:sted/besok', requireAuth, (req, res, next) => {
+router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) => {
   const promise = Checkin.create({
     location: {
       type: 'Point',
