@@ -5,6 +5,7 @@
       "mocha": true,
       "node": true
     },
+    "plugins": ["mocha"],
     "parserOptions": {
       "ecmaVersion": 6,
       "sourceType": "module",
@@ -15,6 +16,7 @@
     "rules": {
       "strict": [0],
       "no-param-reassign": [2, { "props": false }],
-      "no-underscore-dangle": [2, { "allow": ["_id", "_hasOpened", "__parent"] }]
+      "no-underscore-dangle": [2, { "allow": ["_id", "_hasOpened", "__parent"] }],
+      "mocha/no-exclusive-tests": "error"
     }
 }
