@@ -85,6 +85,21 @@ describe('POST /steder/:sted/besok', () => {
       })
   ));
 
+  it('returns error for second checkin before checkin timeout', () => {
+    const checkinDataBeforeTimeout = JSON.parse(JSON.stringify(checkinData));
+    checkinDataBeforeTimeout.timestamp = '2016-07-07T23:59:59.923Z';
+    return appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(checkinDataBeforeTimeout)
+      .expect(400)
+      .expect(res => {
+        assert.equal(typeof res.body.errors.timestamp, 'object');
+        assert.equal(res.body.code, 400);
+        assert.equal(res.body.message, 'Checkin validation failed');
+      });
+  });
+
   it('stores new checkin to the database', () => (
     appMocked.post(url)
       .set('X-User-Id', '1234')
