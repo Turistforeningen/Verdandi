@@ -129,9 +129,11 @@ router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) =
 });
 
 router.param('checkin', (req, res, next) => {
-  // @TODO validate checkin _id
-
-  next();
+  if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
+    res.status(400).json({ message: 'Invalid ObjectId' });
+  } else {
+    next();
+  }
 });
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
