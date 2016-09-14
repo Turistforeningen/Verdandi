@@ -166,7 +166,13 @@ describe('POST /steder/:sted/besok', () => {
 describe('GET /steder/:sted/besok/:id', () => {
   const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
-  it('returns 400 for invalid checkin _id');
+  it('returns 400 for invalid checkin _id', () => (
+    app.get(`${url}/invalid`)
+      .expect(400)
+      .expect({
+        message: 'Invalid ObjectId',
+      })
+  ));
 
   it('returns 404 for non-existing checkin', () => (
     app.get(`${url}/000000000000000000000000`)
