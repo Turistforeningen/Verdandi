@@ -51,7 +51,13 @@ router.get('/CloudHealthCheck', healthCheck({
 
 router.get('/', (req, res) => {
   res.json({
-    checkin_new: { url: `${req.fullUrl}/steder/{sted}/besok` },
+    checkin_new: {
+      url: `${req.fullUrl}/steder/{sted}/besok`,
+      rules: {
+        max_distance: parseInt(process.env.CHECKIN_MAX_DISTANCE, 10),
+        timeout: parseInt(process.env.CHECKIN_TIMEOUT, 10),
+      },
+    },
     checkin_get: { url: `${req.fullUrl}/steder/{sted}/besok/{oid}` },
     checkin_log: { url: `${req.fullUrl}/steder/{sted}/logg` },
     checkin_stats: { url: `${req.fullUrl}/steder/{sted}/stats` },
