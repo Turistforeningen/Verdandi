@@ -75,6 +75,58 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
+### GET /v2/
+
+**Status codes:**
+
+Returns `200 Ok` and an API index on successfull request.
+
+**GET body:**
+
+* **number** `checkin_new.rules.max_distance` - Max distance in meters a user can have to the place it is checking in to.
+* **number** `checkin_new.rules.quarantine` - A user can not check in twice to the same place within this period. Time in seconds.
+
+**Example:**
+
+```http
+GET /v2 HTTP/1.1
+Accept: application/json
+
+HTTP/1.1 Ok
+Content-Type: application/json
+
+{
+  "checkin_new": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/besok",
+    "rules": {
+      "max_distance": 200,
+      "quarantine": 86400
+    }
+  },
+  "checkin_get": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/besok/{oid}"
+  },
+  "checkin_log": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/logg"
+  },
+  "checkin_stats": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/stats"
+  },
+  "profile_view": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/brukere/{bruker}"
+  },
+  "list_join": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/blimed"
+  },
+  "list_leave": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/meldav"
+  },
+  "list_log": {
+    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/logg"
+  }
+}
+```
+
 ### GET /v2/steder/{sted}/stats
 
 **Status codes:**
