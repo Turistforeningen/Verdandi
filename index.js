@@ -51,14 +51,20 @@ router.get('/CloudHealthCheck', healthCheck({
 
 router.get('/', (req, res) => {
   res.json({
-    checkin_new: `${req.fullUrl}/steder/{sted}/besok`,
-    checkin_get: `${req.fullUrl}/steder/{sted}/besok/{oid}`,
-    checkin_log: `${req.fullUrl}/steder/{sted}/logg`,
-    checkin_stats: `${req.fullUrl}/steder/{sted}/stats`,
-    profile_view: `${req.fullUrl}/brukere/{bruker}`,
-    list_join: `${req.fullUrl}/lister/{liste}/blimed`,
-    list_leave: `${req.fullUrl}/lister/{liste}/meldav`,
-    list_log: `${req.fullUrl}/lister/{liste}/logg`,
+    checkin_new: {
+      url: `${req.fullUrl}/steder/{sted}/besok`,
+      rules: {
+        max_distance: parseInt(process.env.CHECKIN_MAX_DISTANCE, 10),
+        quarantine: parseInt(process.env.CHECKIN_TIMEOUT, 10),
+      },
+    },
+    checkin_get: { url: `${req.fullUrl}/steder/{sted}/besok/{oid}` },
+    checkin_log: { url: `${req.fullUrl}/steder/{sted}/logg` },
+    checkin_stats: { url: `${req.fullUrl}/steder/{sted}/stats` },
+    profile_view: { url: `${req.fullUrl}/brukere/{bruker}` },
+    list_join: { url: `${req.fullUrl}/lister/{liste}/blimed` },
+    list_leave: { url: `${req.fullUrl}/lister/{liste}/meldav` },
+    list_log: { url: `${req.fullUrl}/lister/{liste}/logg` },
   });
 });
 
