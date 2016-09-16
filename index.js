@@ -55,7 +55,7 @@ router.get('/', (req, res) => {
       url: `${req.fullUrl}/steder/{sted}/besok`,
       rules: {
         max_distance: parseInt(process.env.CHECKIN_MAX_DISTANCE, 10),
-        timeout: parseInt(process.env.CHECKIN_TIMEOUT, 10),
+        quarantine: parseInt(process.env.CHECKIN_TIMEOUT, 10),
       },
     },
     checkin_get: { url: `${req.fullUrl}/steder/{sted}/besok/{oid}` },
