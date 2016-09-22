@@ -264,6 +264,7 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(err.code).json(err.toJSON());
 });
 
+app.use(`/api${process.env.VIRTUAL_PATH}`, router);
 app.use(process.env.VIRTUAL_PATH, router);
 
 /* istanbul ignore if */
