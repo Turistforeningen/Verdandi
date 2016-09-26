@@ -51,6 +51,10 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
   return this;
 };
 
+checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+  cb(new Date(value) < new Date());
+}, `Checkins from the future (timestamp greater than ${new Date().toISOString()}) not allowed`);
+
 checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;
@@ -74,11 +78,6 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
 }, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
 checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
-  // Check for checkins from the future
-  if (new Date(value) > new Date()) {
-    cb(false);
-  }
-
   const Checkin = mongoose.model('Checkin', checkinSchema);
   const checkinQuarantine = new Date(value);
   checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
