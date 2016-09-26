@@ -106,7 +106,7 @@ describe('POST /steder/:sted/besok', () => {
     const checkinDataBeforeTimeout = JSON.parse(JSON.stringify(checkinData));
     const checkinTimestamp = new Date(checkins[0].timestamp);
     const invalidCheckinTimestamp = new Date(checkinTimestamp.setSeconds(
-      checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1
+      checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1 // eslint-disable-line no-mixed-operators, max-len
     ));
     checkinDataBeforeTimeout.timestamp = invalidCheckinTimestamp.toISOString();
 

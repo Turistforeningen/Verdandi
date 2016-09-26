@@ -51,11 +51,11 @@ checkinSchema.methods.anonymize = function anonymize(userId) {
   return this;
 };
 
-checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
   cb(new Date(value) < new Date());
 }, `Checkins from the future (timestamp greater than ${new Date().toISOString()}) not allowed`);
 
-checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) {
+checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) { // eslint-disable-line prefer-arrow-callback
   const env = process.env.NTB_API_ENV || 'api';
   const key = process.env.NTB_API_KEY;
 
@@ -77,10 +77,12 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
     });
 }, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
-checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
+checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
   const Checkin = mongoose.model('Checkin', checkinSchema);
   const checkinQuarantine = new Date(value);
-  checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - parseInt(process.env.CHECKIN_TIMEOUT, 10));
+  checkinQuarantine.setSeconds(
+    checkinQuarantine.getSeconds() - parseInt(process.env.CHECKIN_TIMEOUT, 10)
+  );
 
   Checkin.find()
     .where('dnt_user_id')
