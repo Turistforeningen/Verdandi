@@ -3,6 +3,7 @@
 
 const assert = require('assert');
 const mockery = require('mockery');
+const checkinsFixtures = require('../fixtures/checkins.js');
 
 describe('Checkin', () => {
   describe('#getCheckinsForList()', () => {
@@ -88,11 +89,15 @@ describe('Checkin', () => {
     });
 
     it('rejects a second checkin before checkin timeout', done => {
+      const checkinTimestamp = new Date(checkinsFixtures[0].timestamp);
+      const invalidCheckinTimestamp = new Date(checkinTimestamp.setSeconds(
+        checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1 // eslint-disable-line no-mixed-operators, max-len
+      ));
       const checkinData = {
         dnt_user_id: 1234,
         ntb_steder_id: '400000000000000000000000',
-        timestamp: '2016-07-07T23:50:50.923Z',
         location: { coordinates: [8.312466144561768, 61.63644183145977] },
+        timestamp: invalidCheckinTimestamp.toISOString(),
       };
       const checkin = new Checkin(checkinData);
 

@@ -85,9 +85,31 @@ describe('POST /steder/:sted/besok', () => {
       })
   ));
 
+  it('returns error for checkins from the future', () => {
+    const checkinDataBeforeTimeout = JSON.parse(JSON.stringify(checkinData));
+    const now = new Date();
+    checkinDataBeforeTimeout.timestamp = now.setHours(now.getHours() + 24);
+    return appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(checkinDataBeforeTimeout)
+      .expect(400)
+      .expect(res => {
+        assert.equal(typeof res.body.errors.timestamp, 'object');
+        assert.equal(/from the future/.test(res.body.errors.timestamp.message), true);
+        assert.equal(res.body.code, 400);
+        assert.equal(res.body.message, 'Checkin validation failed');
+      });
+  });
+
   it('returns error for second checkin before checkin timeout', () => {
     const checkinDataBeforeTimeout = JSON.parse(JSON.stringify(checkinData));
-    checkinDataBeforeTimeout.timestamp = '2016-07-07T23:59:59.923Z';
+    const checkinTimestamp = new Date(checkins[0].timestamp);
+    const invalidCheckinTimestamp = new Date(checkinTimestamp.setSeconds(
+      checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1 // eslint-disable-line no-mixed-operators, max-len
+    ));
+    checkinDataBeforeTimeout.timestamp = invalidCheckinTimestamp.toISOString();
+
     return appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
