@@ -104,7 +104,12 @@ describe('POST /steder/:sted/besok', () => {
 
   it('returns error for second checkin before checkin timeout', () => {
     const checkinDataBeforeTimeout = JSON.parse(JSON.stringify(checkinData));
-    checkinDataBeforeTimeout.timestamp = '2016-07-07T23:59:59.923Z';
+    const checkinTimestamp = new Date(checkins[0].timestamp);
+    const invalidCheckinTimestamp = new Date(checkinTimestamp.setSeconds(
+      checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1
+    ));
+    checkinDataBeforeTimeout.timestamp = invalidCheckinTimestamp.toISOString();
+
     return appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
