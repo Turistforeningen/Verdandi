@@ -85,6 +85,8 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
   Checkin.find()
     .where('dnt_user_id')
     .equals(this.dnt_user_id)
+    .where('ntb_steder_id')
+    .equals(this.ntb_steder_id)
     .where('timestamp')
     .gt(checkinQuarantine)
     .exec((err, result) => {
