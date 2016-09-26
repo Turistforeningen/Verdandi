@@ -73,14 +73,14 @@ checkinSchema.path('location.coordinates').validate(function validateCoordinates
     .then(res => res.json())
     .then(sted => {
       const distance = geoutil.pointDistance(value, sted.geojson.coordinates, true);
-      cb(distance <= process.env.CHECKIN_MAX_DISTANCE);
+      cb(distance <= parseInt(process.env.CHECKIN_MAX_DISTANCE, 10));
     });
 }, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
 
 checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
   const Checkin = mongoose.model('Checkin', checkinSchema);
   const checkinQuarantine = new Date(value);
-  checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - process.env.CHECKIN_TIMEOUT);
+  checkinQuarantine.setSeconds(checkinQuarantine.getSeconds() - parseInt(process.env.CHECKIN_TIMEOUT, 10));
 
   Checkin.find()
     .where('dnt_user_id')
