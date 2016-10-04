@@ -28,6 +28,7 @@ const router = new express.Router();
 
 app.set('json spaces', 2);
 app.set('x-powered-by', false);
+app.set('etag', 'strong');
 
 router.use(compression());
 router.use(responseTime());
