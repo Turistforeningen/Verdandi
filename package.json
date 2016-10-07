@@ -65,7 +65,7 @@
     "greenkeeper-postpublish": "^1.0.0",
     "istanbul": "^0.4.3",
     "mocha": "^3.0.0",
-    "mockery": "^1.7.0",
+    "mockery": "^2.0.0",
     "nsp": "^2.4.0",
     "semantic-release": "^4.3.5",
     "supertest": "^2.0.0",
