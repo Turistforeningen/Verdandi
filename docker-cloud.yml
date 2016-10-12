@@ -1,7 +1,7 @@
 verdandi-node-v2:
   autoredeploy: true
   environment:
-    - CHECKIN_MAX_DISTANCE=200
+    - CHECKIN_MAX_DISTANCE=50
     - CHECKIN_TIMEOUT=1
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
