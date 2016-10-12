@@ -1,23 +1,8 @@
-verdandi-mongoclient:
-  autoredeploy: true
-  environment:
-    - FORCE_SSL=true
-    - HSTS_MAX_AGE=31536000
-    - 'VIRTUAL_HOST=http://verdandi-db.app2.dnt.no,https://verdandi-db.app2.dnt.no'
-    - VIRTUAL_PORT=3000
-  expose:
-    - '3000'
-  image: 'mongoclient/mongoclient:latest'
-  links:
-    - 'mongo.mongo:mongo'
-  restart: always
-  tags:
-    - app
 verdandi-node-v2:
   autoredeploy: true
   environment:
-    - CHECKIN_MAX_DISTANCE=200
-    - CHECKIN_TIMEOUT=1
+    - CHECKIN_MAX_DISTANCE=50
+    - CHECKIN_TIMEOUT=60
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
     - MONGO_DB=verdandi-prod
@@ -26,7 +11,7 @@ verdandi-node-v2:
     - NEW_RELIC_NO_CONFIG_FILE=true
     - NODE_ENV=production
     - NTB_API_ENV=dev
-    - 'VIRTUAL_HOST=http://sjekkut.app2.dnt.no/v2/*,https://sjekkut.app2.dnt.no/v2/*'
+    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/v2/*,https://sjekkut.app.dnt.no/v2/*'
     - VIRTUAL_PATH=/v2
     - VIRTUAL_PORT=8080
   expose:
