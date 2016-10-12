@@ -12,6 +12,7 @@ verdandi-node-v2:
     - NODE_ENV=production
     - NTB_API_ENV=dev
     - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/*,https://sjekkut.app.dnt.no/*'
+    - VIRTUAL_PATH=/v2
     - VIRTUAL_PORT=8080
   expose:
     - '8080'
