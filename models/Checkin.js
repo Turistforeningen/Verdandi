@@ -2,6 +2,7 @@
 
 const { Schema, Types: { ObjectId: objectId } } = require('../lib/db');
 const mongoose = require('../lib/db');
+const secrets = require('../lib/secrets');
 
 const fetch = require('node-fetch');
 const HttpError = require('@starefossen/http-error');
@@ -57,7 +58,7 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
 
 checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) { // eslint-disable-line prefer-arrow-callback
   const env = process.env.NTB_API_ENV || 'api';
-  const key = process.env.NTB_API_KEY;
+  const key = secrets.NTB_API_KEY;
 
   const headers = { Authorization: `Token ${key}` };
 
@@ -98,7 +99,7 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
 
 checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
   const env = process.env.NTB_API_ENV || 'api';
-  const key = process.env.NTB_API_KEY;
+  const key = secrets.NTB_API_KEY;
 
   const headers = {
     Authorization: `Token ${key}`,
