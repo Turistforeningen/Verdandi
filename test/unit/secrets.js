@@ -3,10 +3,11 @@
 
 const assert = require('assert');
 const mockery = require('mockery');
+const path = require('path');
 
 describe('secrets', () => {
   beforeEach(done => {
-    const resolved = require.resolve(__dirname + '/../../lib/secrets');
+    const resolved = require.resolve(path.resolve(__dirname, '../../lib/secrets'));
     delete require.cache[resolved];
     done();
   });
@@ -14,7 +15,7 @@ describe('secrets', () => {
   describe('development', () => {
     it('gets secrets from process', done => {
       process.env.NODE_ENV = 'development';
-      const secrets = require('../../lib/secrets');
+      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
 
       assert(secrets.NTB_API_KEY, 'fake');
 
@@ -25,7 +26,7 @@ describe('secrets', () => {
   describe('test', () => {
     it('gets secrets from process', done => {
       process.env.NODE_ENV = 'test';
-      const secrets = require('../../lib/secrets');
+      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
 
       assert(secrets.NTB_API_KEY, 'fake');
 
