@@ -45,10 +45,8 @@ describe('secrets', () => {
       readFileSync() {
         const file = JSON.stringify({
           NTB_API_KEY: 'abc',
-          OAUTH_CLIENT_ID: 'def',
-          OAUTH_CLIENT_SECRET: 'geh',
-          OAUTH_ACCESS_TOKEN: true,
-          OAUTH_REFRESH_TOKEN: 123,
+          NEW_RELIC_LICENSE_KEY: 'abc123',
+          SENTRY_DSN: '456',
         });
 
         return file;
@@ -61,10 +59,8 @@ describe('secrets', () => {
 
       assert.deepEqual(secrets, {
         NTB_API_KEY: 'abc',
-        OAUTH_CLIENT_ID: 'def',
-        OAUTH_CLIENT_SECRET: 'geh',
-        OAUTH_ACCESS_TOKEN: true,
-        OAUTH_REFRESH_TOKEN: 123,
+        NEW_RELIC_LICENSE_KEY: 'abc123',
+        SENTRY_DSN: '456',
       });
 
       done();
