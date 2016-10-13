@@ -42,19 +42,28 @@ describe('secrets', () => {
 
     before(() => mockery.registerMock('fs', {
       readFileSync() {
-        return '{"PROD_KEY":"abc","PROD_INT": 123,"PROD_BOOL":true}';
-      }
-    }));
+        const file = JSON.stringify({
+          NTB_API_KEY: 'abc',
+          OAUTH_CLIENT_ID: 'def',
+          OAUTH_CLIENT_SECRET: 'geh',
+          OAUTH_ACCESS_TOKEN: true,
+          OAUTH_REFRESH_TOKEN: 123,
+        });
 
+        return file;
+      },
+    }));
 
     it('reads secrets.json in production', done => {
       process.env.NODE_ENV = 'production';
-      const secrets = require('../../lib/secrets');
+      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
 
       assert.deepEqual(secrets, {
-        PROD_KEY: 'abc',
-        PROD_INT: 123,
-        PROD_BOOL: true,
+        NTB_API_KEY: 'abc',
+        OAUTH_CLIENT_ID: 'def',
+        OAUTH_CLIENT_SECRET: 'geh',
+        OAUTH_ACCESS_TOKEN: true,
+        OAUTH_REFRESH_TOKEN: 123,
       });
 
       done();
