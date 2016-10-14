@@ -2,6 +2,9 @@
 
 /* istanbul ignore if  */
 if (process.env.NODE_ENV === 'production') {
+  const secrets = require('./lib/secrets'); // eslint-disable-line global-require
+
+  process.env.NEW_RELIC_LICENSE_KEY = secrets.NEW_RELIC_LICENSE_KEY;
   /* eslint-disable no-console */
   console.log('Starting newrelic application monitoring');
   /* eslint-enable */
