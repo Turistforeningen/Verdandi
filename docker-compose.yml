@@ -17,7 +17,7 @@ services:
       - mongo
     volumes:
       - .:/usr/src/app
-    env_file: .env
+    env_file: secrets/dev.env
     environment:
       - CHECKIN_MAX_DISTANCE=200
       - CHECKIN_TIMEOUT=86400

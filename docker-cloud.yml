@@ -1,3 +1,9 @@
+secrets:
+  image: 'turistforeningen/verdandi-secrets:v3'
+  tags:
+    - app
+  volumes:
+    - /secrets
 verdandi-node-v2:
   autoredeploy: true
   environment:
@@ -11,7 +17,7 @@ verdandi-node-v2:
     - NEW_RELIC_NO_CONFIG_FILE=true
     - NODE_ENV=production
     - NTB_API_ENV=api
-    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/*,https://sjekkut.app.dnt.no/*'
+    - 'VIRTUAL_HOST=http://sjekkut-test.app.dnt.no/*,https://sjekkut-test.app.dnt.no/*'
     - VIRTUAL_PATH=/v2
     - VIRTUAL_PORT=8080
   expose:
@@ -23,3 +29,5 @@ verdandi-node-v2:
   tags:
     - app
   target_num_containers: 2
+  volumes_from:
+    - 'secrets:ro'
