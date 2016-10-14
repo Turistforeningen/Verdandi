@@ -37,7 +37,14 @@ build:
         url: $SLACK_WEBHOOK_URL
 
 docker:
+  box: python:2
   steps:
+    - script:
+        name: docker stack update
+        code: |
+          pip install docker-cloud
+          docker-cloud stack update $DOCKERCLOUD_STACK_NAME --sync
+
     - script:
         name: docker hub build
         code: |
