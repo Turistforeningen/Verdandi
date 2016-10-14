@@ -5,6 +5,7 @@ const assert = require('assert');
 const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
 const User = require('../../models/User');
+const secrets = require('../../lib/secrets');
 
 describe('auth', () => {
   describe('#getUserData()', () => {
@@ -17,12 +18,12 @@ describe('auth', () => {
     });
 
     it('resolves user data for valid token', done => {
-      auth.getUserData(process.env.OAUTH_ACCESS_TOKEN)
+      auth.getUserData(secrets.OAUTH_ACCESS_TOKEN)
         .then(user => process.nextTick(() => {
           assert.equal(typeof user.fornavn, 'string');
           assert.equal(typeof user.etternavn, 'string');
           assert.equal(typeof user.epost, 'string');
-          assert.equal(user.sherpa_id, process.env.OAUTH_USER_ID);
+          assert.equal(user.sherpa_id, secrets.OAUTH_USER_ID);
           done();
         }))
         .catch(done);
@@ -91,13 +92,13 @@ describe('auth', () => {
 
     it('accepts valid user token', done => {
       const req = { headers: {
-        'x-user-id': process.env.OAUTH_USER_ID,
-        'x-user-token': process.env.OAUTH_ACCESS_TOKEN,
+        'x-user-id': secrets.OAUTH_USER_ID,
+        'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
       } };
       auth.middleware(req, {}, error => process.nextTick(() => {
         assert.ifError(error);
         assert.equal(typeof req.user, 'object');
-        assert.equal(req.user.id, process.env.OAUTH_USER_ID);
+        assert.equal(req.user.id, secrets.OAUTH_USER_ID);
         done();
       }));
     });
