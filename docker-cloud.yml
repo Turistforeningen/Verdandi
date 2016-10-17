@@ -17,7 +17,7 @@ verdandi-node-v2:
     - NEW_RELIC_NO_CONFIG_FILE=true
     - NODE_ENV=production
     - NTB_API_ENV=api
-    - 'VIRTUAL_HOST=http://sjekkut-test.app2.dnt.no/*,https://sjekkut-test.app2.dnt.no/*'
+    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/*,https://sjekkut.app.dnt.no/*'
     - VIRTUAL_PATH=/v2
     - VIRTUAL_PORT=8080
   expose:
