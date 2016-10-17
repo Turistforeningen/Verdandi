@@ -28,6 +28,5 @@ verdandi-node-v2:
   restart: always
   tags:
     - app
-  target_num_containers: 2
   volumes_from:
     - 'secrets:ro'
