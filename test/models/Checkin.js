@@ -31,7 +31,7 @@ describe('Checkin', () => {
 
       return Checkin.getCheckinsForList('300000000000000000000000')
         .then(checkins => {
-          assert.equal(checkins.length, 3);
+          assert.equal(checkins.length, 4);
         });
     });
   });
