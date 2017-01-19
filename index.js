@@ -105,6 +105,7 @@ router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) =
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
     timestamp: req.body.timestamp,
+    guestbook_entry: req.body.guestbook_entry || null,
   });
 
   // Save new checkin to user profile
@@ -161,6 +162,49 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   });
 
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
+});
+
+router.put('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
+  /**
+    Some properties can not be changed, and are ignored:
+    - location
+    - ntb_steder_id
+    - dnt_user_id
+    - timestamp
+  */
+
+  const promise = Checkin.findOneAndUpdate(
+    { _id: req.params.checkin },
+    {
+      public: true,
+      guestbook_entry: req.body.guestbook_entry,
+    },
+    {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    }
+  );
+
+  promise.then(data => {
+    if (!data) {
+      next(new HttpError('Checkin not found', 404));
+    } else {
+      res.json({ data });
+    }
+  });
+
+  promise.catch(error => {
+    if (error.name === 'ValidationError') {
+      res.status(400).json({
+        message: 'Checkin validation failed',
+        code: 400,
+        errors: error.errors,
+      });
+    } else {
+      next(new HttpError('Database connection failed', 500, error));
+    }
+  });
 });
 
 router.get('/lister/:liste/stats', notImplementedYet);

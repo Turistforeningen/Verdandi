@@ -41,6 +41,10 @@ const checkinSchema = new Schema({
     ref: 'User',
     required: true,
   },
+
+  guestbook_entry: {
+    type: String,
+  },
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {

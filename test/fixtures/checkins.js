@@ -23,4 +23,12 @@ module.exports = [{
   public: false,
   ntb_steder_id: objectId('400000000000000000000001'),
   dnt_user_id: 5678,
+}, {
+  _id: objectId('200000000000000000000003'),
+  timestamp: new Date('2016-07-07T20:33:49.923Z'),
+  location: { type: 'Point', coordinates: [-117.220406, 32.719464] },
+  public: false,
+  ntb_steder_id: objectId('400000000000000000000000'),
+  dnt_user_id: 1234,
+  guestbook_entry: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 }];
