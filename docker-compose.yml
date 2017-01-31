@@ -27,7 +27,7 @@ services:
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
-      - VIRTUAL_HOST=sjekkut.app.dnt.privat
+      - VIRTUAL_HOST=sjekkut.app.dnt.local
       - VIRTUAL_PORT=8080
       - VIRTUAL_PATH=/api/v3
     command: npm start
