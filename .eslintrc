@@ -1,4 +1,3 @@
-# vi:syntax=json
 {
     "extends": "airbnb-base",
     "env": {
