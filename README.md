@@ -184,7 +184,7 @@ Content-Type: application/json
 * **number** `lat` - decimal latitude (required)
 * **number** `lon` - decimal longitude (required)
 * **boolean** `public` - (default `false`)
-* **string** `guestbook_entry` - (default `null`)
+* **string** `comment` - (default `null`)
 * **string** `timestamp` - date and time ISO 8601 (default `Date.now()`)
 
 **Example:**
@@ -199,7 +199,7 @@ X-User-Token asdf123
   "lat": 12.3456,
   "lon": 98.7654,
   "public": true,
-  "guestbook_entry": "Hello, World!",
+  "comment": "Hello, World!",
   "timestamp": "2016-09-06T12:27:21.594Z"
 }
 
@@ -223,7 +223,7 @@ Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
 **PUT body:**
 
 * **boolean** `public` - (default `false`)
-* **string** `guestbook_entry` - (default `null`)
+* **string** `comment` - (default `null`)
 
 Other properties will be ignored and remain unchanged.
 
@@ -237,7 +237,7 @@ X-User-Token asdf123
 
 {
   "public": true,
-  "guestbook_entry": "Hello, World!"
+  "comment": "Hello, World!"
 }
 
 HTTP/1.1 200 OK

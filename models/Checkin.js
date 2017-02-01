@@ -42,7 +42,7 @@ const checkinSchema = new Schema({
     required: true,
   },
 
-  guestbook_entry: {
+  comment: {
     type: String,
   },
 });
