@@ -139,7 +139,7 @@ describe('POST /steder/:sted/besok', () => {
               coordinates: [checkinData.lon, checkinData.lat],
               type: 'Point',
             },
-            guestbook_entry: checkinData.guestbook_entry,
+            comment: checkinData.comment,
             public: false,
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
@@ -165,7 +165,7 @@ describe('POST /steder/:sted/besok', () => {
   it('updates a checkins on PUT', () => {
     const guestbookCheckinData = Object.assign({}, checkinData, {
       public: true,
-      guestbook_entry: 'Mitt favorittsted, dette her!',
+      comment: 'Mitt favorittsted, dette her!',
     });
 
     return appMocked.put(`${url}/200000000000000000000000`)
@@ -175,11 +175,11 @@ describe('POST /steder/:sted/besok', () => {
       .expect(200)
       .expect(res => {
         assert.equal(res.body.data.public, true);
-        assert.equal(res.body.data.guestbook_entry, 'Mitt favorittsted, dette her!');
+        assert.equal(res.body.data.comment, 'Mitt favorittsted, dette her!');
       });
   });
 
-  it('sets a guestbook_entry to null if missing in PUT', () => (
+  it('sets a comment to null if missing in PUT', () => (
     appMocked.put(`${url}/200000000000000000000003`)
     .set('X-User-Id', '1234')
     .set('X-User-Token', 'abc123')
@@ -187,7 +187,7 @@ describe('POST /steder/:sted/besok', () => {
     .expect(200)
     .expect(res => {
       assert.equal(res.body.data.public, true);
-      assert.equal(res.body.data.guestbook_entry, null);
+      assert.equal(res.body.data.comment, null);
     })
   ));
 

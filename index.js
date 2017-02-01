@@ -105,7 +105,7 @@ router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) =
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
     timestamp: req.body.timestamp,
-    guestbook_entry: req.body.guestbook_entry || null,
+    comment: req.body.comment || null,
   });
 
   // Save new checkin to user profile
@@ -177,7 +177,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
     { _id: req.params.checkin },
     {
       public: true,
-      guestbook_entry: req.body.guestbook_entry,
+      comment: req.body.comment,
     },
     {
       new: true,
