@@ -75,7 +75,7 @@ codes:
 * `500 Internal Server Error` - Internal server error
 * `501 Not Implemented` - API endpoint is not implemented yet
 
-### GET /v2/
+### GET /v3
 
 **Status codes:**
 
@@ -89,7 +89,7 @@ Returns `200 Ok` and an API index on successfull request.
 **Example:**
 
 ```http
-GET /v2 HTTP/1.1
+GET /v3 HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -97,37 +97,37 @@ Content-Type: application/json
 
 {
   "checkin_new": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/besok",
+    "url": "https://sjekkut.app.dnt.no/api/v3/steder/{sted}/besok",
     "rules": {
       "max_distance": 200,
       "quarantine": 86400
     }
   },
   "checkin_get": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/besok/{oid}"
+    "url": "https://sjekkut.app.dnt.no/api/v3/steder/{sted}/besok/{oid}"
   },
   "checkin_log": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/logg"
+    "url": "https://sjekkut.app.dnt.no/api/v3/steder/{sted}/logg"
   },
   "checkin_stats": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/steder/{sted}/stats"
+    "url": "https://sjekkut.app.dnt.no/api/v3/steder/{sted}/stats"
   },
   "profile_view": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/brukere/{bruker}"
+    "url": "https://sjekkut.app.dnt.no/api/v3/brukere/{bruker}"
   },
   "list_join": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/blimed"
+    "url": "https://sjekkut.app.dnt.no/api/v3/lister/{liste}/blimed"
   },
   "list_leave": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/meldav"
+    "url": "https://sjekkut.app.dnt.no/api/v3/lister/{liste}/meldav"
   },
   "list_log": {
-    "url": "https://sjekkut.app.dnt.no/api/v2/lister/{liste}/logg"
+    "url": "https://sjekkut.app.dnt.no/api/v3/lister/{liste}/logg"
   }
 }
 ```
 
-### GET /v2/steder/{sted}/stats
+### GET /v3/steder/{sted}/stats
 
 **Status codes:**
 
@@ -136,7 +136,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v2/steder/524081f9b8cb77df15001660/stats HTTP/1.1
+GET /v3/steder/524081f9b8cb77df15001660/stats HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -149,7 +149,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v2/steder/{sted}/logg
+### GET /v3/steder/{sted}/logg
 
 **Status codes:**
 
@@ -158,7 +158,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v2/steder/524081f9b8cb77df15001660/logg HTTP/1.1
+GET /v3/steder/524081f9b8cb77df15001660/logg HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -172,7 +172,7 @@ Content-Type: application/json
 }
 ```
 
-### POST /v2/steder/{sted}/besok
+### POST /v3/steder/{sted}/besok
 
 **Status codes:**
 
@@ -184,12 +184,13 @@ Content-Type: application/json
 * **number** `lat` - decimal latitude (required)
 * **number** `lon` - decimal longitude (required)
 * **boolean** `public` - (default `false`)
+* **string** `guestbook_entry` - (default `null`)
 * **string** `timestamp` - date and time ISO 8601 (default `Date.now()`)
 
 **Example:**
 
 ```http
-POST /v2/steder/524081f9b8cb77df15001660/besok HTTP/1.1
+POST /v3/steder/524081f9b8cb77df15001660/besok HTTP/1.1
 Accept: application/json
 X-User-Id: 123
 X-User-Token asdf123
@@ -198,12 +199,13 @@ X-User-Token asdf123
   "lat": 12.3456,
   "lon": 98.7654,
   "public": true,
+  "guestbook_entry": "Hello, World!",
   "timestamp": "2016-09-06T12:27:21.594Z"
 }
 
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /v2/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234
+Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
 
 {
   "message": "Ok",
@@ -220,7 +222,7 @@ Returns `200 Ok` for valid checkin.
 **Example:**
 
 ```http
-GET /v2/steder/524081f9b8cb77df15001660/besok/1234-123-123-1234 HTTP/1.1
+GET /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86 HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 200 Ok
@@ -231,7 +233,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v2/brukere/{bruker}
+### GET /v3/brukere/{bruker}
 
 **Status codes:**
 
@@ -240,7 +242,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v2/brukere/1234 HTTP/1.1
+GET /v3/brukere/1234 HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -251,7 +253,7 @@ Content-Type: application/json
 }
 ```
 
-### POST /v2/lister/{liste}/blimed
+### POST /v3/lister/{liste}/blimed
 
 Add the list id to current user's `lister` array.
 
@@ -262,7 +264,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-POST /v2/lister/300000000000000000000001/blimed HTTP/1.1
+POST /v3/lister/300000000000000000000001/blimed HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -274,7 +276,7 @@ Content-Type: application/json
 }
 ```
 
-### POST /v2/lister/{liste}/meldav
+### POST /v3/lister/{liste}/meldav
 
 Remove the list id from current user's `lister` array.
 
@@ -285,7 +287,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-POST /v2/lister/300000000000000000000001/meldav HTTP/1.1
+POST /v3/lister/300000000000000000000001/meldav HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
@@ -297,7 +299,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /v2/lister/{liste}/logg
+### GET /v3/lister/{liste}/logg
 
 **Status codes:**
 
@@ -306,7 +308,7 @@ Returns `200 Ok` on successfull request.
 **Example:**
 
 ```http
-GET /v2/lister/57974036b565590001a98884/logg HTTP/1.1
+GET /v3/lister/57974036b565590001a98884/logg HTTP/1.1
 Accept: application/json
 
 HTTP/1.1 Ok
