@@ -213,7 +213,44 @@ Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
 }
 ```
 
-### GET /v2/steder/{sted}/besok/{oid}
+### PUT /v3/steder/{sted}/besok/{oid}
+
+**Status codes:**
+
+* `200 OK` on successfull edit
+* `400 Bad Request` on validation error.
+
+**PUT body:**
+
+* **boolean** `public` - (default `false`)
+* **string** `guestbook_entry` - (default `null`)
+
+Other properties will be ignored and remain unchanged.
+
+**Example:**
+
+```http
+PUT /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86 HTTP/1.1
+Accept: application/json
+X-User-Id: 123
+X-User-Token asdf123
+
+{
+  "public": true,
+  "guestbook_entry": "Hello, World!"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
+
+{
+  "message": "Ok",
+  "data": {...}
+}
+```
+
+### GET /v3/steder/{sted}/besok/{oid}
 
 **Status codes:**
 
