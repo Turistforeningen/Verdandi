@@ -10,7 +10,7 @@ services:
     working_dir: /usr/src/app
     network_mode: 'bridge'
     ports:
-      - "8080:8080"
+      - '8080:8080'
     links:
       - mongo
     depends_on:
@@ -19,6 +19,9 @@ services:
       - .:/usr/src/app
     env_file: secrets/dev.env
     environment:
+      - AWS_BUCKET_NAME=sjekkut
+      - AWS_BUCKET_PATH=dev/
+      - AWS_BUCKET_REGION=eu-west-1
       - CHECKIN_MAX_DISTANCE=200
       - CHECKIN_TIMEOUT=86400
       - CHOKIDAR_USEPOLLING=true

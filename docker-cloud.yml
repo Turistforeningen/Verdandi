@@ -1,5 +1,5 @@
 secrets:
-  image: 'turistforeningen/verdandi-secrets:v3'
+  image: 'turistforeningen/verdandi-secrets:v4'
   tags:
     - app
   volumes:
@@ -17,13 +17,43 @@ verdandi-node-v2:
     - NEW_RELIC_NO_CONFIG_FILE=true
     - NODE_ENV=production
     - NTB_API_ENV=api
-    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/*,https://sjekkut.app.dnt.no/*'
-    - VIRTUAL_PATH=/v2
-    - VIRTUAL_PORT=8080
+    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/api/v2*,https://sjekkut.app.dnt.no/api/v2*'
     - VIRTUAL_HOST_WEIGHT=20
+    - VIRTUAL_PATH=/api/v2
+    - VIRTUAL_PORT=8080
   expose:
     - '8080'
   image: 'turistforeningen/verdandi:v2'
+  links:
+    - 'mongo.mongo:mongo'
+  restart: always
+  tags:
+    - app
+  volumes_from:
+    - 'secrets:ro'
+verdandi-node-v3:
+  autoredeploy: true
+  environment:
+    - AWS_BUCKET_NAME=sjekkut
+    - AWS_BUCKET_PATH=dev/
+    - AWS_BUCKET_REGION=eu-west-1
+    - CHECKIN_MAX_DISTANCE=50
+    - CHECKIN_TIMEOUT=60
+    - FORCE_SSL=true
+    - HSTS_MAX_AGE=31536000
+    - MONGO_DB=verdandi-prod
+    - NEW_RELIC_APP_NAME=Verdandi
+    - NEW_RELIC_LOG=stdout
+    - NEW_RELIC_NO_CONFIG_FILE=true
+    - NODE_ENV=production
+    - NTB_API_ENV=api
+    - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/api/v3*,https://sjekkut.app.dnt.no/api/v3*'
+    - VIRTUAL_HOST_WEIGHT=20
+    - VIRTUAL_PATH=/api/v3
+    - VIRTUAL_PORT=8080
+  expose:
+    - '8080'
+  image: 'turistforeningen/verdandi:v3'
   links:
     - 'mongo.mongo:mongo'
   restart: always
