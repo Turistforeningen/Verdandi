@@ -176,7 +176,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
   const promise = Checkin.findOneAndUpdate(
     { _id: req.params.checkin },
     {
-      public: true,
+      public: !!req.body.public,
       comment: req.body.comment,
     },
     {
