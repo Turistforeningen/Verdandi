@@ -29,5 +29,5 @@ services:
       - NPM_CONFIG_SPIN=false
       - VIRTUAL_HOST=sjekkut.app.dnt.privat
       - VIRTUAL_PORT=8080
-      - VIRTUAL_PATH=/api/v2
+      - VIRTUAL_PATH=/api/v3
     command: npm start
