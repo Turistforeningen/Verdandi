@@ -8,6 +8,9 @@ const Checkin = require('../models/Checkin');
 const users = require('./fixtures/users');
 const checkins = require('./fixtures/checkins');
 
+process.env.CHECKIN_MAX_DISTANCE = 200;
+process.env.CHECKIN_TIMEOUT = 86400;
+
 // mongodb connect
 before(function before(done) {
   this.timeout(10000);
