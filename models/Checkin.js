@@ -44,6 +44,7 @@ const checkinSchema = new Schema({
 
   comment: {
     type: String,
+    default: null,
   },
 });
 

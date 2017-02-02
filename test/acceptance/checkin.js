@@ -59,6 +59,7 @@ describe('POST /steder/:sted/besok', () => {
     lon: 8.312466144561768,
     lat: 61.63644183145977,
     timestamp: '2016-08-01T23:59:59.923Z',
+    public: false,
   };
 
   it('returns error for missing user auth', () => (
@@ -139,7 +140,7 @@ describe('POST /steder/:sted/besok', () => {
               coordinates: [checkinData.lon, checkinData.lat],
               type: 'Point',
             },
-            comment: checkinData.comment,
+            comment: null,
             public: false,
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
