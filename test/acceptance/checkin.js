@@ -140,7 +140,7 @@ describe('POST /steder/:sted/besok', () => {
               coordinates: [checkinData.lon, checkinData.lat],
               type: 'Point',
             },
-            comment: checkinData.comment,
+            comment: null,
             public: false,
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
