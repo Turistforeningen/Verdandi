@@ -46,6 +46,11 @@ const checkinSchema = new Schema({
     type: String,
     default: null,
   },
+
+  photo: {
+    type: Object,
+    default: null,
+  },
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {

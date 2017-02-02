@@ -144,8 +144,38 @@ describe('POST /steder/:sted/besok', () => {
             public: false,
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
+            photo: null,
           },
         });
+      })
+  ));
+
+  it('supports checkin with photo', () => (
+    appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .field('lat', checkinData.lat)
+      .field('lon', checkinData.lon)
+      .field('timestamp', checkinData.timestamp)
+      .attach('photo', 'test/fixtures/selfie.jpg')
+      .expect(200)
+      .expect('Location', /api\/dev\/steder\/400000000000000000000000/)
+      .expect(res => {
+        assert.equal(res.body.data.dnt_user_id, 1234);
+        assert.equal(res.body.data.comment, checkinData.comment);
+        assert.equal(res.body.data.public, checkinData.public);
+        assert.equal(res.body.data.ntb_steder_id, '400000000000000000000000');
+        assert.equal(res.body.data.timestamp, checkinData.timestamp);
+        assert.deepEqual(res.body.data.location, {
+          coordinates: [checkinData.lon, checkinData.lat],
+          type: 'Point',
+        });
+        assert.equal(typeof res.body.data.photo.versions, 'object');
+        assert.equal(typeof res.body.data.photo.versions[0].url, 'string');
+        assert.equal(typeof res.body.data.photo.versions[0].height, 'number');
+        assert.equal(typeof res.body.data.photo.versions[0].width, 'number');
+        assert.equal(typeof res.body.data.photo.versions[0].etag, 'string');
+        assert.equal(typeof res.body.data.photo.versions[0].awsImageAcl, 'undefined');
       })
   ));
 
