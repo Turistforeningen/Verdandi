@@ -1,9 +1,9 @@
 'use strict';
 
+const secrets = require('./lib/secrets'); // eslint-disable-line global-require
+
 /* istanbul ignore if  */
 if (process.env.NODE_ENV === 'production') {
-  const secrets = require('./lib/secrets'); // eslint-disable-line global-require
-
   process.env.NEW_RELIC_LICENSE_KEY = secrets.NEW_RELIC_LICENSE_KEY;
   /* eslint-disable no-console */
   console.log('Starting newrelic application monitoring');
@@ -18,6 +18,19 @@ const User = require('./models/User');
 const Checkin = require('./models/Checkin');
 
 const express = require('express');
+const tmpdir = require('os').tmpdir;
+const uuid = require('uuid');
+const extname = require('path').extname;
+const diskStorage = require('multer').diskStorage;
+const multer = require('multer')({
+  storage: diskStorage({
+    destination: tmpdir(),
+    filename: function multerFilenameCb(req, file, cb) {
+      const ext = extname(file.originalname).substr(1).toLowerCase() || 'jpg';
+      return cb(null, `${uuid.v4()}.${ext}`);
+    },
+  }),
+});
 const compression = require('compression');
 const responseTime = require('response-time');
 const bodyParser = require('body-parser');
@@ -25,6 +38,7 @@ const HttpError = require('@starefossen/http-error');
 
 const { middleware: requireAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
+const { middleware: s3uploader } = require('./lib/upload');
 
 const app = module.exports = express();
 const router = new express.Router();
@@ -95,49 +109,66 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) => {
-  const promise = Checkin.create({
-    location: {
-      type: 'Point',
-      coordinates: [req.body.lon, req.body.lat],
-    },
-    public: !!req.body.public,
-    ntb_steder_id: req.params.sted,
-    dnt_user_id: req.user.id,
-    timestamp: req.body.timestamp,
-    comment: req.body.comment,
-  });
-
-  // Save new checkin to user profile
-  promise.then(checkin => {
-    req.user.innsjekkinger.push(checkin);
-    req.user.save();
-  });
-
-  // Return new checkin object
-  promise.then(checkin => {
-    res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
-    res.json({
-      message: 'Ok',
-      data: checkin.toJSON({
-        getters: false,
-        versionKey: false,
-      }),
+router.post(
+  '/steder/:sted/besok',
+  requireAuth,
+  getNtbObject,
+  multer.single('photo'),
+  s3uploader,
+  (req, res, next) => {
+    const promise = Checkin.create({
+      location: {
+        type: 'Point',
+        coordinates: [req.body.lon, req.body.lat],
+      },
+      public: !!req.body.public,
+      ntb_steder_id: req.params.sted,
+      dnt_user_id: req.user.id,
+      timestamp: req.body.timestamp,
+      comment: req.body.comment || null,
+      photo: req.upload ? {
+        versions: req.upload
+          .filter(upload => (!upload.original))
+          .map(photo => ({
+            url: photo.url,
+            width: photo.width,
+            height: photo.height,
+            etag: photo.etag,
+          })),
+      } : null,
     });
-  });
 
-  promise.catch(error => {
-    if (error.name === 'ValidationError') {
-      res.status(400).json({
-        message: 'Checkin validation failed',
-        code: 400,
-        errors: error.errors,
+    // Save new checkin to user profile
+    promise.then(checkin => {
+      req.user.innsjekkinger.push(checkin);
+      req.user.save();
+    });
+
+    // Return new checkin object
+    promise.then(checkin => {
+      res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
+      res.json({
+        message: 'Ok',
+        data: checkin.toJSON({
+          getters: false,
+          versionKey: false,
+        }),
       });
-    } else {
-      next(new HttpError('Database connection failed', 500, error));
-    }
-  });
-});
+    });
+
+    promise.catch(error => {
+      if (error.name === 'ValidationError') {
+        res.status(400).json({
+          message: 'Checkin validation failed',
+          code: 400,
+          errors: error.errors,
+        });
+      } else {
+        next(new HttpError('Database connection failed', 500, error));
+      }
+    });
+  }
+);
 
 router.param('checkin', (req, res, next) => {
   if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
