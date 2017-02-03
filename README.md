@@ -250,6 +250,42 @@ Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
 }
 ```
 
+### PUT /v3/steder/{sted}/besok/{oid}
+
+Send as `Content-Type: multipart/form-data`  with file in field named `photo`. Allowed file types are JPEG and PNG. The photo will be resized to sizes configured in the API, and uploaded to AWS S3. The URLs will be added to the checkin at the property `photos.versions`.
+
+**Status codes:**
+
+- `200 OK` on successfull edit
+- `400 Bad Request` on validation error.
+
+**PUT body:**
+
+- **string** `comment`
+- **file** `photo`
+
+Other properties will be ignored and remain unchanged.
+
+**Example:**
+
+```http
+PUT /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86 HTTP/1.1
+X-User-Id: 123
+X-User-Token: asdf1234
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+Hello again, World!
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+```
+
 ### GET /v3/steder/{sted}/besok/{oid}
 
 **Status codes:**
