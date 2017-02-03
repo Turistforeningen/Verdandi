@@ -193,7 +193,7 @@ describe('POST /steder/:sted/besok', () => {
       });
   });
 
-  it('updates a checkins on PUT', () => {
+  it('updates a checkin on PUT', () => {
     const guestbookCheckinData = Object.assign({}, checkinData, {
       public: true,
       comment: 'Mitt favorittsted, dette her!',
@@ -207,6 +207,26 @@ describe('POST /steder/:sted/besok', () => {
       .expect(res => {
         assert.equal(res.body.data.public, true);
         assert.equal(res.body.data.comment, 'Mitt favorittsted, dette her!');
+      });
+  });
+
+  it('updates a checkin with photo on PUT', () => {
+    const guestbookCheckinData = Object.assign({}, checkinData, {
+      public: true,
+      comment: 'Mitt favorittsted, dette her!',
+      photo: 'test/fixtures/selfie.jpg',
+    });
+
+    return appMocked.put(`${url}/200000000000000000000000`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .field('public', `${guestbookCheckinData.public}`)
+      .field('comment', guestbookCheckinData.comment)
+      .attach('photo', 'test/fixtures/selfie.jpg')
+      .expect(200)
+      .expect(res => {
+        assert.equal(res.body.data.public, guestbookCheckinData.public);
+        assert.equal(res.body.data.comment, guestbookCheckinData.comment);
       });
   });
 

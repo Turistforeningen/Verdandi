@@ -192,24 +192,43 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
     }
   });
 
+  // Some properties can not be changed, and are ignored:
+  // - location
+  // - ntb_steder_id
+  // - dnt_user_id
+  // - timestamp
+
+  // TODO: Set to empty if empty
+  // TODO: If fields are not posted, set to default value
+  // TODO: Sjekk at det er en bruker som har lov
+
+  // public, guestbook, photo
+
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.put('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
-  /**
-    Some properties can not be changed, and are ignored:
-    - location
-    - ntb_steder_id
-    - dnt_user_id
-    - timestamp
-  */
+router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), s3uploader, (req, res, next) => {
+  const updated = {
+    public: req.body.public,
+    comment: req.body.comment,
+  };
+
+  if (req.upload) {
+    updated.photo = {
+      versions: req.upload
+        .filter(upload => (!upload.original))
+        .map(photo => ({
+          url: photo.url,
+          width: photo.width,
+          height: photo.height,
+          etag: photo.etag,
+        })),
+    };
+  }
 
   const promise = Checkin.findOneAndUpdate(
     { _id: req.params.checkin },
-    {
-      public: !!req.body.public,
-      comment: req.body.comment,
-    },
+    updated,
     {
       new: true,
       runValidators: true,
