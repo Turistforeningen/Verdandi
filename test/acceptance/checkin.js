@@ -157,7 +157,7 @@ describe('POST /steder/:sted/besok', () => {
       .field('lat', checkinData.lat)
       .field('lon', checkinData.lon)
       .field('timestamp', checkinData.timestamp)
-      .attach('photo', 'test/fixtures/selfie.jpg')
+      .attach('photo', 'test/fixtures/doge.jpg')
       .expect(200)
       .expect('Location', /api\/dev\/steder\/400000000000000000000000/)
       .expect(res => {
@@ -214,7 +214,7 @@ describe('POST /steder/:sted/besok', () => {
     const guestbookCheckinData = Object.assign({}, checkinData, {
       public: true,
       comment: 'Mitt favorittsted, dette her!',
-      photo: 'test/fixtures/selfie.jpg',
+      photo: 'test/fixtures/doge.jpg',
     });
 
     return appMocked.put(`${url}/200000000000000000000000`)
@@ -222,7 +222,7 @@ describe('POST /steder/:sted/besok', () => {
       .set('X-User-Token', 'abc123')
       .field('public', `${guestbookCheckinData.public}`)
       .field('comment', guestbookCheckinData.comment)
-      .attach('photo', 'test/fixtures/selfie.jpg')
+      .attach('photo', 'test/fixtures/doge.jpg')
       .expect(200)
       .expect(res => {
         assert.equal(res.body.data.public, guestbookCheckinData.public);
