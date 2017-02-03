@@ -35,7 +35,7 @@ verdandi-node-v3:
   autoredeploy: true
   environment:
     - AWS_BUCKET_NAME=sjekkut
-    - AWS_BUCKET_PATH=dev/
+    - AWS_BUCKET_PATH=photos/
     - AWS_BUCKET_REGION=eu-west-1
     - AWS_BUCKET_URL=sjekkut.s3.amazonaws.com/
     - CHECKIN_MAX_DISTANCE=50
