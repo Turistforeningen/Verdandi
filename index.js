@@ -196,12 +196,6 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 });
 
 router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), s3uploader, (req, res, next) => {
-  // Some properties can not be changed, and are ignored:
-  // - location
-  // - ntb_steder_id
-  // - dnt_user_id
-  // - timestamp
-
   const updated = {
     public: req.body.public,
     comment: req.body.comment,
