@@ -24,7 +24,7 @@ services:
       - AWS_BUCKET_REGION=eu-west-1
       - AWS_BUCKET_URL=sjekkut.s3.amazonaws.com/
       - CHECKIN_MAX_DISTANCE=200
-      - CHECKIN_TIMEOUT=86400
+      - CHECKIN_TIMEOUT=1
       - CHOKIDAR_USEPOLLING=true
       - MONGO_DB=test
       - NODE_ENV=development
