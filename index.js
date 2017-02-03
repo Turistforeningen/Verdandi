@@ -192,18 +192,6 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
     }
   });
 
-  // Some properties can not be changed, and are ignored:
-  // - location
-  // - ntb_steder_id
-  // - dnt_user_id
-  // - timestamp
-
-  // TODO: Set to empty if empty
-  // TODO: If fields are not posted, set to default value
-  // TODO: Sjekk at det er en bruker som har lov
-
-  // public, guestbook, photo
-
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
