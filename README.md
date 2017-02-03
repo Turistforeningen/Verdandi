@@ -193,7 +193,7 @@ Content-Type: application/json
 POST /v3/steder/524081f9b8cb77df15001660/besok HTTP/1.1
 Accept: application/json
 X-User-Id: 123
-X-User-Token asdf123
+X-User-Token: asdf1234
 
 {
   "lat": 12.3456,
@@ -222,8 +222,8 @@ Location: /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86
 
 **PUT body:**
 
-* **boolean** `public` - (default `false`)
-* **string** `comment` - (default `null`)
+* **boolean** `public`
+* **string** `comment`
 
 Other properties will be ignored and remain unchanged.
 
@@ -233,7 +233,7 @@ Other properties will be ignored and remain unchanged.
 PUT /v3/steder/524081f9b8cb77df15001660/besok/5890f8548a09d70001028d86 HTTP/1.1
 Accept: application/json
 X-User-Id: 123
-X-User-Token asdf123
+X-User-Token: asdf1234
 
 {
   "public": true,
@@ -303,6 +303,8 @@ Returns `200 Ok` on successfull request.
 ```http
 POST /v3/lister/300000000000000000000001/blimed HTTP/1.1
 Accept: application/json
+X-User-Id: 123
+X-User-Token: asdf1234
 
 HTTP/1.1 Ok
 Content-Type: application/json
@@ -326,6 +328,8 @@ Returns `200 Ok` on successfull request.
 ```http
 POST /v3/lister/300000000000000000000001/meldav HTTP/1.1
 Accept: application/json
+X-User-Id: 123
+X-User-Token: asdf1234
 
 HTTP/1.1 Ok
 Content-Type: application/json
