@@ -47,6 +47,8 @@ describe('secrets', () => {
           NTB_API_KEY: 'abc',
           NEW_RELIC_LICENSE_KEY: 'abc123',
           SENTRY_DSN: '456',
+          AWS_ACCESS_KEY_ID: 'abc',
+          AWS_SECRET_ACCESS_KEY: 'abc123',
         });
 
         return file;
@@ -61,6 +63,8 @@ describe('secrets', () => {
         NTB_API_KEY: 'abc',
         NEW_RELIC_LICENSE_KEY: 'abc123',
         SENTRY_DSN: '456',
+        AWS_ACCESS_KEY_ID: 'abc',
+        AWS_SECRET_ACCESS_KEY: 'abc123',
       });
 
       done();
