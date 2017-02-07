@@ -37,7 +37,7 @@ verdandi-node-v3:
     - AWS_BUCKET_NAME=sjekkut
     - AWS_BUCKET_PATH=photos/
     - AWS_BUCKET_REGION=eu-west-1
-    - AWS_BUCKET_URL=sjekkut.s3.amazonaws.com/
+    - 'AWS_BUCKET_URL=https://sjekkut.s3.amazonaws.com/'
     - CHECKIN_MAX_DISTANCE=50
     - CHECKIN_TIMEOUT=60
     - FORCE_SSL=true
