@@ -10,6 +10,7 @@ const checkins = require('./fixtures/checkins');
 
 process.env.CHECKIN_MAX_DISTANCE = 200;
 process.env.CHECKIN_TIMEOUT = 86400;
+process.env.AWS_BUCKET_PATH = 'test/';
 
 // mongodb connect
 before(function before(done) {
