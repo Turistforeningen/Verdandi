@@ -4,6 +4,8 @@ services:
   mongo:
     image: mongo:3
     network_mode: 'bridge'
+    ports:
+      - '27019:27017'
 
   node:
     image: node:6
