@@ -51,6 +51,12 @@ const checkinSchema = new Schema({
     type: Object,
     default: null,
   },
+
+  bilde: {
+    type: Schema.Types.ObjectId,
+    ref: 'Photo',
+    default: null,
+  },
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {
