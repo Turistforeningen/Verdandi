@@ -4,9 +4,11 @@ const mongo = require('../lib/db');
 
 const User = require('../models/User');
 const Checkin = require('../models/Checkin');
+const Photo = require('../models/Photo');
 
 const users = require('./fixtures/users');
 const checkins = require('./fixtures/checkins');
+const photos = require('./fixtures/photos');
 
 process.env.CHECKIN_MAX_DISTANCE = 200;
 process.env.CHECKIN_TIMEOUT = 86400;
@@ -35,4 +37,5 @@ beforeEach(() => mongo.connection.db.dropDatabase());
 beforeEach(() => Promise.all([
   User.collection.collection.insert(users),
   Checkin.collection.collection.insert(checkins),
+  Photo.collection.collection.insert(photos),
 ]));

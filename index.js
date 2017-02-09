@@ -16,6 +16,7 @@ const sentry = require('./lib/sentry');
 
 const User = require('./models/User');
 const Checkin = require('./models/Checkin');
+const Photo = require('./models/Photo');
 
 const express = require('express');
 const tmpdir = require('os').tmpdir;
@@ -102,6 +103,7 @@ router.get('/steder/:sted/stats', (req, res, next) => {
 router.get('/steder/:sted/logg', (req, res, next) => {
   Checkin.find()
     .where('ntb_steder_id').equals(req.params.sted)
+    .populate('photo')
     .limit(50)
     .sort({ timestamp: -1 })
     .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
@@ -116,36 +118,43 @@ router.post(
   multer.single('photo'),
   s3uploader,
   (req, res, next) => {
-    const promise = Checkin.create({
-      location: {
-        type: 'Point',
-        coordinates: [req.body.lon, req.body.lat],
-      },
-      public: !!req.body.public,
-      ntb_steder_id: req.params.sted,
-      dnt_user_id: req.user.id,
-      timestamp: req.body.timestamp,
-      comment: req.body.comment || null,
-      photo: req.upload ? {
-        versions: req.upload
-          .filter(upload => (!upload.original))
-          .map(photo => ({
-            url: photo.url,
-            width: photo.width,
-            height: photo.height,
-            etag: photo.etag,
-          })),
-      } : null,
-    });
-
-    // Save new checkin to user profile
-    promise.then(checkin => {
+    const promise = new Promise((resolve, reject) => {
+      if (req.upload) {
+        resolve(Photo.create({
+          versions: req.upload
+            .filter(upload => (!upload.original))
+            .map(photo => ({
+              url: photo.url,
+              width: photo.width,
+              height: photo.height,
+              etag: photo.etag,
+            })),
+        }));
+      } else {
+        resolve();
+      }
+    })
+    .then(photo => (
+      Checkin.create({
+        location: {
+          type: 'Point',
+          coordinates: [req.body.lon, req.body.lat],
+        },
+        public: !!req.body.public,
+        ntb_steder_id: req.params.sted,
+        dnt_user_id: req.user.id,
+        timestamp: req.body.timestamp,
+        comment: req.body.comment || null,
+        photo: photo ? photo._id : null,
+      })
+    ))
+    .then(checkin => {
       req.user.innsjekkinger.push(checkin);
       req.user.save();
-    });
-
-    // Return new checkin object
-    promise.then(checkin => {
+      return checkin;
+    })
+    .then(checkin => checkin.populate('photo').execPopulate())
+    .then(checkin => {
       res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
       res.json({
         message: 'Ok',
@@ -164,7 +173,7 @@ router.post(
           errors: error.errors,
         });
       } else {
-        next(new HttpError('Database connection failed', 500, error));
+        next(new HttpError('Unknown error', 500, error));
       }
     });
   }
@@ -182,7 +191,7 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
   // @TODO validate visibility
 
-  const promise = Checkin.findOne({ _id: req.params.checkin });
+  const promise = Checkin.findOne({ _id: req.params.checkin }).populate('photo');
 
   promise.then(data => {
     if (!data) {
@@ -201,30 +210,38 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
     comment: req.body.comment,
   };
 
-  if (req.upload) {
-    updated.photo = {
-      versions: req.upload
-        .filter(upload => (!upload.original))
-        .map(photo => ({
-          url: photo.url,
-          width: photo.width,
-          height: photo.height,
-          etag: photo.etag,
-        })),
-    };
-  }
-
-  const promise = Checkin.findOneAndUpdate(
-    { _id: req.params.checkin },
-    updated,
-    {
-      new: true,
-      runValidators: true,
-      context: 'query',
+  const promise = new Promise((resolve, reject) => {
+    if (req.upload) {
+      resolve(Photo.create({
+        versions: req.upload
+          .filter(upload => (!upload.original))
+          .map(photo => ({
+            url: photo.url,
+            width: photo.width,
+            height: photo.height,
+            etag: photo.etag,
+          })),
+      }));
+    } else {
+      resolve();
     }
-  );
+  })
+  .then(photo => {
+    if (photo) {
+      updated.photo = photo._id;
+    }
 
-  promise.then(data => {
+    return Checkin.findOneAndUpdate(
+      { _id: req.params.checkin },
+      updated,
+      {
+        new: true,
+        runValidators: true,
+        context: 'query',
+      }
+    );
+  })
+  .then(data => {
     if (!data) {
       next(new HttpError('Checkin not found', 404));
     } else {

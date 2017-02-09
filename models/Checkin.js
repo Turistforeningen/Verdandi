@@ -47,12 +47,12 @@ const checkinSchema = new Schema({
     default: null,
   },
 
-  photo: {
+  bilde: {
     type: Object,
     default: null,
   },
 
-  bilde: {
+  photo: {
     type: Schema.Types.ObjectId,
     ref: 'Photo',
     default: null,

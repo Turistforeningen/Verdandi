@@ -9,6 +9,7 @@ const auth = require('../../lib/auth');
 const User = require('../../models/User');
 const users = require('../fixtures/dnt-users');
 const checkins = require('../fixtures/checkins.js');
+const photos = require('../fixtures/photos.js');
 const mockery = require('mockery');
 
 const getUserData = auth.getUserData;
@@ -145,6 +146,7 @@ describe('POST /steder/:sted/besok', () => {
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
             photo: null,
+            bilde: null,
           },
         });
       })
@@ -293,6 +295,17 @@ describe('GET /steder/:sted/besok/:id', () => {
         data: JSON.parse(JSON.stringify(checkins[0])),
       })
   ));
+
+  it('returns 200 for existing checkin and expands photo', () => (
+    app.get(`${url}/200000000000000000000003`)
+      .expect(200)
+      .expect({
+        data: Object.assign(
+          JSON.parse(JSON.stringify(checkins[3])),
+          { photo: JSON.parse(JSON.stringify(photos[1])) }
+        ),
+      })
+  ));
 });
 
 describe('GET /steder/:sted/stats', () => {
@@ -310,7 +323,10 @@ describe('GET /steder/:sted/logg', () => {
 
   const data = [
     JSON.parse(JSON.stringify(checkins[1])),
-    JSON.parse(JSON.stringify(checkins[2])),
+    Object.assign(
+      JSON.parse(JSON.stringify(checkins[2])),
+      { photo: JSON.parse(JSON.stringify(photos[0])) }
+    ),
   ].map(c => {
     if (c.public === false) {
       delete c.dnt_user_id;
