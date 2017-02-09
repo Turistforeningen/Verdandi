@@ -47,11 +47,6 @@ const checkinSchema = new Schema({
     default: null,
   },
 
-  bilde: {
-    type: Object,
-    default: null,
-  },
-
   photo: {
     type: Schema.Types.ObjectId,
     ref: 'Photo',

@@ -146,7 +146,6 @@ describe('POST /steder/:sted/besok', () => {
             ntb_steder_id: '400000000000000000000000',
             timestamp: checkinData.timestamp,
             photo: null,
-            bilde: null,
           },
         });
       })

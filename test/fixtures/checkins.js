@@ -12,7 +12,6 @@ module.exports = [
     dnt_user_id: 1234,
     comment: null,
     photo: null,
-    bilde: null,
   },
   {
     _id: objectId('200000000000000000000001'),
@@ -23,7 +22,6 @@ module.exports = [
     dnt_user_id: 1234,
     comment: null,
     photo: null,
-    bilde: null,
   },
   {
     _id: objectId('200000000000000000000002'),
@@ -34,7 +32,6 @@ module.exports = [
     dnt_user_id: 5678,
     comment: null,
     photo: '400000000000000000000000',
-    bilde: null,
   },
   {
     _id: objectId('200000000000000000000003'),
@@ -45,6 +42,5 @@ module.exports = [
     dnt_user_id: 1234,
     comment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     photo: '400000000000000000000001',
-    bilde: null,
   },
 ];
