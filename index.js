@@ -244,9 +244,9 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   .then(data => {
     if (!data) {
       next(new HttpError('Checkin not found', 404));
-    } else {
-      return data.populate('photo').execPopulate();
     }
+
+    return data.populate('photo').execPopulate();
   })
   .then(data => {
     res.json({ data });
@@ -319,10 +319,6 @@ router.param('bruker', (req, res, next, bruker) => {
       }
 
       return User.populate(user, { path: 'innsjekkinger.photo', model: 'Photo' });
-    })
-
-    .then(user => {
-      return user;
     })
 
     // Conditionally hide private user checkins
