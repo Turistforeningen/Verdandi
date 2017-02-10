@@ -6,6 +6,7 @@ const app = request(require('../../index'));
 
 const users = require('../fixtures/users.js');
 const checkins = require('../fixtures/checkins.js');
+const photos = require('../fixtures/photos.js');
 
 describe('GET /brukere/:bruker', () => {
   const url = '/api/dev/brukere';
@@ -32,7 +33,10 @@ describe('GET /brukere/:bruker', () => {
     const user = JSON.parse(JSON.stringify(users[0]));
 
     user.innsjekkinger = [
-      JSON.parse(JSON.stringify(checkins[0])),
+      Object.assign(
+        JSON.parse(JSON.stringify(checkins[0])),
+        { photo: JSON.parse(JSON.stringify(photos[0])) }
+      ),
       JSON.parse(JSON.stringify(checkins[1])),
     ];
 

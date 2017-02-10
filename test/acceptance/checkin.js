@@ -291,7 +291,10 @@ describe('GET /steder/:sted/besok/:id', () => {
     app.get(`${url}/200000000000000000000000`)
       .expect(200)
       .expect({
-        data: JSON.parse(JSON.stringify(checkins[0])),
+        data: Object.assign(
+          JSON.parse(JSON.stringify(checkins[0])),
+          { photo: JSON.parse(JSON.stringify(photos[0])) }
+        ),
       })
   ));
 

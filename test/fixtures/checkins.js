@@ -11,7 +11,7 @@ module.exports = [
     ntb_steder_id: objectId('400000000000000000000000'),
     dnt_user_id: 1234,
     comment: null,
-    photo: null,
+    photo: '400000000000000000000000',
   },
   {
     _id: objectId('200000000000000000000001'),
