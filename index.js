@@ -245,8 +245,11 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
     if (!data) {
       next(new HttpError('Checkin not found', 404));
     } else {
-      res.json({ data });
+      return data.populate('photo').execPopulate();
     }
+  })
+  .then(data => {
+    res.json({ data });
   });
 
   promise.catch(error => {

@@ -226,6 +226,7 @@ describe('POST /steder/:sted/besok', () => {
       .attach('photo', 'test/fixtures/doge.jpg')
       .expect(200)
       .expect(res => {
+        assert.equal(typeof res.body.data.photo, 'object');
         assert.equal(res.body.data.public, guestbookCheckinData.public);
         assert.equal(res.body.data.comment, guestbookCheckinData.comment);
       });
