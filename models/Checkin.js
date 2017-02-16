@@ -64,6 +64,8 @@ checkinSchema.pre('save', function preSave(next) {
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {
+  userId = parseInt(userId, 10);
+
   if (!this.user) {
     return this;
   } else if (userId === this.dnt_user_id) {
