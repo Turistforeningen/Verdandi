@@ -327,7 +327,7 @@ router.param('bruker', (req, res, next, bruker) => {
         throw new HttpError(`User "${req.params.bruker}" Not Found`, 404);
       }
 
-      return User.populate(user, { path: 'innsjekkinger.photo', model: 'Photo' });
+      return user;
     })
 
     // Conditionally hide private user checkins
