@@ -41,6 +41,11 @@ const checkinSchema = new Schema({
     required: true,
   },
 
+  user: {
+    type: Number,
+    ref: 'User',
+  },
+
   comment: {
     type: String,
     default: null,
@@ -54,9 +59,20 @@ const checkinSchema = new Schema({
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {
-  if (userId !== this._id && !this.public) {
-    this.set('dnt_user_id', undefined);
-    this.set('location', undefined);
+  if (!this.user) {
+    return this;
+  } else if (userId === this.dnt_user_id) {
+    return this;
+  } else if (this.public === true) {
+    this.set('user', {
+      navn: this.user.navn,
+      avatar: this.user.avatar || null,
+    });
+  } else {
+    this.set('user', null);
+    this.set('dnt_user_id', null);
+    this.set('location', null);
+    this.set('photo', null);
   }
 
   return this;

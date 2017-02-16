@@ -7,7 +7,8 @@ const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
 const User = require('../../models/User');
-const users = require('../fixtures/dnt-users');
+const dntUsers = require('../fixtures/dnt-users');
+const users = require('../fixtures/users');
 const checkins = require('../fixtures/checkins.js');
 const photos = require('../fixtures/photos.js');
 const mockery = require('mockery');
@@ -45,7 +46,7 @@ describe('POST /steder/:sted/besok', () => {
   before(() => {
     authMocked = require('../../lib/auth'); // eslint-disable-line global-require
 
-    authMocked.getUserData = () => Promise.resolve(users[1]);
+    authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
   });
 
   after(() => {
@@ -315,14 +316,24 @@ describe('GET /steder/:sted/logg', () => {
 
   const data = [
     JSON.parse(JSON.stringify(checkins[1])),
-    Object.assign(
-      JSON.parse(JSON.stringify(checkins[2])),
-      { photo: JSON.parse(JSON.stringify(photos[0])) }
-    ),
+    JSON.parse(JSON.stringify(checkins[2])),
   ].map(c => {
     if (c.public === false) {
-      delete c.dnt_user_id;
-      delete c.location;
+      c.dnt_user_id = null;
+      c.user = null;
+      c.location = null;
+      c.photo = null;
+    } else {
+      c.user = {
+        navn: users[0].navn,
+        avatar: users[0].avatar,
+        innsjekkinger: [],
+        lister: [],
+      };
+
+      if (c.photo) {
+        c.photo = photos[0];
+      }
     }
     return c;
   });

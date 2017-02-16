@@ -120,11 +120,21 @@ describe('lister', () => {
       appMocked.get(`${url}/logg`)
         .expect(200)
         .expect(res => {
-          assert.equal(res.body.data.length, 2);
-          assert.equal(typeof res.body.data[0].dnt_user_id, 'number');
-          assert.equal(typeof res.body.data[0].location, 'object');
-          assert.equal(typeof res.body.data[1].dnt_user_id, 'undefined');
-          assert.equal(typeof res.body.data[1].location, 'undefined');
+          const data = res.body.data;
+
+          assert.equal(data.length, 2);
+
+          data.forEach(checkin => {
+            if (checkin.public === true) {
+              assert.equal(typeof checkin.user.navn, 'string');
+              assert.equal(typeof checkin.location, 'object');
+              assert.equal(typeof checkin.dnt_user_id, 'number');
+            } else {
+              assert.equal(checkin.user, null);
+              assert.equal(checkin.location, null);
+              assert.equal(checkin.dnt_user_id, null);
+            }
+          });
         })
     ));
   });

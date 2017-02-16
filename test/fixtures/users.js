@@ -19,6 +19,7 @@ module.exports = [{
   _id: 5678,
   navn: 'Per Pettersen',
   epost: 'per.pettersen@example.com',
+  avatar: null,
   lister: [],
   innsjekkinger: [
     objectId('200000000000000000000002'),
