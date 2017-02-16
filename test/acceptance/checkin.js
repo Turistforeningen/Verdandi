@@ -8,7 +8,6 @@ const auth = require('../../lib/auth');
 
 const User = require('../../models/User');
 const dntUsers = require('../fixtures/dnt-users');
-const users = require('../fixtures/users');
 const checkins = require('../fixtures/checkins.js');
 const photos = require('../fixtures/photos.js');
 const mockery = require('mockery');
@@ -314,30 +313,6 @@ describe('GET /steder/:sted/stats', () => {
 
 describe('GET /steder/:sted/logg', () => {
   const url = '/api/dev/steder/400000000000000000000001/logg';
-
-  const data = [
-    JSON.parse(JSON.stringify(checkins[1])),
-    JSON.parse(JSON.stringify(checkins[2])),
-  ].map(c => {
-    if (c.public === false) {
-      c.dnt_user_id = null;
-      c.user = null;
-      c.location = null;
-      c.photo = null;
-    } else {
-      c.user = {
-        navn: users[0].navn,
-        avatar: users[0].avatar,
-        innsjekkinger: [],
-        lister: [],
-      };
-
-      if (c.photo) {
-        c.photo = photos[0];
-      }
-    }
-    return c;
-  });
 
   it('returns the most recent checkins', () => (
     app.get(url)
