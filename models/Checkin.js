@@ -58,6 +58,11 @@ const checkinSchema = new Schema({
   },
 });
 
+checkinSchema.pre('save', function preSave(next) {
+  this.user = this.dnt_user_id;
+  next();
+});
+
 checkinSchema.methods.anonymize = function anonymize(userId) {
   if (!this.user) {
     return this;
