@@ -105,15 +105,7 @@ router.get('/steder/:sted/stats', (req, res, next) => {
 router.get('/steder/:sted/logg', (req, res, next) => {
   Checkin.find()
     .where('ntb_steder_id').equals(req.params.sted)
-    .populate({
-      path: 'photo user',
-      match: {
-        $or: [
-          { user: req.headers['x-user-id'] },
-          { public: true },
-        ],
-      },
-    })
+    .populate('photo user')
     .limit(50)
     .sort({ timestamp: -1 })
     .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
@@ -282,15 +274,7 @@ router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
 
   Checkin.find()
     .where('ntb_steder_id').in(steder)
-    .populate({
-      path: 'photo user',
-      match: {
-        $or: [
-          { user: req.headers['x-user-id'] },
-          { public: true },
-        ],
-      },
-    })
+    .populate('photo user')
     .limit(50)
     .sort({ timestamp: -1 })
     .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
