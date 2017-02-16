@@ -102,7 +102,7 @@ describe('ntb', () => {
       const req = { params: { sted: '400000000000000000000000' } };
 
       ntb.middleware(req, {}, () => {
-        assert.equal(req.ntb_steder_object._id, '400000000000000000000000');
+        assert.equal(req.ntbObject._id, '400000000000000000000000');
         done();
       });
     });
