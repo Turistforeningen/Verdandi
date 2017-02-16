@@ -1,11 +1,10 @@
 'use strict';
 
-const { Schema, Types: { ObjectId: objectId } } = require('../lib/db');
+const { Schema } = require('../lib/db');
 const mongoose = require('../lib/db');
 const secrets = require('../lib/secrets');
 
 const fetch = require('node-fetch');
-const HttpError = require('@starefossen/http-error');
 const geoutil = require('geoutil');
 
 const checkinSchema = new Schema({
@@ -107,28 +106,6 @@ checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) {
       cb(!result.length);
     });
 }, `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`);
-
-checkinSchema.statics.getCheckinsForList = function getCheckinsForList(list) {
-  const env = process.env.NTB_API_ENV || 'api';
-  const key = secrets.NTB_API_KEY;
-
-  const headers = {
-    Authorization: `Token ${key}`,
-  };
-
-  return fetch(`https://${env}.nasjonalturbase.no/lister/${list}`, { headers })
-    .then(res => {
-      if (res.status !== 200) {
-        throw new HttpError(`Status Code ${res.status}`, res.status);
-      } else {
-        return res;
-      }
-    })
-    .then(res => res.json())
-    .then(liste => liste.steder || [])
-    .then(steder => steder.map(id => objectId(id)))
-    .then(steder => this.find().where('ntb_steder_id').in(steder));
-};
 
 checkinSchema.index({ location: '2dsphere' });
 

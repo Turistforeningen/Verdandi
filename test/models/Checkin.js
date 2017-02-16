@@ -6,36 +6,6 @@ const mockery = require('mockery');
 const checkinsFixtures = require('../fixtures/checkins.js');
 
 describe('Checkin', () => {
-  describe('#getCheckinsForList()', () => {
-    before(() => mockery.enable({
-      useCleanCache: true,
-      warnOnReplace: false,
-      warnOnUnregistered: false,
-    }));
-
-    afterEach(() => mockery.deregisterMock('node-fetch'));
-
-    after(() => mockery.disable());
-
-    it('it returns existing checkins for existing list', () => {
-      // Mock node-fetch
-      mockery.registerMock('node-fetch', () => Promise.resolve({
-        status: 200,
-        json: () => ({
-          steder: ['400000000000000000000000', '400000000000000000000001'],
-        }),
-      }));
-
-      // Require Checkin (it now uses the mock above)
-      const Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
-
-      return Checkin.getCheckinsForList('300000000000000000000000')
-        .then(checkins => {
-          assert.equal(checkins.length, 4);
-        });
-    });
-  });
-
   describe('#saveCheckin()', () => {
     let Checkin;
 

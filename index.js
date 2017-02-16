@@ -37,6 +37,8 @@ const responseTime = require('response-time');
 const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
 
+const { Types: { ObjectId: objectId } } = require('./lib/db');
+
 const { middleware: requireAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
@@ -267,10 +269,16 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
 
 router.get('/lister/:liste/stats', notImplementedYet);
 
-router.get('/lister/:liste/logg', (req, res) => {
-  Checkin.getCheckinsForList(req.params.liste)
+router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
+  const steder = req.ntbObject.steder.map(sted => objectId(sted)) || [];
+
+  Checkin.find()
+    .where('ntb_steder_id').in(steder)
+    .limit(50)
+    .sort({ timestamp: -1 })
     .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
-    .then(checkins => res.json({ data: checkins }));
+    .then(data => res.json({ data }))
+    .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
 router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
