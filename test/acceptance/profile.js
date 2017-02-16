@@ -20,7 +20,7 @@ describe('GET /brukere/:bruker', () => {
       }, done);
   });
 
-  it('reutrns error for unknown user ID', done => {
+  it('returns error for unknown user ID', done => {
     app.get(`${url}/404`)
       .expect(404)
       .expect({
@@ -33,10 +33,7 @@ describe('GET /brukere/:bruker', () => {
     const user = JSON.parse(JSON.stringify(users[0]));
 
     user.innsjekkinger = [
-      Object.assign(
-        JSON.parse(JSON.stringify(checkins[0])),
-        { photo: JSON.parse(JSON.stringify(photos[0])) }
-      ),
+      JSON.parse(JSON.stringify(checkins[0])),
       JSON.parse(JSON.stringify(checkins[1])),
     ];
 

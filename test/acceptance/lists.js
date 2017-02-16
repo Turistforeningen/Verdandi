@@ -112,7 +112,7 @@ describe('lister', () => {
         .set('X-User-Token', 'abc123')
         .expect(200)
         .expect(res => {
-          assert.equal(res.body.data.length, 2);
+          assert.equal(res.body.data.length, 3);
         })
     ));
 
@@ -122,7 +122,7 @@ describe('lister', () => {
         .expect(res => {
           const data = res.body.data;
 
-          assert.equal(data.length, 2);
+          assert.equal(data.length, 3);
 
           data.forEach(checkin => {
             if (checkin.public === true) {

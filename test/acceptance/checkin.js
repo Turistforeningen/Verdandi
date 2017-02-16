@@ -308,7 +308,7 @@ describe('GET /steder/:sted/stats', () => {
   it('returns checkin statistics for a given place', () => (
     app.get(url)
       .expect(200)
-      .expect({ data: { count: 2 } })
+      .expect({ data: { count: 3 } })
   ));
 });
 
@@ -343,7 +343,35 @@ describe('GET /steder/:sted/logg', () => {
     app.get(url)
       .expect(200)
       .expect(res => {
-        assert.deepEqual(res.body, { data });
+        assert.equal(res.body.data.length, 3);
+      })
+  ));
+
+  it('populates location, limited user, and photo for public checkins', () => (
+    app.get(url)
+      .expect(200)
+      .expect(res => {
+        res.body.data.forEach(checkin => {
+          if (checkin.public === true) {
+            assert.notEqual(checkin.location, null);
+            assert.ok(!checkin.user._id);
+            assert.ok(checkin.photo);
+          }
+        });
+      })
+  ));
+
+  it('populates location, full user, and photo for own checkins', () => (
+    app.get(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .expect(res => {
+        res.body.data.forEach(checkin => {
+          if (checkin.user && checkin.user.navn === 'Ole Olsen') {
+            assert.notEqual(checkin.location, null);
+            assert.ok(checkin.user._id);
+          }
+        });
       })
   ));
 });
