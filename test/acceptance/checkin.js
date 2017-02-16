@@ -125,7 +125,7 @@ describe('POST /steder/:sted/besok', () => {
       });
   });
 
-  it('stores new checkin to the database', () => (
+  it('stores new valid checkin to the database', () => (
     appMocked.post(url)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
