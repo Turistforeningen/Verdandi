@@ -8,6 +8,7 @@ const auth = require('../../lib/auth');
 
 const User = require('../../models/User');
 const dntUsers = require('../fixtures/dnt-users');
+const users = require('../fixtures/users');
 const checkins = require('../fixtures/checkins.js');
 const photos = require('../fixtures/photos.js');
 const mockery = require('mockery');
@@ -132,23 +133,15 @@ describe('POST /steder/:sted/besok', () => {
       .expect(200)
       .expect('Location', /api\/dev\/steder\/400000000000000000000000/)
       .expect(res => {
-        assert.deepEqual(res.body, {
-          message: 'Ok',
-          data: {
-            _id: res.body.data._id,
-            dnt_user_id: 1234,
-            location: {
-              coordinates: [checkinData.lon, checkinData.lat],
-              type: 'Point',
-            },
-            user: 1234,
-            comment: null,
-            public: false,
-            ntb_steder_id: '400000000000000000000000',
-            timestamp: checkinData.timestamp,
-            photo: null,
-          },
+        const { data, message } = res.body;
+        assert.equal(message, 'Ok');
+        assert.equal(data.ntb_steder_id, '400000000000000000000000');
+        assert.deepEqual(data.location, {
+          coordinates: [checkinData.lon, checkinData.lat],
+          type: 'Point',
         });
+        assert.equal(data.user._id, 1234);
+        assert.equal(data.user.innsjekkinger[2], data._id);
       })
   ));
 
@@ -227,9 +220,10 @@ describe('POST /steder/:sted/besok', () => {
       .attach('photo', 'test/fixtures/doge.jpg')
       .expect(200)
       .expect(res => {
-        assert.equal(typeof res.body.data.photo, 'object');
-        assert.equal(res.body.data.public, guestbookCheckinData.public);
-        assert.equal(res.body.data.comment, guestbookCheckinData.comment);
+        const { data } = res.body;
+        assert.equal(typeof data.photo, 'object');
+        assert.equal(data.public, guestbookCheckinData.public);
+        assert.equal(data.comment, guestbookCheckinData.comment);
       });
   });
 
@@ -289,14 +283,32 @@ describe('GET /steder/:sted/besok/:id', () => {
       })
   ));
 
-  it('returns 200 for existing checkin', () => (
+  it('returns 403 for existing non public checkin', () => (
     app.get(`${url}/200000000000000000000000`)
+      .expect(403)
+  ));
+
+  it('returns 200 with limited details for existing public checkin', () => (
+    app.get(`${url}/200000000000000000000001`)
       .expect(200)
-      .expect({
-        data: Object.assign(
-            JSON.parse(JSON.stringify(checkins[0])),
-            { photo: JSON.parse(JSON.stringify(photos[0])) }
-          ),
+      .expect(res => {
+        const { data } = res.body;
+        assert.equal(data._id, 200000000000000000000001);
+        assert.ok(!data.user._id);
+        assert.equal(typeof data.user.navn, 'string');
+      })
+  ));
+
+  it('returns 200 and populated for existing checkin request by owner', () => (
+    app.get(`${url}/200000000000000000000000`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .expect(200)
+      .expect(res => {
+        const { data } = res.body;
+        assert.equal(data._id, 200000000000000000000000);
+        assert.deepEqual(data.user, JSON.parse(JSON.stringify(users[0])));
+        assert.deepEqual(data.photo, JSON.parse(JSON.stringify(photos[0])));
       })
   ));
 });

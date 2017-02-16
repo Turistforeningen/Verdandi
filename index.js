@@ -120,6 +120,7 @@ router.post(
   multer.single('photo'),
   s3uploader,
   (req, res, next) => {
+    let c;
     const promise = new Promise((resolve, reject) => {
       if (req.upload) {
         resolve(Photo.create({
@@ -151,11 +152,12 @@ router.post(
       })
     ))
     .then(checkin => {
+      c = checkin;
       req.user.innsjekkinger.push(checkin);
-      req.user.save();
-      return checkin;
+      return req.user.save();
     })
-    .then(checkin => checkin.populate('photo').execPopulate())
+    .then(user => c)
+    .then(checkin => checkin.populate('photo user').execPopulate())
     .then(checkin => {
       res.set('Location', `${req.fullUrl}${req.url}/${checkin._id}`);
       res.json({
@@ -193,13 +195,15 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
   // @TODO validate visibility
 
-  const promise = Checkin.findOne({ _id: req.params.checkin }).populate('photo');
+  const promise = Checkin.findOne({ _id: req.params.checkin }).populate('user photo');
 
-  promise.then(data => {
-    if (!data) {
+  promise.then(checkin => {
+    if (!checkin) {
       next(new HttpError('Checkin not found', 404));
+    } else if (!checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
+      next(new HttpError('Checkin not public', 403));
     } else {
-      res.json({ data });
+      res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
     }
   });
 
@@ -248,7 +252,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
       next(new HttpError('Checkin not found', 404));
     }
 
-    return data.populate('photo').execPopulate();
+    return data.populate('photo user').execPopulate();
   })
   .then(data => {
     res.json({ data });
