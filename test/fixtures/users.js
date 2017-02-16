@@ -6,6 +6,7 @@ module.exports = [{
   _id: 1234,
   navn: 'Ole Olsen',
   epost: 'ole.olsen@example.com',
+  avatar: null,
   lister: [
     objectId('300000000000000000000000'),
     objectId('300000000000000000000001'),

@@ -8,6 +8,7 @@ const userSchema = new Schema({
   _id: Number,
   navn: String,
   epost: String,
+  avatar: String,
   lister: [],
   innsjekkinger: [{ type: Schema.Types.ObjectId, ref: 'Checkin' }],
 });
