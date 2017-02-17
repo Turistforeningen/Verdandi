@@ -72,6 +72,7 @@ checkinSchema.methods.anonymize = function anonymize(user) {
     return this;
   } else if (this.public === true) {
     this.set('user', {
+      _id: this.user._id,
       navn: this.user.navn,
       avatar: this.user.avatar || null,
     });

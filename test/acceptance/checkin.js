@@ -294,7 +294,7 @@ describe('GET /steder/:sted/besok/:id', () => {
       .expect(res => {
         const { data } = res.body;
         assert.equal(data._id, 200000000000000000000001);
-        assert.ok(!data.user._id);
+        assert.ok(!!data.user._id);
         assert.equal(typeof data.user.navn, 'string');
       })
   ));
@@ -341,7 +341,7 @@ describe('GET /steder/:sted/logg', () => {
         res.body.data.forEach(checkin => {
           if (checkin.public === true) {
             assert.notEqual(checkin.location, null);
-            assert.ok(!checkin.user._id);
+            assert.ok(!!checkin.user._id);
             assert.ok(checkin.photo);
           }
         });
