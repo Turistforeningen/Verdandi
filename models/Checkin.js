@@ -66,9 +66,7 @@ checkinSchema.pre('save', function preSave(next) {
 checkinSchema.methods.anonymize = function anonymize(user) {
   const userId = isNaN(Number(user)) ? undefined : Number(user);
 
-  if (!this.user) {
-    return this;
-  } else if (userId === this.dnt_user_id) {
+  if (userId === this.dnt_user_id) {
     return this;
   } else if (this.public === true) {
     this.set('user', {
