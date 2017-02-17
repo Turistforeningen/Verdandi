@@ -63,10 +63,8 @@ checkinSchema.pre('save', function preSave(next) {
   next();
 });
 
-checkinSchema.methods.anonymize = function anonymize(userId) {
-  if (userId) {
-    userId = parseInt(userId, 10);
-  }
+checkinSchema.methods.anonymize = function anonymize(user) {
+  const userId = isNaN(Number(user)) ? undefined : Number(user);
 
   if (!this.user) {
     return this;
