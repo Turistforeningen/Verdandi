@@ -6,7 +6,6 @@ const app = request(require('../../index'));
 
 const users = require('../fixtures/users.js');
 const checkins = require('../fixtures/checkins.js');
-const photos = require('../fixtures/photos.js');
 
 describe('GET /brukere/:bruker', () => {
   const url = '/api/dev/brukere';
