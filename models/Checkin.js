@@ -80,6 +80,7 @@ checkinSchema.methods.anonymize = function anonymize(user) {
     this.set('dnt_user_id', null);
     this.set('location', null);
     this.set('photo', null);
+    this.set('comment', null);
   }
 
   return this;
