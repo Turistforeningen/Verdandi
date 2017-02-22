@@ -212,10 +212,6 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 
 router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), s3uploader, (req, res, next) => {
   const promise = Checkin.findOne({ _id: req.params.checkin }).exec();
-  const updated = {
-    public: req.body.public,
-    comment: req.body.comment,
-  };
 
   promise.then(checkin => {
     if (checkin === null) {
@@ -241,21 +237,21 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
       resolve();
     }
   }))
-  .then(photo => {
-    if (photo) {
-      updated.photo = photo._id;
-    }
-
-    return Checkin.findOneAndUpdate(
+  .then(photo => (
+    Checkin.findOneAndUpdate(
       { _id: req.params.checkin },
-      updated,
+      {
+        public: req.body.public,
+        comment: req.body.comment || null,
+        photo: photo ? photo._id : req.body.photo || null,
+      },
       {
         new: true,
         runValidators: true,
         context: 'query',
       }
-    );
-  })
+    )
+  ))
   .then(data => data.populate('photo user').execPopulate())
   .then(data => {
     res.json({ data });

@@ -317,15 +317,15 @@ describe('PUT /steder/:sted/besok/:id', () => {
       });
   });
 
-  it('sets a comment to null if missing in PUT', () => (
+  it('sets non required fields to null if missing in PUT', () => (
     appMocked.put(`${url}/200000000000000000000003`)
     .set('X-User-Id', '1234')
     .set('X-User-Token', 'abc123')
     .send(checkinData)
     .expect(200)
     .expect(res => {
-      assert.equal(res.body.data.public, false);
       assert.equal(res.body.data.comment, null);
+      assert.equal(res.body.data.photo, null);
     })
   ));
 });
