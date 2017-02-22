@@ -12,7 +12,7 @@ module.exports = [
     dnt_user_id: 1234,
     user: 1234,
     comment: null,
-    photo: '400000000000000000000000',
+    photo: null,
   },
   {
     _id: objectId('200000000000000000000001'),

@@ -211,12 +211,21 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 });
 
 router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), s3uploader, (req, res, next) => {
+  const promise = Checkin.findOne({ _id: req.params.checkin }).exec();
   const updated = {
     public: req.body.public,
     comment: req.body.comment,
   };
 
-  const promise = new Promise((resolve, reject) => {
+  promise.then(checkin => {
+    if (checkin === null) {
+      return next(new HttpError('Checkin not found', 404));
+    } else if (checkin.user !== req.user._id) {
+      return next(new HttpError('Authorization failed', 403));
+    }
+    return checkin;
+  })
+  .then(checkin => new Promise((resolve, reject) => {
     if (req.upload) {
       resolve(Photo.create({
         versions: req.upload
@@ -231,7 +240,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
     } else {
       resolve();
     }
-  })
+  }))
   .then(photo => {
     if (photo) {
       updated.photo = photo._id;
@@ -247,13 +256,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
       }
     );
   })
-  .then(data => {
-    if (!data) {
-      next(new HttpError('Checkin not found', 404));
-    }
-
-    return data.populate('photo user').execPopulate();
-  })
+  .then(data => data.populate('photo user').execPopulate())
   .then(data => {
     res.json({ data });
   });

@@ -278,6 +278,22 @@ describe('PUT /steder/:sted/besok/:id', () => {
       });
   });
 
+  it('returns 404 for PUT to non existing checkin', () => (
+    appMocked.put(`${url}/400000000000000000000004`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send()
+      .expect(404)
+  ));
+
+  it('returns 403 for PUT to other users\' checkin', () => (
+    appMocked.put(`${url}/200000000000000000000002`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send()
+      .expect(403)
+  ));
+
   it('updates a checkin with photo on PUT', () => {
     const guestbookCheckinData = Object.assign({}, checkinData, {
       public: true,
@@ -294,7 +310,8 @@ describe('PUT /steder/:sted/besok/:id', () => {
       .expect(200)
       .expect(res => {
         const { data } = res.body;
-        assert.equal(typeof data.photo, 'object');
+        assert.ok(data.photo);
+        assert.equal(typeof data.photo.versions, 'object');
         assert.equal(data.public, guestbookCheckinData.public);
         assert.equal(data.comment, guestbookCheckinData.comment);
       });
@@ -350,13 +367,13 @@ describe('GET /steder/:sted/besok/:id', () => {
   ));
 
   it('returns 200 and populated for existing checkin request by owner', () => (
-    app.get(`${url}/200000000000000000000000`)
+    app.get(`${url}/200000000000000000000001`)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'abc123')
       .expect(200)
       .expect(res => {
         const { data } = res.body;
-        assert.equal(data._id, 200000000000000000000000);
+        assert.equal(data._id, 200000000000000000000001);
         assert.deepEqual(data.user, JSON.parse(JSON.stringify(users[0])));
         assert.deepEqual(data.photo, JSON.parse(JSON.stringify(photos[0])));
       })
