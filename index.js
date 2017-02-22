@@ -393,6 +393,10 @@ router.use(raven.middleware.express.errorHandler(sentry));
 
 // Final Error Handling
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  if (err instanceof SyntaxError) {
+    res.status(err.statusCode).json({ code: err.statusCode, message: err.message });
+  }
+
   /* eslint-disable no-console */
   if (err.code >= 500) {
     if (err.error) {
