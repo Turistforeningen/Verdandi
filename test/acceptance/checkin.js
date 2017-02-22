@@ -188,6 +188,79 @@ describe('POST /steder/:sted/besok', () => {
       });
   });
 
+  it('saves reference to new checkin to user profile', done => {
+    appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(checkinData)
+      .end((err, res) => {
+        assert.ifError(err);
+
+        User.findOne({ _id: 1234 }).then(user => process.nextTick(() => {
+          // Convert checkin ObjectIDs to Strings
+          const innsjekkinger = user.innsjekkinger.map(i => i.toString());
+
+          assert.deepEqual(innsjekkinger, [
+            '200000000000000000000000',
+            '200000000000000000000001',
+            res.body.data._id,
+          ]);
+
+          done();
+        }));
+      });
+  });
+});
+
+describe('PUT /steder/:sted/besok/:id', () => {
+  let appMocked;
+  let authMocked;
+
+  before(() => mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false,
+  }));
+
+  before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
+    status: 200,
+    json: () => ({
+      _id: '400000000000000000000000',
+      geojson: {
+        type: 'Point',
+        coordinates: [
+          8.31323888888889,
+          61.63635277777777,
+        ],
+      },
+    }),
+  })));
+
+  before(() => {
+    appMocked = request(require('../../index')); // eslint-disable-line global-require
+  });
+
+  before(() => {
+    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+    authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
+  });
+
+  after(() => {
+    authMocked.getUserData = getUserData;
+  });
+
+  after(() => mockery.deregisterMock('node-fetch'));
+  after(() => mockery.disable());
+
+  const url = '/api/dev/steder/400000000000000000000000/besok';
+  const checkinData = {
+    lon: 8.312466144561768,
+    lat: 61.63644183145977,
+    timestamp: '2016-08-01T23:59:59.923Z',
+    public: false,
+  };
+
   it('updates a checkin on PUT', () => {
     const guestbookCheckinData = Object.assign({}, checkinData, {
       public: true,
@@ -234,33 +307,10 @@ describe('POST /steder/:sted/besok', () => {
     .send(checkinData)
     .expect(200)
     .expect(res => {
-      assert.equal(res.body.data.public, true);
+      assert.equal(res.body.data.public, false);
       assert.equal(res.body.data.comment, null);
     })
   ));
-
-  it('saves reference to new checkin to user profile', done => {
-    appMocked.post(url)
-      .set('X-User-Id', '1234')
-      .set('X-User-Token', 'abc123')
-      .send(checkinData)
-      .end((err, res) => {
-        assert.ifError(err);
-
-        User.findOne({ _id: 1234 }).then(user => process.nextTick(() => {
-          // Convert checkin ObjectIDs to Strings
-          const innsjekkinger = user.innsjekkinger.map(i => i.toString());
-
-          assert.deepEqual(innsjekkinger, [
-            '200000000000000000000000',
-            '200000000000000000000001',
-            res.body.data._id,
-          ]);
-
-          done();
-        }));
-      });
-  });
 });
 
 describe('GET /steder/:sted/besok/:id', () => {
