@@ -401,12 +401,11 @@ describe('GET /steder/:sted/logg', () => {
       })
   ));
 
-  it('respects query param public=true', () => (
+  it('respects query param public', () => (
     app.get(`${url}?public=true`)
       .expect(200)
       .expect(res => {
         const { data } = res.body;
-        assert.equal(data.length, 2);
         data.forEach(checkin => assert.equal(checkin.public, true));
       })
   ));
