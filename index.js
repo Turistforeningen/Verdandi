@@ -193,7 +193,6 @@ router.param('checkin', (req, res, next) => {
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
-  // @TODO validate visibility
 
   const promise = Checkin.findOne({ _id: req.params.checkin }).populate('user photo');
 
