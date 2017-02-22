@@ -401,6 +401,16 @@ describe('GET /steder/:sted/logg', () => {
       })
   ));
 
+  it('respects query param public=true', () => (
+    app.get(`${url}?public=true`)
+      .expect(200)
+      .expect(res => {
+        const { data } = res.body;
+        assert.equal(data.length, 2);
+        data.forEach(checkin => assert.equal(checkin.public, true));
+      })
+  ));
+
   it('populates location, limited user, and photo for public checkins', () => (
     app.get(url)
       .expect(200)

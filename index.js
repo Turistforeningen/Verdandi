@@ -103,8 +103,23 @@ router.get('/steder/:sted/stats', (req, res, next) => {
 });
 
 router.get('/steder/:sted/logg', (req, res, next) => {
+  const where = {
+    ntb_steder_id: req.params.sted,
+  };
+
+  switch (req.query.public) {
+    case 'true':
+      where.public = true;
+      break;
+    case 'false':
+      where.public = false;
+      break;
+    default:
+      break;
+  }
+
   Checkin.find()
-    .where('ntb_steder_id').equals(req.params.sted)
+    .where(where)
     .populate('photo user')
     .limit(50)
     .sort({ timestamp: -1 })
