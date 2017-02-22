@@ -4,6 +4,9 @@ services:
   mongo:
     image: mongo:3
     network_mode: 'bridge'
+    logging:
+      options:
+        max-size: "500k"
     ports:
       - '27019:27017'
     volumes:
@@ -22,6 +25,9 @@ services:
     volumes:
       - .:/usr/src/app
     env_file: secrets/dev.env
+    logging:
+      options:
+        max-size: "500k"
     environment:
       - AWS_BUCKET_NAME=sjekkut
       - AWS_BUCKET_PATH=dev/
