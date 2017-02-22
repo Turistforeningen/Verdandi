@@ -116,6 +116,16 @@ describe('lister', () => {
         })
     ));
 
+    it('respects query param public', () => (
+      appMocked.get(`${url}/logg?public=true`)
+        .expect(200)
+        .expect(res => {
+          const { data } = res.body;
+          data.forEach(checkin => assert.equal(checkin.public, true));
+        })
+    ));
+
+
     it('removes user data if checkin is not public', () => (
       appMocked.get(`${url}/logg`)
         .expect(200)

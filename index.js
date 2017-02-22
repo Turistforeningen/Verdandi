@@ -288,9 +288,21 @@ router.get('/lister/:liste/stats', notImplementedYet);
 
 router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
   const steder = req.ntbObject.steder.map(sted => objectId(sted)) || [];
+  const where = { ntb_steder_id: { $in: steder } };
+
+  switch (req.query.public) {
+    case 'true':
+      where.public = true;
+      break;
+    case 'false':
+      where.public = false;
+      break;
+    default:
+      break;
+  }
 
   Checkin.find()
-    .where('ntb_steder_id').in(steder)
+    .where(where)
     .populate('photo user')
     .limit(50)
     .sort({ timestamp: -1 })
