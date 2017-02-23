@@ -393,13 +393,6 @@ router.use(raven.middleware.express.errorHandler(sentry));
 
 // Final Error Handling
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  // Handle SyntaxError from body parser
-  // https://github.com/expressjs/body-parser/issues/122
-  // NOTE: Other errors, like request entity too large will not be handled by this
-  if (err instanceof SyntaxError) {
-    res.status(err.statusCode).json({ code: err.statusCode, message: err.message });
-  }
-
   /* eslint-disable no-console */
   if (err.code >= 500) {
     if (err.error) {
@@ -412,7 +405,15 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
   /* eslint-enable */
 
-  res.status(err.code).json(err.toJSON());
+  if (err.code && (typeof err.toJSON === 'function')) {
+    res.status(err.code).json(err.toJSON());
+  } else if (err.status && err.message) {
+    // Some errors, like SyntaxError from body-parser middleware
+    // https://github.com/expressjs/body-parser/issues/122
+    res.status(err.status).json({ code: err.status, message: err.message });
+  } else {
+    res.status(500).json({ code: 500, message: 'Unknown error' });
+  }
 });
 
 app.use(process.env.VIRTUAL_PATH, router);
