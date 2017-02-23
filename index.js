@@ -63,6 +63,32 @@ router.use(require('@starefossen/express-cors').middleware);
 // Health Check
 const healthCheck = require('@starefossen/express-health');
 
+// Params
+router.param('checkin', (req, res, next) => {
+  if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
+    res.status(400).json({ code: 400, message: 'Invalid ObjectId' });
+  } else {
+    next();
+  }
+});
+
+router.param('sted', (req, res, next) => {
+  if (/^[a-f0-9]{24}$/.test(req.params.sted) === false) {
+    res.status(400).json({ code: 400, message: 'Invalid ObjectId' });
+  } else {
+    next();
+  }
+});
+
+router.param('liste', (req, res, next) => {
+  if (/^[a-f0-9]{24}$/.test(req.params.liste) === false) {
+    res.status(400).json({ code: 400, message: 'Invalid ObjectId' });
+  } else {
+    next();
+  }
+});
+
+// API
 router.get('/CloudHealthCheck', healthCheck({
   name: 'RethinkDB',
   check: cb => {
@@ -197,14 +223,6 @@ router.post(
     });
   }
 );
-
-router.param('checkin', (req, res, next) => {
-  if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
-    res.status(400).json({ message: 'Invalid ObjectId' });
-  } else {
-    next();
-  }
-});
 
 router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID

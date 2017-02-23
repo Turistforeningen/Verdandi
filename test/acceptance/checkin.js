@@ -337,6 +337,7 @@ describe('GET /steder/:sted/besok/:id', () => {
     app.get(`${url}/invalid`)
       .expect(400)
       .expect({
+        code: 400,
         message: 'Invalid ObjectId',
       })
   ));
