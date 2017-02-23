@@ -229,9 +229,9 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
 
   promise.then(checkin => {
     if (checkin === null) {
-      return next(new HttpError('Checkin not found', 404));
+      throw new HttpError('Checkin not found', 404);
     } else if (checkin.user !== req.user._id) {
-      return next(new HttpError('Authorization failed', 403));
+      throw new HttpError('Authorization failed', 403);
     }
     return checkin;
   })
@@ -269,17 +269,18 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   .then(data => data.populate('photo user').execPopulate())
   .then(data => {
     res.json({ data });
-  });
-
-  promise.catch(error => {
-    if (error.name === 'ValidationError') {
+  })
+  .catch(error => {
+    if (error instanceof HttpError) {
+      next(error);
+    } else if (error.name === 'ValidationError') {
       res.status(400).json({
         message: 'Checkin validation failed',
         code: 400,
         errors: error.errors,
       });
     } else {
-      next(new HttpError('Database connection failed', 500, error));
+      next(new HttpError('Unknown error', 500, error));
     }
   });
 });
