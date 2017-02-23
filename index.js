@@ -88,6 +88,48 @@ router.param('liste', (req, res, next) => {
   }
 });
 
+router.param('bruker', (req, res, next, bruker) => {
+  const brukerId = parseInt(bruker, 10);
+
+  // Assert valid user ID
+  if (isNaN(brukerId)) {
+    return next(new HttpError(`Invalid user id "${bruker}"`, 400));
+  }
+
+  // Get user profile from database
+  return User
+    .findOne({ _id: brukerId })
+
+    // Expand user checkins
+    .populate('innsjekkinger')
+
+    // Check if user exists
+    .then(user => {
+      if (!user) {
+        throw new HttpError(`User "${req.params.bruker}" Not Found`, 404);
+      }
+
+      return user;
+    })
+
+    // Conditionally hide private user checkins
+    // @TODO authenticate X-User-ID header before use
+    .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
+
+    // Attach user instance to request object
+    .then(user => { req.user = user; })
+
+    .then(() => next())
+
+    .catch(error => {
+      if (error instanceof HttpError) {
+        next(error);
+      } else {
+        next(new HttpError('Database failure', 500, error));
+      }
+    });
+});
+
 // API
 router.get('/CloudHealthCheck', healthCheck({
   name: 'RethinkDB',
@@ -352,48 +394,6 @@ router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
     message: 'Ok',
     data: user,
   });
-});
-
-router.param('bruker', (req, res, next, bruker) => {
-  const brukerId = parseInt(bruker, 10);
-
-  // Assert valid user ID
-  if (isNaN(brukerId)) {
-    return next(new HttpError(`Invalid user id "${bruker}"`, 400));
-  }
-
-  // Get user profile from database
-  return User
-    .findOne({ _id: brukerId })
-
-    // Expand user checkins
-    .populate('innsjekkinger')
-
-    // Check if user exists
-    .then(user => {
-      if (!user) {
-        throw new HttpError(`User "${req.params.bruker}" Not Found`, 404);
-      }
-
-      return user;
-    })
-
-    // Conditionally hide private user checkins
-    // @TODO authenticate X-User-ID header before use
-    .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
-
-    // Attach user instance to request object
-    .then(user => { req.user = user; })
-
-    .then(() => next())
-
-    .catch(error => {
-      if (error instanceof HttpError) {
-        next(error);
-      } else {
-        next(new HttpError('Database failure', 500, error));
-      }
-    });
 });
 
 router.get('/brukere/:bruker', (req, res) => {
