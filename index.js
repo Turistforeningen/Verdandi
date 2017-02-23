@@ -393,6 +393,9 @@ router.use(raven.middleware.express.errorHandler(sentry));
 
 // Final Error Handling
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  // Handle SyntaxError from body parser
+  // https://github.com/expressjs/body-parser/issues/122
+  // NOTE: Other errors, like request entity too large will not be handled by this
   if (err instanceof SyntaxError) {
     res.status(err.statusCode).json({ code: err.statusCode, message: err.message });
   }
