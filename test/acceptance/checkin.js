@@ -312,8 +312,6 @@ describe('PUT /steder/:sted/besok/:id', () => {
         const { data } = res.body;
         assert.ok(data.photo);
         assert.equal(typeof data.photo.versions, 'object');
-        assert.equal(data.public, guestbookCheckinData.public);
-        assert.equal(data.comment, guestbookCheckinData.comment);
       });
   });
 

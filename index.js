@@ -285,6 +285,7 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 
 router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), s3uploader, (req, res, next) => {
   const promise = Checkin.findOne({ _id: req.params.checkin }).exec();
+  let c;
 
   promise.then(checkin => {
     if (checkin === null) {
@@ -292,6 +293,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
     } else if (checkin.user !== req.user._id) {
       throw new HttpError('Authorization failed', 403);
     }
+    c = checkin;
     return checkin;
   })
   .then(checkin => new Promise((resolve, reject) => {
@@ -314,8 +316,8 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
     Checkin.findOneAndUpdate(
       { _id: req.params.checkin },
       {
-        public: req.body.public,
-        comment: req.body.comment || null,
+        public: photo ? c.public : !!req.body.public,
+        comment: photo ? c.comment : req.body.comment || null,
         photo: photo ? photo._id : req.body.photo || null,
       },
       {
