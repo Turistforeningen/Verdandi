@@ -272,9 +272,9 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
 
   promise.then(checkin => {
     if (!checkin) {
-      next(new HttpError('Checkin not found', 404));
+      return next(new HttpError('Checkin not found', 404));
     } else if (!checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
-      next(new HttpError('Checkin not public', 403));
+      return next(new HttpError('Checkin not public', 403));
     } else {
       res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
     }
