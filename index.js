@@ -278,7 +278,7 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
     } else {
       res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
     }
-  });
+  }).catch(error => next(new HttpError('Internal server error', 500, error)));
 
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
 });
