@@ -104,6 +104,7 @@ router.post('/steder/:sted/besok', requireAuth, getNtbObject, (req, res, next) =
     public: !!req.body.public,
     ntb_steder_id: req.params.sted,
     dnt_user_id: req.user.id,
+    user: req.user.id,
     timestamp: req.body.timestamp,
   });
 

@@ -62,6 +62,7 @@ describe('Checkin', () => {
 
       const checkin = new Checkin({
         dnt_user_id: 1234,
+        user: 1234,
         ntb_steder_id: '400000000000000000000000',
         timestamp: '2016-07-09T23:50:50.923Z',
         location: { coordinates: [8.304591, 61.635695] },
@@ -75,6 +76,7 @@ describe('Checkin', () => {
     it('saves checkin from position inside radius', done => {
       const checkinData = {
         dnt_user_id: 1234,
+        user: 1234,
         ntb_steder_id: '400000000000000000000000',
         timestamp: '2016-07-09T23:50:50.923Z',
         location: { coordinates: [8.312466144561768, 61.63644183145977] },
@@ -95,6 +97,7 @@ describe('Checkin', () => {
       ));
       const checkinData = {
         dnt_user_id: 1234,
+        user: 1234,
         ntb_steder_id: '400000000000000000000000',
         location: { coordinates: [8.312466144561768, 61.63644183145977] },
         timestamp: invalidCheckinTimestamp.toISOString(),
@@ -111,6 +114,7 @@ describe('Checkin', () => {
     it('rejects a checkin from the future', done => {
       const checkinData = {
         dnt_user_id: 1234,
+        user: 1234,
         ntb_steder_id: '400000000000000000000000',
         timestamp: new Date().setHours(new Date().getHours() + 24),
         location: { coordinates: [8.312466144561768, 61.63644183145977] },

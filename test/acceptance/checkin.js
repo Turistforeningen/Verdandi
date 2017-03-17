@@ -135,6 +135,7 @@ describe('POST /steder/:sted/besok', () => {
           data: {
             _id: res.body.data._id,
             dnt_user_id: 1234,
+            user: 1234,
             location: {
               coordinates: [checkinData.lon, checkinData.lat],
               type: 'Point',
@@ -233,6 +234,7 @@ describe('GET /steder/:sted/logg', () => {
   ].map(c => {
     if (c.public === false) {
       delete c.dnt_user_id;
+      delete c.user;
       delete c.location;
     }
     return c;

@@ -41,6 +41,12 @@ const checkinSchema = new Schema({
     ref: 'User',
     required: true,
   },
+
+  user: {
+    type: Number,
+    ref: 'User',
+    required: true,
+  },
 });
 
 checkinSchema.methods.anonymize = function anonymize(userId) {
