@@ -36,7 +36,7 @@ services:
       - CHECKIN_MAX_DISTANCE=200
       - CHECKIN_TIMEOUT=1
       - CHOKIDAR_USEPOLLING=true
-      - MONGO_DB=test
+      - MONGO_DB=dev
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
