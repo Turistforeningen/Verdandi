@@ -275,9 +275,8 @@ router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
       return next(new HttpError('Checkin not found', 404));
     } else if (!checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
       return next(new HttpError('Checkin not public', 403));
-    } else {
-      res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
     }
+    return res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
   }).catch(error => next(new HttpError('Internal server error', 500, error)));
 
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
