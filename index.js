@@ -46,7 +46,11 @@ const { middleware: s3uploader } = require('./lib/upload');
 
 const app = module.exports = express();
 const router = new express.Router();
-const statsd = new StatsD();
+const statsd = new StatsD({
+  host: 'statsd',
+  port: 8125,
+  prefix: 'verdandi',
+});
 
 app.set('json spaces', 2);
 app.set('x-powered-by', false);
@@ -66,7 +70,7 @@ router.use(require('@starefossen/express-cors').middleware);
 const healthCheck = require('@starefossen/express-health');
 
 router.use((req, res, next) => {
-  statsd.increment('verdandi.request');
+  statsd.increment('http.request');
   next();
 });
 
