@@ -36,6 +36,7 @@ const compression = require('compression');
 const responseTime = require('response-time');
 const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
+const StatsD = require('node-statsd');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
@@ -45,6 +46,7 @@ const { middleware: s3uploader } = require('./lib/upload');
 
 const app = module.exports = express();
 const router = new express.Router();
+const statsd = new StatsD();
 
 app.set('json spaces', 2);
 app.set('x-powered-by', false);
@@ -62,6 +64,11 @@ router.use(require('@starefossen/express-cors').middleware);
 
 // Health Check
 const healthCheck = require('@starefossen/express-health');
+
+router.use((req, res, next) => {
+  statsd.increment('verdandi.request');
+  next();
+});
 
 // Params
 router.param('checkin', (req, res, next) => {
