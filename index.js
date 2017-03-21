@@ -36,7 +36,6 @@ const compression = require('compression');
 const responseTime = require('response-time');
 const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
-const StatsD = require('node-statsd');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
@@ -44,13 +43,10 @@ const { middleware: requireAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
+const statsd = require('./lib/statsd');
+
 const app = module.exports = express();
 const router = new express.Router();
-const statsd = new StatsD({
-  host: 'statsd',
-  port: 8125,
-  prefix: 'verdandi',
-});
 
 app.set('json spaces', 2);
 app.set('x-powered-by', false);
@@ -70,7 +66,7 @@ router.use(require('@starefossen/express-cors').middleware);
 const healthCheck = require('@starefossen/express-health');
 
 router.use((req, res, next) => {
-  statsd.increment('http.request');
+  statsd.logRequest();
   next();
 });
 
