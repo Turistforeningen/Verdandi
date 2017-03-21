@@ -65,10 +65,10 @@ router.use(require('@starefossen/express-cors').middleware);
 // Health Check
 const healthCheck = require('@starefossen/express-health');
 
-router.use((req, res, next) => {
-  statsd.logRequest();
-  next();
-});
+// StatsD logging of request
+router.use(responseTime((req, res, time) => {
+  statsd.logRequest(time);
+}));
 
 // Params
 router.param('checkin', (req, res, next) => {
