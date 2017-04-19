@@ -18,7 +18,7 @@ verdandi-node-v2:
     - NODE_ENV=production
     - NTB_API_ENV=api
     - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/api/v2*,https://sjekkut.app.dnt.no/api/v2*'
-    - VIRTUAL_HOST_WEIGHT=20
+    - VIRTUAL_HOST_WEIGHT=30
     - VIRTUAL_PATH=/api/v2
     - VIRTUAL_PORT=8080
   expose:
@@ -51,7 +51,7 @@ verdandi-node-v3:
     - STATSD_HOST=statsd
     - STATSD_PORT=8125
     - 'VIRTUAL_HOST=http://sjekkut.app.dnt.no/api/v3*,https://sjekkut.app.dnt.no/api/v3*'
-    - VIRTUAL_HOST_WEIGHT=20
+    - VIRTUAL_HOST_WEIGHT=30
     - VIRTUAL_PATH=/api/v3
     - VIRTUAL_PORT=8080
   expose:
