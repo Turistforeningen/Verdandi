@@ -8,7 +8,7 @@ verdandi-node-v2:
   autoredeploy: true
   environment:
     - CHECKIN_MAX_DISTANCE=50
-    - CHECKIN_TIMEOUT=60
+    - CHECKIN_TIMEOUT=21600
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
     - MONGO_DB=verdandi-prod
