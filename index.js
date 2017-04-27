@@ -256,6 +256,8 @@ router.post(
           versionKey: false,
         }),
       });
+
+      statsd.logCheckin();
     });
 
     promise.catch(error => {
