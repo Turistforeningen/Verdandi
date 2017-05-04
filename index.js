@@ -357,7 +357,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
 router.get('/lister/:liste/stats', notImplementedYet);
 
 router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
-  const steder = req.ntbObject.steder.map(sted => objectId(sted)) || [];
+  const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 
   switch (req.query.public) {
