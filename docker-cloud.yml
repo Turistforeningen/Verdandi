@@ -7,7 +7,7 @@ secrets:
 verdandi-node-v2:
   autoredeploy: true
   environment:
-    - CHECKIN_MAX_DISTANCE=50
+    - CHECKIN_MAX_DISTANCE=100
     - CHECKIN_TIMEOUT=21600
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
@@ -38,7 +38,7 @@ verdandi-node-v3:
     - AWS_BUCKET_PATH=photos/
     - AWS_BUCKET_REGION=eu-west-1
     - 'AWS_BUCKET_URL=https://sjekkut.s3.amazonaws.com/'
-    - CHECKIN_MAX_DISTANCE=50
+    - CHECKIN_MAX_DISTANCE=100
     - CHECKIN_TIMEOUT=21600
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
