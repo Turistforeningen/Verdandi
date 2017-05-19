@@ -39,7 +39,7 @@ const HttpError = require('@starefossen/http-error');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { middleware: requireAuth } = require('./lib/auth');
+const { requireAuth, optionalAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 

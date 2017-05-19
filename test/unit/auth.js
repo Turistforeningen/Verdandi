@@ -63,9 +63,9 @@ describe('auth', () => {
     });
   });
 
-  describe('#middleware()', () => {
+  describe('#requireAuth()', () => {
     it('returns 401 error for missing x-user-id header', done => {
-      auth.middleware({ headers: {} }, {}, error => {
+      auth.requireAuth({ headers: {} }, {}, error => {
         assert.equal(error.message, 'X-User-Id header is required');
         assert.equal(error.code, 401);
         done();
@@ -74,7 +74,7 @@ describe('auth', () => {
 
     it('returns 401 error for missing x-user-token header', done => {
       const req = { headers: { 'x-user-id': 1234 } };
-      auth.middleware(req, {}, error => {
+      auth.requireAuth(req, {}, error => {
         assert.equal(error.message, 'X-User-Token header is required');
         assert.equal(error.code, 401);
         done();
@@ -83,7 +83,7 @@ describe('auth', () => {
 
     it('returns 403 error for invalid user token', done => {
       const req = { headers: { 'x-user-id': 1234, 'x-user-token': 'abcd' } };
-      auth.middleware(req, {}, error => {
+      auth.requireAuth(req, {}, error => {
         assert.equal(error.message, 'User authentication failed');
         assert.equal(error.code, 403);
         done();
@@ -95,7 +95,31 @@ describe('auth', () => {
         'x-user-id': secrets.OAUTH_USER_ID,
         'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
       } };
-      auth.middleware(req, {}, error => process.nextTick(() => {
+      auth.requireAuth(req, {}, error => process.nextTick(() => {
+        assert.ifError(error);
+        assert.equal(typeof req.user, 'object');
+        assert.equal(req.user.id, secrets.OAUTH_USER_ID);
+        done();
+      }));
+    });
+  });
+
+  describe('#optionalAuth()', () => {
+    it('returns 403 error for invalid user token', done => {
+      const req = { headers: { 'x-user-id': 1234, 'x-user-token': 'abcd' } };
+      auth.optionalAuth(req, {}, error => {
+        assert.equal(error.message, 'User authentication failed');
+        assert.equal(error.code, 403);
+        done();
+      });
+    });
+
+    it('accepts valid user token', done => {
+      const req = { headers: {
+        'x-user-id': secrets.OAUTH_USER_ID,
+        'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
+      } };
+      auth.optionalAuth(req, {}, error => process.nextTick(() => {
         assert.ifError(error);
         assert.equal(typeof req.user, 'object');
         assert.equal(req.user.id, secrets.OAUTH_USER_ID);
