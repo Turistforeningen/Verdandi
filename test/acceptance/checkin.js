@@ -3,7 +3,6 @@
 
 const assert = require('assert');
 const request = require('supertest');
-const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
 const User = require('../../models/User');
@@ -328,112 +327,139 @@ describe('PUT /steder/:sted/besok/:id', () => {
   ));
 });
 
-describe('GET /steder/:sted/besok/:id', () => {
-  const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
+describe('Checkin', () => {
+  let appMocked;
+  let authMocked;
 
-  it('returns 400 for invalid checkin _id', () => (
-    app.get(`${url}/invalid`)
-      .expect(400)
-      .expect({
-        code: 400,
-        message: 'Invalid ObjectId',
-      })
-  ));
+  before(() => mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false,
+  }));
 
-  it('returns 404 for non-existing checkin', () => (
-    app.get(`${url}/000000000000000000000000`)
-      .expect(404)
-      .expect({
-        code: 404,
-        message: 'Checkin not found',
-      })
-  ));
+  before(() => {
+    appMocked = request(require('../../index')); // eslint-disable-line global-require
+  });
 
-  it('returns 403 for existing non public checkin', () => (
-    app.get(`${url}/200000000000000000000000`)
-      .expect(403)
-  ));
+  before(() => {
+    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
 
-  it('returns 200 with limited details for existing public checkin', () => (
-    app.get(`${url}/200000000000000000000001`)
-      .expect(200)
-      .expect(res => {
-        const { data } = res.body;
-        assert.equal(data._id, 200000000000000000000001);
-        assert.ok(!!data.user._id);
-        assert.equal(typeof data.user.navn, 'string');
-      })
-  ));
+    authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
+  });
 
-  it('returns 200 and populated for existing checkin request by owner', () => (
-    app.get(`${url}/200000000000000000000001`)
-      .set('X-User-Id', '1234')
-      .set('X-User-Token', 'abc123')
-      .expect(200)
-      .expect(res => {
-        const { data } = res.body;
-        assert.equal(data._id, 200000000000000000000001);
-        assert.deepEqual(data.user, JSON.parse(JSON.stringify(users[0])));
-        assert.deepEqual(data.photo, JSON.parse(JSON.stringify(photos[0])));
-      })
-  ));
-});
+  after(() => {
+    authMocked.getUserData = getUserData;
+  });
 
-describe('GET /steder/:sted/stats', () => {
-  const url = '/api/dev/steder/400000000000000000000001/stats';
+  after(() => mockery.disable());
 
-  it('returns checkin statistics for a given place', () => (
-    app.get(url)
-      .expect(200)
-      .expect({ data: { count: 3 } })
-  ));
-});
+  describe('GET /steder/:sted/besok/:id', () => {
+    const url = '/api/dev/steder/524081f9b8cb77df15001660/besok';
 
-describe('GET /steder/:sted/logg', () => {
-  const url = '/api/dev/steder/400000000000000000000001/logg';
+    it('returns 400 for invalid checkin _id', () => (
+      appMocked.get(`${url}/invalid`)
+        .expect(400)
+        .expect({
+          code: 400,
+          message: 'Invalid ObjectId',
+        })
+    ));
 
-  it('returns the most recent checkins', () => (
-    app.get(url)
-      .expect(200)
-      .expect(res => {
-        assert.equal(res.body.data.length, 3);
-      })
-  ));
+    it('returns 404 for non-existing checkin', () => (
+      appMocked.get(`${url}/000000000000000000000000`)
+        .expect(404)
+        .expect({
+          code: 404,
+          message: 'Checkin not found',
+        })
+    ));
 
-  it('respects query param public', () => (
-    app.get(`${url}?public=true`)
-      .expect(200)
-      .expect(res => {
-        const { data } = res.body;
-        data.forEach(checkin => assert.equal(checkin.public, true));
-      })
-  ));
+    it('returns 403 for existing non public checkin', () => (
+      appMocked.get(`${url}/200000000000000000000000`)
+        .expect(403)
+    ));
 
-  it('populates location, limited user, and photo for public checkins', () => (
-    app.get(url)
-      .expect(200)
-      .expect(res => {
-        res.body.data.forEach(checkin => {
-          if (checkin.public === true) {
-            assert.notEqual(checkin.location, null);
-            assert.ok(!!checkin.user._id);
-            assert.ok(checkin.photo);
-          }
-        });
-      })
-  ));
+    it('returns 200 with limited details for existing public checkin', () => (
+      appMocked.get(`${url}/200000000000000000000001`)
+        .expect(200)
+        .expect(res => {
+          const { data } = res.body;
+          assert.equal(data._id, 200000000000000000000001);
+          assert.ok(!!data.user._id);
+          assert.equal(typeof data.user.navn, 'string');
+        })
+    ));
 
-  it('populates location, full user, and photo for own checkins', () => (
-    app.get(url)
-      .set('X-User-Id', '1234')
-      .set('X-User-Token', 'abc123')
-      .expect(res => {
-        res.body.data.forEach(checkin => {
-          if (checkin.user && checkin.user.navn === 'Ole Olsen') {
-            assert.notEqual(checkin.location, null);
-            assert.ok(checkin.user._id);
-          }
-        });
-      })
-  ));
+    it('returns 200 and populated for existing checkin request by owner', () => (
+      appMocked.get(`${url}/200000000000000000000001`)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(200)
+        .expect(res => {
+          const { data } = res.body;
+          assert.equal(data._id, 200000000000000000000001);
+          assert.deepEqual(data.user, JSON.parse(JSON.stringify(users[0])));
+          assert.deepEqual(data.photo, JSON.parse(JSON.stringify(photos[0])));
+        })
+    ));
+  });
+
+  describe('GET /steder/:sted/stats', () => {
+    const url = '/api/dev/steder/400000000000000000000001/stats';
+
+    it('returns checkin statistics for a given place', () => (
+      appMocked.get(url)
+        .expect(200)
+        .expect({ data: { count: 3 } })
+    ));
+  });
+
+  describe('GET /steder/:sted/logg', () => {
+    const url = '/api/dev/steder/400000000000000000000001/logg';
+
+    it('returns the most recent checkins', () => (
+      appMocked.get(url)
+        .expect(200)
+        .expect(res => {
+          assert.equal(res.body.data.length, 3);
+        })
+    ));
+
+    it('respects query param public', () => (
+      appMocked.get(`${url}?public=true`)
+        .expect(200)
+        .expect(res => {
+          const { data } = res.body;
+          data.forEach(checkin => assert.equal(checkin.public, true));
+        })
+    ));
+
+    it('populates location, limited user, and photo for public checkins', () => (
+      appMocked.get(url)
+        .expect(200)
+        .expect(res => {
+          res.body.data.forEach(checkin => {
+            if (checkin.public === true) {
+              assert.notEqual(checkin.location, null);
+              assert.ok(!!checkin.user._id);
+              assert.ok(checkin.photo);
+            }
+          });
+        })
+    ));
+
+    it('populates location, full user, and photo for own checkins', () => (
+      appMocked.get(url)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(res => {
+          res.body.data.forEach(checkin => {
+            if (checkin.user && checkin.user.navn === 'Ole Olsen') {
+              assert.notEqual(checkin.location, null);
+              assert.ok(checkin.user._id);
+            }
+          });
+        })
+    ));
+  });
 });

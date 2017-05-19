@@ -70,6 +70,8 @@ router.use(responseTime((req, res, time) => {
   statsd.logRequest(time);
 }));
 
+router.use(optionalAuth);
+
 // Params
 router.param('checkin', (req, res, next) => {
   if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
