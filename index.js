@@ -204,6 +204,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
+// TODO(Håvard): May not need getNtbObject
 router.post(
   '/steder/:sted/besok',
   requireAuth,
