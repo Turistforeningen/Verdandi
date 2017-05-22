@@ -39,7 +39,7 @@ const HttpError = require('@starefossen/http-error');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { middleware: requireAuth } = require('./lib/auth');
+const { requireAuth, optionalAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
@@ -69,6 +69,8 @@ const healthCheck = require('@starefossen/express-health');
 router.use(responseTime((req, res, time) => {
   statsd.logRequest(time);
 }));
+
+router.use(optionalAuth);
 
 // Params
 router.param('checkin', (req, res, next) => {
@@ -202,6 +204,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
+// TODO(Håvard): May not need getNtbObject
 router.post(
   '/steder/:sted/besok',
   requireAuth,

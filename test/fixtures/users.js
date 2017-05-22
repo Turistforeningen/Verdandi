@@ -6,7 +6,7 @@ module.exports = [{
   _id: 1234,
   navn: 'Ole Olsen',
   epost: 'ole.olsen@example.com',
-  avatar: null,
+  avatar: 'https://www.gravatar.com/avatar/295c199022112b733b3dab46f52c83f8',
   lister: [
     objectId('300000000000000000000000'),
     objectId('300000000000000000000001'),

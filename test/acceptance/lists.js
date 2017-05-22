@@ -85,6 +85,7 @@ describe('lister', () => {
 
   describe('GET /lister/:liste/logg', () => {
     let appMocked;
+    let authMocked;
 
     before(() => mockery.enable({
       useCleanCache: true,
@@ -101,6 +102,16 @@ describe('lister', () => {
 
     before(() => {
       appMocked = request(require('../../index')); // eslint-disable-line global-require
+    });
+
+    before(() => {
+      authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+      authMocked.getUserData = () => Promise.resolve(users[1]);
+    });
+
+    after(() => {
+      authMocked.getUserData = getUserData;
     });
 
     after(() => mockery.deregisterMock('node-fetch'));
