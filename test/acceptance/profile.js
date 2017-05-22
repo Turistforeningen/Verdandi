@@ -8,6 +8,7 @@ const app = request(require('../../index'));
 const auth = require('../../lib/auth');
 
 const users = require('../fixtures/users.js');
+const dntUsers = require('../fixtures/dnt-users.js');
 const checkins = require('../fixtures/checkins.js');
 
 const getUserData = auth.getUserData;
@@ -72,21 +73,50 @@ describe('GET /brukere/:bruker', () => {
     });
   });
 
-  it('returns user profile for existing user', done => {
-    const user = JSON.parse(JSON.stringify(users[0]));
-    user.innsjekkinger = [JSON.parse(JSON.stringify(checkins[1]))];
+  describe('existing user', () => {
+    let appMocked;
+    let authMocked;
 
-    app.get(`${url}/1234`)
-      .expect(200)
-      .expect({ data: user }, done);
-  });
+    before(() => mockery.enable({
+      useCleanCache: true,
+      warnOnReplace: false,
+      warnOnUnregistered: false,
+    }));
 
-  it('hides private checkins for unauthenticated request', done => {
-    const user = JSON.parse(JSON.stringify(users[0]));
-    user.innsjekkinger = [JSON.parse(JSON.stringify(checkins[1]))];
+    before(() => {
+      appMocked = request(require('../../index')); // eslint-disable-line global-require
+    });
 
-    app.get(`${url}/1234`)
-      .expect(200)
-      .expect({ data: user }, done);
+    before(() => {
+      authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+      authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
+    });
+
+    after(() => {
+      authMocked.getUserData = getUserData;
+    });
+
+    after(() => mockery.disable());
+
+    it('returns user profile for existing user', done => {
+      const user = JSON.parse(JSON.stringify(users[0]));
+      user.innsjekkinger = JSON.parse(JSON.stringify([checkins[0], checkins[1]]));
+
+      appMocked.get(`${url}/1234`)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(200)
+        .expect({ data: user }, done);
+    });
+
+    it('hides private checkins for unauthenticated request', done => {
+      const user = JSON.parse(JSON.stringify(users[0]));
+      user.innsjekkinger = JSON.parse(JSON.stringify([checkins[1]]));
+
+      appMocked.get(`${url}/1234`)
+        .expect(200)
+        .expect({ data: user }, done);
+    });
   });
 });
