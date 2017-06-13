@@ -357,7 +357,40 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   });
 });
 
-router.get('/lister/:liste/stats', notImplementedYet);
+router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
+  const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
+  const where = { ntb_steder_id: { $in: steder } };
+
+  Checkin.count()
+    .where(where)
+    .then(data => { res.json({ data: { count: data } }); })
+    .catch(error => next(new HttpError('Database failure', 500, error)));
+});
+
+// TODO: Require API-key
+router.get('/lister/:liste/brukere', getNtbObject, (req, res, next) => {
+  const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
+  const where = { ntb_steder_id: { $in: steder } };
+
+  Checkin.find()
+    .where(where)
+    .populate('user')
+    .sort({ timestamp: -1 })
+    .then(checkins => checkins.reduce((accumulated, item) => Object.assign(
+      {},
+      accumulated,
+      {
+        [item.user]: {
+          _id: item.user._id,
+          navn: item.user.navn,
+          innsjekkinger: [...(accumulated[item.user] && accumulated[item.user].innsjekkinger ? accumulated[item.user].innsjekkinger : []), item], // eslint-disable-line max-len
+        },
+      }
+    ), {}))
+    .then(obj => Object.keys(obj).map(item => obj[item]))
+    .then(data => { res.json({ data }); })
+    .catch(error => next(new HttpError('Database failure', 500, error)));
+});
 
 router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));

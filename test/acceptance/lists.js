@@ -83,6 +83,65 @@ describe('lister', () => {
     });
   });
 
+  describe.only('Lists stats and users', () => {
+    let appMocked;
+    let authMocked;
+
+    before(() => mockery.enable({
+      useCleanCache: true,
+      warnOnReplace: false,
+      warnOnUnregistered: false,
+    }));
+
+    before(() => mockery.registerMock('node-fetch', () => Promise.resolve({
+      status: 200,
+      json: () => ({
+        steder: ['400000000000000000000001'],
+      }),
+    })));
+
+    before(() => {
+      appMocked = request(require('../../index')); // eslint-disable-line global-require
+    });
+
+    before(() => {
+      authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+      authMocked.getUserData = () => Promise.resolve(users[1]);
+    });
+
+    after(() => {
+      authMocked.getUserData = getUserData;
+    });
+
+    after(() => mockery.deregisterMock('node-fetch'));
+    after(() => mockery.disable());
+
+    describe('GET /lister/:liste/stats', () => {
+      it('returns stats for a list', () => (
+        appMocked.get(`${url}/stats`)
+          .expect(200)
+          .expect(res => {
+            assert.equal(res.body.data.count, 3);
+          })
+      ));
+    });
+
+    // TODO: Add API-key
+    describe('GET /lister/:liste/brukere', () => {
+      it('returns users that have checked in to a place in the list', () => (
+        appMocked.get(`${url}/brukere`)
+          .expect(200)
+          .expect(res => {
+            assert.equal(res.body.data.length, 2);
+            assert.ok(res.body.data.find(user => user._id === 1234));
+            assert.ok(res.body.data.find(user => user._id === 5678));
+            assert.equal(res.body.data.find(user => user._id === 5678).innsjekkinger.length, 2);
+          })
+      ));
+    });
+  });
+
   describe('GET /lister/:liste/logg', () => {
     let appMocked;
     let authMocked;
