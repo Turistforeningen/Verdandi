@@ -174,7 +174,7 @@ const notImplementedYet = (req, res) => {
   res.json({ message: 'Not implemented yet, come back later' });
 };
 
-router.get('/steder/:sted/stats', getNtbObject, (req, res, next) => {
+router.get('/steder/:sted/stats', (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
