@@ -204,6 +204,57 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
+router.get('/steder/:sted/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
+  const where = { ntb_steder_id: req.params.sted };
+
+  Checkin.find()
+    .where(where)
+    .populate('user')
+    .sort({ timestamp: -1 })
+    .then(checkins => checkins.reduce((accumulated, item) => Object.assign(
+      {},
+      accumulated,
+      {
+        [item.user]: {
+          _id: item.user._id,
+          navn: item.user.navn,
+          innsjekkinger: {
+            logg: [
+              ...(
+                accumulated[item.user] && accumulated[item.user].innsjekkinger
+                  ? accumulated[item.user].innsjekkinger.logg
+                  : []
+              ),
+              {
+                _id: item._id,
+                ntb_steder_id: item.ntb_steder_id,
+                public: item.public,
+              },
+            ],
+          },
+        },
+      }
+    ), {}))
+    .then(obj => Object.keys(obj).map(item => obj[item]))
+    .then(brukere => {
+      const data = brukere.map(bruker => {
+        bruker.innsjekkinger.private = bruker.innsjekkinger.logg
+          .reduce((acc, item) => (
+            acc + (item.public ? 0 : 1)
+          ), 0);
+        bruker.innsjekkinger.public =
+          bruker.innsjekkinger.logg.length - bruker.innsjekkinger.private;
+        return bruker;
+      });
+
+      res.json({
+        ntb_steder_id: req.params.sted,
+        brukere: data,
+      });
+    })
+    .catch(error => next(new HttpError('Database failure', 500, error)));
+});
+
 // TODO(Håvard): May not need getNtbObject
 router.post(
   '/steder/:sted/besok',
