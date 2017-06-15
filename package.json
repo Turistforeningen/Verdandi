@@ -50,6 +50,7 @@
     "express": "^4.13.4",
     "geoutil": "^1.2.0",
     "md5": "^2.2.1",
+    "mongo-querystring": "^4.1.1",
     "mongoose": "^4.4.13",
     "multer": "^1.2.1",
     "newrelic": "^1.28.0",

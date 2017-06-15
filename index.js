@@ -36,6 +36,7 @@ const compression = require('compression');
 const responseTime = require('response-time');
 const bodyParser = require('body-parser');
 const HttpError = require('@starefossen/http-error');
+const MongoQS = require('mongo-querystring');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
@@ -174,7 +175,11 @@ const notImplementedYet = (req, res) => {
 };
 
 router.get('/steder/:sted/stats', getNtbObject, (req, res, next) => {
-  const where = { ntb_steder_id: req.params.sted };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { ntb_steder_id: req.params.sted }
+  );
 
   Checkin.find()
     .where(where)
@@ -217,7 +222,11 @@ router.get('/steder/:sted/logg', optionalClientAuth, (req, res, next) => {
 });
 
 router.get('/steder/:sted/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
-  const where = { ntb_steder_id: req.params.sted };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { ntb_steder_id: req.params.sted }
+  );
 
   Checkin.find()
     .where(where)
@@ -421,7 +430,11 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
 
 router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
-  const where = { ntb_steder_id: { $in: steder } };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { ntb_steder_id: { $in: steder } }
+  );
 
   const checkinPromise = Checkin.find()
     .where(where)
@@ -458,7 +471,11 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
 
 router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
-  const where = { ntb_steder_id: { $in: steder } };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { ntb_steder_id: { $in: steder } }
+  );
 
   Checkin.find()
     .where(where)
@@ -569,7 +586,11 @@ router.get('/brukere/:bruker', (req, res) => {
 });
 
 router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
-  const where = { user: req.user._id };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { user: req.user._id }
+  );
 
   Checkin.find()
     .where(where)
@@ -593,7 +614,11 @@ router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
 });
 
 router.get('/brukere/:bruker/logg', optionalClientAuth, (req, res, next) => {
-  const where = { user: req.user._id };
+  const qs = new MongoQS({ whitelist: { timestamp: true } });
+  const where = Object.assign(
+    qs.parse(req.query),
+    { user: req.user._id }
+  );
 
   Checkin.find()
     .where(where)
