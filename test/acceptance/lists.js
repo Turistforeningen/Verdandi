@@ -135,10 +135,13 @@ describe('lister', () => {
           .set('X-Client-Token', 'client123')
           .expect(200)
           .expect(res => {
-            assert.equal(res.body.data.length, 2);
-            assert.ok(res.body.data.find(user => user._id === 1234));
-            assert.ok(res.body.data.find(user => user._id === 5678));
-            assert.equal(res.body.data.find(user => user._id === 5678).innsjekkinger.length, 2);
+            assert.equal(res.body.brukere.length, 2);
+            assert.ok(res.body.brukere.find(user => user._id === 1234));
+            assert.ok(res.body.brukere.find(user => user._id === 5678));
+            assert.equal(
+              res.body.brukere.find(user => user._id === 5678).innsjekkinger.logg.length,
+              2
+            );
           })
       ));
     });

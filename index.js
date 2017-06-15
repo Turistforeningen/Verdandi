@@ -381,12 +381,48 @@ router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res,
         [item.user]: {
           _id: item.user._id,
           navn: item.user.navn,
-          innsjekkinger: [...(accumulated[item.user] && accumulated[item.user].innsjekkinger ? accumulated[item.user].innsjekkinger : []), item], // eslint-disable-line max-len
+          innsjekkinger: {
+            logg: [
+              ...(
+                accumulated[item.user] && accumulated[item.user].innsjekkinger
+                  ? accumulated[item.user].innsjekkinger.logg
+                  : []
+              ),
+              {
+                _id: item._id,
+                ntb_steder_id: item.ntb_steder_id,
+                public: item.public,
+                timestamp: item.timestamp,
+              },
+            ],
+          },
         },
       }
     ), {}))
     .then(obj => Object.keys(obj).map(item => obj[item]))
-    .then(data => { res.json({ data }); })
+    .then(brukere => {
+      const data = brukere.map(bruker => {
+        bruker.innsjekkinger.steder = bruker.innsjekkinger.logg
+          .reduce((acc, item) => {
+            acc[item.ntb_steder_id] = acc[item.ntb_steder_id]
+              ? acc[item.ntb_steder_id] + 1
+              : 1;
+            return acc;
+          }, {});
+        bruker.innsjekkinger.private = bruker.innsjekkinger.logg
+          .reduce((acc, item) => (
+            acc + (item.public ? 0 : 1)
+          ), 0);
+        bruker.innsjekkinger.public =
+          bruker.innsjekkinger.logg.length - bruker.innsjekkinger.private;
+        return bruker;
+      });
+
+      res.json({
+        steder: req.ntbObject.steder,
+        brukere: data,
+      });
+    })
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
