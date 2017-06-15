@@ -123,10 +123,11 @@ describe('lister', () => {
           .expect(200)
           .expect(res => {
             const stedId = '400000000000000000000001';
-            assert.equal(res.body.data.count, 3);
-            assert.equal(res.body.data.steder[stedId], 3);
-            assert.equal(res.body.data.private, 1);
-            assert.equal(res.body.data.public, 2);
+            assert.equal(res.body.innsjekkinger.count, 3);
+            assert.equal(res.body.innsjekkinger.steder[stedId], 3);
+            assert.equal(res.body.innsjekkinger.private, 1);
+            assert.equal(res.body.innsjekkinger.public, 2);
+            assert.equal(res.body.signedUp, 0);
           })
       ));
     });

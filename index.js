@@ -421,7 +421,7 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 
-  Checkin.find()
+  const checkinPromise = Checkin.find()
     .where(where)
     .then(checkins => {
       const data = { count: checkins.length };
@@ -436,7 +436,20 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
       data.private = checkins.filter(c => !c.public).length;
       data.public = data.count - data.private;
 
-      res.json({ data });
+      return Promise.resolve(data);
+    })
+    .catch(err => Promise.reject(err));
+
+  const userPromise = User.count()
+    .where({ lister: req.ntbObject._id })
+    .catch(err => Promise.reject(err));
+
+  Promise.all([checkinPromise, userPromise])
+    .then(data => {
+      res.json({
+        innsjekkinger: data[0],
+        signedUp: data[1],
+      });
     })
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
