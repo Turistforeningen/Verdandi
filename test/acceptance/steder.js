@@ -43,6 +43,18 @@ describe('steder', () => {
 
     after(() => mockery.disable());
 
+    describe('GET /steder/:sted/stats', () => {
+      it('returns stats for a list', () => (
+        appMocked.get(`${url}/stats`)
+          .expect(200)
+          .expect(res => {
+            assert.equal(res.body.data.count, 3);
+            assert.equal(res.body.data.private, 1);
+            assert.equal(res.body.data.public, 2);
+          })
+      ));
+    });
+
     describe('GET /steder/:sted/brukere', () => {
       it('returns users that have checked in to a place', () => (
         appMocked.get(`${url}/brukere`)

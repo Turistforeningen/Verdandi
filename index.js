@@ -171,11 +171,21 @@ const notImplementedYet = (req, res) => {
   res.json({ message: 'Not implemented yet, come back later' });
 };
 
-router.get('/steder/:sted/stats', (req, res, next) => {
+router.get('/steder/:sted/stats', getNtbObject, (req, res, next) => {
+  const where = { ntb_steder_id: req.params.sted };
+
   Checkin.find()
-    .where('ntb_steder_id').equals(req.params.sted)
-    .count()
-    .then(count => res.json({ data: { count } }))
+    .where(where)
+    .then(checkins => {
+      const data = { count: checkins.length };
+      data.brukere = checkins.reduce((acc, checkin) => (
+        acc.includes(checkin.user) ? acc : acc.concat(checkin.user)
+      ), []).length;
+      data.private = checkins.filter(c => !c.public).length;
+      data.public = data.count - data.private;
+
+      res.json({ data });
+    })
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
