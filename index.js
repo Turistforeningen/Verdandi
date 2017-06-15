@@ -566,7 +566,6 @@ router.get('/brukere/:bruker', (req, res) => {
   res.json({ data: req.user });
 });
 
-router.get('/brukere/:bruker/logg', notImplementedYet);
 router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
   const where = { user: req.user._id };
 
@@ -591,6 +590,27 @@ router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
     .catch(err => Promise.reject(err));
 });
 
+router.get('/brukere/:bruker/logg', optionalClientAuth, (req, res, next) => {
+  const where = { user: req.user._id };
+
+  Checkin.find()
+    .where(where)
+    .populate('photo')
+    .then(checkins => {
+      const logg = req.validAPIClient
+        ? checkins
+        : checkins.filter(c => c.public);
+      let steder = logg
+        .map(checkin => checkin.ntb_steder_id);
+      steder = steder
+        .filter((sted, pos) => steder.indexOf(sted) === pos);
+      res.json({
+        steder,
+        logg,
+      });
+    })
+    .catch(err => Promise.reject(err));
+});
 
 // Not Found
 router.use((req, res, next) => next(new HttpError('Not Found', 404)));
