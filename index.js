@@ -39,7 +39,7 @@ const HttpError = require('@starefossen/http-error');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { requireAuth, optionalAuth, requireClientAuth } = require('./lib/auth');
+const { requireAuth, optionalAuth, requireClientAuth, optionalClientAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
@@ -277,18 +277,17 @@ router.post(
   }
 );
 
-router.get('/steder/:sted/besok/:checkin', (req, res, next) => {
+router.get('/steder/:sted/besok/:checkin', optionalClientAuth, (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
-
   const promise = Checkin.findOne({ _id: req.params.checkin }).populate('user photo');
 
   promise.then(checkin => {
     if (!checkin) {
       return next(new HttpError('Checkin not found', 404));
-    } else if (!checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
+    } else if (!req.validAPIClient && !checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
       return next(new HttpError('Checkin not public', 403));
     }
-    return res.json({ data: checkin.anonymize(req.headers['x-user-id']) });
+    return res.json({ data: checkin.anonymize(req.headers['x-user-id'], req.validAPIClient) });
   }).catch(error => next(new HttpError('Internal server error', 500, error)));
 
   promise.catch(error => next(new HttpError('Database failure', 500, error)));

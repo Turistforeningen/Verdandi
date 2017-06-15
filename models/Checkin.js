@@ -63,10 +63,10 @@ checkinSchema.pre('save', function preSave(next) {
   next();
 });
 
-checkinSchema.methods.anonymize = function anonymize(user) {
+checkinSchema.methods.anonymize = function anonymize(user, validAPIClient) {
   const userId = isNaN(Number(user)) ? undefined : Number(user);
 
-  if (userId === this.dnt_user_id) {
+  if (userId === this.dnt_user_id || validAPIClient) {
     return this;
   } else if (this.public === true) {
     this.set('user', {
