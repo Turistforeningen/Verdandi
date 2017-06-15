@@ -566,8 +566,31 @@ router.get('/brukere/:bruker', (req, res) => {
   res.json({ data: req.user });
 });
 
-router.get('/brukere/:bruker/stats', notImplementedYet);
 router.get('/brukere/:bruker/logg', notImplementedYet);
+router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
+  const where = { user: req.user._id };
+
+  Checkin.find()
+    .where(where)
+    .then(checkins => {
+      const data = { count: checkins.length };
+      data.steder = checkins.reduce((acc, checkin) => Object.assign(acc, {
+        [checkin.ntb_steder_id]: acc[checkin.ntb_steder_id]
+          ? acc[checkin.ntb_steder_id] + 1
+          : 1,
+      }), {});
+      data.private = checkins.filter(c => !c.public).length;
+      data.public = data.count - data.private;
+
+      res.json({
+        lister: req.user.lister,
+        innsjekkinger: data,
+        bruker: req.user._id,
+      });
+    })
+    .catch(err => Promise.reject(err));
+});
+
 
 // Not Found
 router.use((req, res, next) => next(new HttpError('Not Found', 404)));
