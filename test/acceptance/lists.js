@@ -128,7 +128,6 @@ describe('lister', () => {
       ));
     });
 
-    // TODO: Add API-key
     describe('GET /lister/:liste/brukere', () => {
       it('returns users that have checked in to a place in the list', () => (
         appMocked.get(`${url}/brukere`)
