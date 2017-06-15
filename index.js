@@ -411,9 +411,23 @@ router.get('/lister/:liste/stats', requireClientAuth, getNtbObject, (req, res, n
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 
-  Checkin.count()
+  Checkin.find()
     .where(where)
-    .then(data => { res.json({ data: { count: data } }); })
+    .then(checkins => {
+      const data = { count: checkins.length };
+      data.steder = checkins.reduce((acc, checkin) => Object.assign(acc, {
+        [checkin.ntb_steder_id]: acc[checkin.ntb_steder_id]
+          ? acc[checkin.ntb_steder_id] + 1
+          : 1,
+      }), {});
+      data.brukere = checkins.reduce((acc, checkin) => (
+        acc.includes(checkin.user) ? acc : acc.concat(checkin.user)
+      ), []).length;
+      data.private = checkins.filter(c => !c.public).length;
+      data.public = data.count - data.private;
+
+      res.json({ data });
+    })
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
