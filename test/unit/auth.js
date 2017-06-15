@@ -146,12 +146,44 @@ describe('auth', () => {
       });
     });
 
-    it('accepts valid user token', done => {
+    it('accepts valid client token', done => {
       const req = { headers: {
         'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0],
       } };
       auth.requireClientAuth(req, {}, error => process.nextTick(() => {
         assert.ifError(error);
+        assert.equal(req.validAPIClient, true);
+        done();
+      }));
+    });
+  });
+
+  describe('#optionalClientAuth()', () => {
+    it('returns ok when omitting x-client-token header', done => {
+      const req = { headers: { } };
+      auth.optionalClientAuth(req, {}, error => {
+        assert.ifError(error);
+        assert.equal(req.validAPIClient, false);
+        done();
+      });
+    });
+
+    it('returns 403 error for invalid client token', done => {
+      const req = { headers: { 'x-client-token': 'aaa' } };
+      auth.optionalClientAuth(req, {}, error => {
+        assert.equal(error.message, 'X-Client-Token is invalid');
+        assert.equal(error.code, 403);
+        done();
+      });
+    });
+
+    it('accepts valid client token', done => {
+      const req = { headers: {
+        'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0],
+      } };
+      auth.optionalClientAuth(req, {}, error => process.nextTick(() => {
+        assert.ifError(error);
+        assert.equal(req.validAPIClient, true);
         done();
       }));
     });
