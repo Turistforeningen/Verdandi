@@ -404,16 +404,6 @@ describe('Checkin', () => {
     ));
   });
 
-  describe('GET /steder/:sted/stats', () => {
-    const url = '/api/dev/steder/400000000000000000000001/stats';
-
-    it('returns checkin statistics for a given place', () => (
-      appMocked.get(url)
-        .expect(200)
-        .expect({ data: { count: 3 } })
-    ));
-  });
-
   describe('GET /steder/:sted/logg', () => {
     const url = '/api/dev/steder/400000000000000000000001/logg';
 
