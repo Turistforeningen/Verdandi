@@ -191,7 +191,7 @@ router.get('/steder/:sted/stats', getNtbObject, (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.get('/steder/:sted/logg', (req, res, next) => {
+router.get('/steder/:sted/logg', optionalClientAuth, (req, res, next) => {
   const where = {
     ntb_steder_id: req.params.sted,
   };
@@ -211,7 +211,7 @@ router.get('/steder/:sted/logg', (req, res, next) => {
     .where(where)
     .populate('photo user')
     .sort({ timestamp: -1 })
-    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'])))
+    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'], req.validAPIClient)))
     .then(data => res.json({ data }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
