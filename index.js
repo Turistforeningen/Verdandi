@@ -166,6 +166,8 @@ router.get('/', (req, res) => {
   });
 });
 
+// TODO(Roar): This should be removed
+// eslint-disable-next-line
 const notImplementedYet = (req, res) => {
   res.status(418);
   res.json({ message: 'Not implemented yet, come back later' });
