@@ -407,7 +407,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   });
 });
 
-router.get('/lister/:liste/stats', requireClientAuth, getNtbObject, (req, res, next) => {
+router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 

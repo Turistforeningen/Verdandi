@@ -120,7 +120,6 @@ describe('lister', () => {
     describe('GET /lister/:liste/stats', () => {
       it('returns stats for a list', () => (
         appMocked.get(`${url}/stats`)
-          .set('X-Client-Token', 'client123')
           .expect(200)
           .expect(res => {
             const stedId = '400000000000000000000001';
