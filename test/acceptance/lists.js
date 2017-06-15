@@ -120,6 +120,7 @@ describe('lister', () => {
     describe('GET /lister/:liste/stats', () => {
       it('returns stats for a list', () => (
         appMocked.get(`${url}/stats`)
+          .set('X-Client-Token', 'client123')
           .expect(200)
           .expect(res => {
             assert.equal(res.body.data.count, 3);
@@ -131,6 +132,7 @@ describe('lister', () => {
     describe('GET /lister/:liste/brukere', () => {
       it('returns users that have checked in to a place in the list', () => (
         appMocked.get(`${url}/brukere`)
+          .set('X-Client-Token', 'client123')
           .expect(200)
           .expect(res => {
             assert.equal(res.body.data.length, 2);

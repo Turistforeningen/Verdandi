@@ -39,7 +39,7 @@ const HttpError = require('@starefossen/http-error');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { requireAuth, optionalAuth } = require('./lib/auth');
+const { requireAuth, optionalAuth, requireClientAuth } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
@@ -357,7 +357,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   });
 });
 
-router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
+router.get('/lister/:liste/stats', requireClientAuth, getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 
@@ -367,8 +367,7 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-// TODO: Require API-key
-router.get('/lister/:liste/brukere', getNtbObject, (req, res, next) => {
+router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const where = { ntb_steder_id: { $in: steder } };
 

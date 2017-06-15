@@ -127,4 +127,33 @@ describe('auth', () => {
       }));
     });
   });
+
+  describe('#requireClientAuth()', () => {
+    it('returns 401 error for missing x-client-token header', done => {
+      auth.requireClientAuth({ headers: {} }, {}, error => {
+        assert.equal(error.message, 'X-Client-Token header is required');
+        assert.equal(error.code, 401);
+        done();
+      });
+    });
+
+    it('returns 403 error for invalid client token', done => {
+      const req = { headers: { 'x-client-token': 'aaa' } };
+      auth.requireClientAuth(req, {}, error => {
+        assert.equal(error.message, 'X-Client-Token is invalid');
+        assert.equal(error.code, 403);
+        done();
+      });
+    });
+
+    it('accepts valid user token', done => {
+      const req = { headers: {
+        'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0],
+      } };
+      auth.requireClientAuth(req, {}, error => process.nextTick(() => {
+        assert.ifError(error);
+        done();
+      }));
+    });
+  });
 });

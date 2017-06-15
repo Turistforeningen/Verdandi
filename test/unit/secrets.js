@@ -49,6 +49,7 @@ describe('secrets', () => {
           SENTRY_DSN: '456',
           AWS_ACCESS_KEY_ID: 'abc',
           AWS_SECRET_ACCESS_KEY: 'abc123',
+          API_CLIENT_TOKENS: 'client123,client456',
         });
 
         return file;
@@ -65,6 +66,7 @@ describe('secrets', () => {
         SENTRY_DSN: '456',
         AWS_ACCESS_KEY_ID: 'abc',
         AWS_SECRET_ACCESS_KEY: 'abc123',
+        API_CLIENT_TOKENS: 'client123,client456',
       });
 
       done();
