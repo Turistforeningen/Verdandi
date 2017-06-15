@@ -83,7 +83,7 @@ describe('lister', () => {
     });
   });
 
-  describe.only('Lists stats and users', () => {
+  describe('Lists stats and users', () => {
     let appMocked;
     let authMocked;
 
