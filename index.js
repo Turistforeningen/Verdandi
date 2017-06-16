@@ -440,8 +440,11 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
     .where(where)
     .populate('user')
     .then(checkinsData => {
-      const checkins = checkinsData
-        .filter(checkin => checkin.user.lister.includes(req.params.liste));
+      const filterUsers = req.query['only-signed-up-users'] === '1';
+      const checkins = filterUsers
+        ? checkinsData
+            .filter(checkin => checkin.user.lister.includes(req.params.liste))
+        : checkinsData;
 
       const data = { count: checkins.length };
       data.steder = checkins.reduce((acc, checkin) => Object.assign(acc, {
@@ -486,8 +489,11 @@ router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res,
     .populate('user')
     .sort({ timestamp: -1 })
     .then(checkinsData => {
-      const checkins = checkinsData
-        .filter(checkin => checkin.user.lister.includes(req.params.liste));
+      const filterUsers = req.query['only-signed-up-users'] === '1';
+      const checkins = filterUsers
+        ? checkinsData
+            .filter(checkin => checkin.user.lister.includes(req.params.liste))
+        : checkinsData;
 
       return checkins.reduce((accumulated, item) => Object.assign(
         {},
