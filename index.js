@@ -349,7 +349,7 @@ router.post(
   }
 );
 
-router.get('/steder/:sted/besok/:checkin', optionalClientAuth, (req, res, next) => {
+router.get(['/besok/:checkin', '/steder/:sted/besok/:checkin'], optionalClientAuth, (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
   const promise = Checkin.findOne({ _id: req.params.checkin }).populate('user photo');
 
