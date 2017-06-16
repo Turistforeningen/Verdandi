@@ -438,7 +438,11 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
 
   const checkinPromise = Checkin.find()
     .where(where)
-    .then(checkins => {
+    .populate('user')
+    .then(checkinsData => {
+      const checkins = checkinsData
+        .filter(checkin => checkin.user.lister.includes(req.params.liste));
+
       const data = { count: checkins.length };
       data.steder = checkins.reduce((acc, checkin) => Object.assign(acc, {
         [checkin.ntb_steder_id]: acc[checkin.ntb_steder_id]
@@ -481,31 +485,36 @@ router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res,
     .where(where)
     .populate('user')
     .sort({ timestamp: -1 })
-    .then(checkins => checkins.reduce((accumulated, item) => Object.assign(
-      {},
-      accumulated,
-      {
-        [item.user]: {
-          _id: item.user._id,
-          navn: item.user.navn,
-          innsjekkinger: {
-            logg: [
-              ...(
-                accumulated[item.user] && accumulated[item.user].innsjekkinger
-                  ? accumulated[item.user].innsjekkinger.logg
-                  : []
-              ),
-              {
-                _id: item._id,
-                ntb_steder_id: item.ntb_steder_id,
-                public: item.public,
-                timestamp: item.timestamp,
-              },
-            ],
+    .then(checkinsData => {
+      const checkins = checkinsData
+        .filter(checkin => checkin.user.lister.includes(req.params.liste));
+
+      return checkins.reduce((accumulated, item) => Object.assign(
+        {},
+        accumulated,
+        {
+          [item.user]: {
+            _id: item.user._id,
+            navn: item.user.navn,
+            innsjekkinger: {
+              logg: [
+                ...(
+                  accumulated[item.user] && accumulated[item.user].innsjekkinger
+                    ? accumulated[item.user].innsjekkinger.logg
+                    : []
+                ),
+                {
+                  _id: item._id,
+                  ntb_steder_id: item.ntb_steder_id,
+                  public: item.public,
+                  timestamp: item.timestamp,
+                },
+              ],
+            },
           },
-        },
-      }
-    ), {}))
+        }
+      ), {});
+    })
     .then(obj => Object.keys(obj).map(item => obj[item]))
     .then(brukere => {
       const data = brukere.map(bruker => {
