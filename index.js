@@ -239,6 +239,7 @@ router.get('/steder/:sted/brukere', requireClientAuth, getNtbObject, (req, res, 
         [item.user]: {
           _id: item.user._id,
           navn: item.user.navn,
+          epost: item.user.epost,
           innsjekkinger: {
             logg: [
               ...(
