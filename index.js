@@ -375,7 +375,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   promise.then(checkin => {
     if (checkin === null) {
       throw new HttpError('Checkin not found', 404);
-    } else if (checkin.user !== req.user._id) {
+    } else if (((req.user) && (checkin.user !== req.user._id)) && (req.validAPIClient !== true)) {
       throw new HttpError('Authorization failed', 403);
     }
     c = checkin;
