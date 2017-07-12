@@ -431,6 +431,35 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   });
 });
 
+router.delete('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
+  const promise = Checkin.findOne({ _id: req.params.checkin }).exec();
+
+  promise.then(checkin => {
+    if (checkin === null) {
+      throw new HttpError('Checkin not found', 404);
+    } else if (((req.user) && (checkin.user !== req.user._id)) && (req.validAPIClient !== true)) {
+      throw new HttpError('Authorization failed', 403);
+    }
+
+    return checkin;
+  })
+  .then(checkin => Checkin.deleteOne({ _id: req.params.checkin }).exec())
+  .then(result => {
+    if (result.deletedCount === 1) {
+      res.json();
+    } else {
+      next(new HttpError('Unknown error', 500));
+    }
+  })
+  .catch(error => {
+    if (error instanceof HttpError) {
+      next(error);
+    } else {
+      next(new HttpError('Unknown error', 500, error));
+    }
+  });
+});
+
 router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const qs = new MongoQS({ whitelist: { timestamp: true } });
