@@ -40,7 +40,13 @@ const MongoQS = require('mongo-querystring');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { requireAuth, optionalAuth, requireClientAuth, optionalClientAuth } = require('./lib/auth');
+const {
+  requireAuth,
+  optionalAuth,
+  requireClientAuth,
+  optionalClientAuth,
+  hasWriteAccess,
+} = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
@@ -437,7 +443,7 @@ router.delete('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
   promise.then(checkin => {
     if (checkin === null) {
       throw new HttpError('Checkin not found', 404);
-    } else if (((req.user) && (checkin.user !== req.user._id)) && (req.validAPIClient !== true)) {
+    } else if (hasWriteAccess(req, checkin) !== true) {
       throw new HttpError('Authorization failed', 403);
     }
 
