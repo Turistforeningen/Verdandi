@@ -327,6 +327,73 @@ describe('PUT /steder/:sted/besok/:id', () => {
   ));
 });
 
+describe('DELETE /steder/:sted/besok/:id', () => {
+  const url = '/api/dev/steder/400000000000000000000000/besok';
+
+  let appMocked;
+  let authMocked;
+
+  before(() => mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false,
+  }));
+
+  before(() => {
+    appMocked = request(require('../../index')); // eslint-disable-line global-require
+  });
+
+  before(() => {
+    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+
+    authMocked.getUserData = token => (
+      token === 'client123' ? Promise.resolve(dntUsers[1]) : Promise.reject()
+    );
+  });
+
+  after(() => {
+    authMocked.getUserData = getUserData;
+  });
+
+  after(() => mockery.deregisterMock('node-fetch'));
+  after(() => mockery.disable());
+
+  it('deletes a checkin on DELETE', () => (
+    appMocked.delete(`${url}/200000000000000000000000`)
+      .set('X-Client-Token', 'client123')
+      .expect(200)
+  ));
+
+  it('returns 404 for DELETE to non existing checkin', () => (
+    appMocked.delete(`${url}/400000000000000000000004`)
+      .set('X-Client-Token', 'client123')
+      .send()
+      .expect(404)
+  ));
+
+  it('returns 403 for DELETE to other users\' checkin', () => (
+    appMocked.delete(`${url}/200000000000000000000002`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send()
+      .expect(403)
+  ));
+
+  it('returns 403 for DELETE with invalid credentials', () => (
+    appMocked.delete(`${url}/200000000000000000000000`)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'invalid')
+      .send()
+      .expect(403)
+  ));
+
+  it('returns 401 for DELETE with missing credentials', () => (
+    appMocked.delete(`${url}/200000000000000000000000`)
+      .send()
+      .expect(401)
+  ));
+});
+
 describe('Checkin', () => {
   let appMocked;
   let authMocked;
