@@ -40,7 +40,13 @@ const MongoQS = require('mongo-querystring');
 
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
-const { requireAuth, optionalAuth, requireClientAuth, optionalClientAuth } = require('./lib/auth');
+const {
+  requireAuth,
+  optionalAuth,
+  requireClientAuth,
+  optionalClientAuth,
+  hasWriteAccess,
+} = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
@@ -375,7 +381,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   promise.then(checkin => {
     if (checkin === null) {
       throw new HttpError('Checkin not found', 404);
-    } else if (checkin.user !== req.user._id) {
+    } else if (((req.user) && (checkin.user !== req.user._id)) && (req.validAPIClient !== true)) {
       throw new HttpError('Authorization failed', 403);
     }
     c = checkin;
@@ -425,6 +431,35 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
         code: 400,
         errors: error.errors,
       });
+    } else {
+      next(new HttpError('Unknown error', 500, error));
+    }
+  });
+});
+
+router.delete('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
+  const promise = Checkin.findOne({ _id: req.params.checkin }).exec();
+
+  promise.then(checkin => {
+    if (checkin === null) {
+      throw new HttpError('Checkin not found', 404);
+    } else if (hasWriteAccess(req, checkin) !== true) {
+      throw new HttpError('Authorization failed', 403);
+    }
+
+    return checkin;
+  })
+  .then(checkin => Checkin.deleteOne({ _id: req.params.checkin }).exec())
+  .then(result => {
+    if (result.deletedCount === 1) {
+      res.json();
+    } else {
+      next(new HttpError('Unknown error', 500));
+    }
+  })
+  .catch(error => {
+    if (error instanceof HttpError) {
+      next(error);
     } else {
       next(new HttpError('Unknown error', 500, error));
     }

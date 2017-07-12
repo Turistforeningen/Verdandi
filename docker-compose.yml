@@ -36,7 +36,7 @@ services:
       - CHECKIN_MAX_DISTANCE=200
       - CHECKIN_TIMEOUT=1
       - CHOKIDAR_USEPOLLING=true
-      - MONGO_DB=dev
+      - 'MONGO_URI=mongodb://mongo-01.db.dnt.local:27100,mongo-02.db.dnt.local:27200/verdandi-prod?replicaSet=rs0'
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
@@ -44,4 +44,7 @@ services:
       - VIRTUAL_HOST=sjekkut.app.dnt.local
       - VIRTUAL_PORT=8080
       - VIRTUAL_PATH=/api/v3
+    extra_hosts:
+      - "mongo-01.db.dnt.local:${DOCKER_IP}"
+      - "mongo-02.db.dnt.local:${DOCKER_IP}"
     command: npm start

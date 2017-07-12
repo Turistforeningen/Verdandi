@@ -11,7 +11,7 @@ verdandi-node-v2:
     - CHECKIN_TIMEOUT=21600
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
-    - MONGO_DB=verdandi-prod
+    - 'MONGO_URI=mongodb://mongo-01,mongo-02/verdandi-prod?replicaSet=rs0'
     - NEW_RELIC_APP_NAME=Verdandi
     - NEW_RELIC_LOG=stdout
     - NEW_RELIC_NO_CONFIG_FILE=true
@@ -26,6 +26,9 @@ verdandi-node-v2:
   image: 'turistforeningen/verdandi:v2'
   links:
     - 'mongo.mongo:mongo'
+    - 'mongo-01.mongo-rs:mongo-01'
+    - 'mongo-02.mongo-rs:mongo-02'
+    - 'mongo-03.mongo-rs:mongo-03'
   restart: always
   tags:
     - app
@@ -42,7 +45,7 @@ verdandi-node-v3:
     - CHECKIN_TIMEOUT=21600
     - FORCE_SSL=true
     - HSTS_MAX_AGE=31536000
-    - MONGO_DB=verdandi-prod
+    - 'MONGO_URI=mongodb://mongo-01,mongo-02/verdandi-prod?replicaSet=rs0'
     - NEW_RELIC_APP_NAME=Verdandi
     - NEW_RELIC_LOG=stdout
     - NEW_RELIC_NO_CONFIG_FILE=true
@@ -59,6 +62,9 @@ verdandi-node-v3:
   image: 'turistforeningen/verdandi:v3'
   links:
     - 'mongo.mongo:mongo'
+    - 'mongo-01.mongo-rs:mongo-01'
+    - 'mongo-02.mongo-rs:mongo-02'
+    - 'mongo-03.mongo-rs:mongo-03'
     - 'statsd.statsd-librato:statsd'
   restart: always
   tags:
