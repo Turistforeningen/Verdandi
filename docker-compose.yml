@@ -20,8 +20,10 @@ services:
       - '8080'
     links:
       - mongo
+      - redis
     depends_on:
       - mongo
+      - redis
     volumes:
       - .:/usr/src/app
     env_file: secrets/dev.env
@@ -48,3 +50,9 @@ services:
       - "mongo-01.db.dnt.local:${DOCKER_IP}"
       - "mongo-02.db.dnt.local:${DOCKER_IP}"
     command: npm start
+  redis:
+    image: redis:3
+    network_mode: 'bridge'
+    logging:
+      options:
+        max-size: "10k"
