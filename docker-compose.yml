@@ -7,10 +7,6 @@ services:
     logging:
       options:
         max-size: "500k"
-    ports:
-      - '27019:27017'
-    volumes:
-      - /data/db
 
   node:
     image: node:7
