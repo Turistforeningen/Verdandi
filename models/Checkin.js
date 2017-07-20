@@ -139,7 +139,7 @@ checkinSchema.path('timestamp').validate({
         cb(!result.length);
       });
   },
-  message: `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`,
+  message: `Checking in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds is not allowed`,
 });
 
 checkinSchema.index({ location: '2dsphere' });
