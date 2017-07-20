@@ -119,8 +119,6 @@ checkinSchema.path('location.coordinates').validate({
   message: `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`,
 });
 
-
-
 checkinSchema.path('timestamp').validate({
   isAsync: true,
   validator: function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
