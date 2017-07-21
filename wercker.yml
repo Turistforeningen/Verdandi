@@ -4,6 +4,8 @@ build:
   services:
     - name: mongo
       id: mongo:3
+    - name: redis
+      id: redis:3
 
   steps:
     - script:
