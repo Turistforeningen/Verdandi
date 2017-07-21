@@ -9,6 +9,7 @@ const mockery = require('mockery');
 const auth = require('../../lib/auth');
 
 const getUserData = auth.getUserData;
+const dntUsers = require('../fixtures/dnt-users');
 
 describe('GET /', () => {
   let appMocked;
@@ -27,12 +28,9 @@ describe('GET /', () => {
   before(() => {
     authMocked = require('../../lib/auth'); // eslint-disable-line global-require
 
-    authMocked.getUserData = () => Promise.resolve({
-      sherpa_id: 9876,
-      fornavn: 'Tor',
-      etternavn: 'Torsen',
-      epost: 'tor.torsen@example.com',
-    });
+    authMocked.getUserData = () => (
+      Promise.resolve(dntUsers.find(u => u.sherpa_id === 1234))
+    );
   });
 
   after(() => {

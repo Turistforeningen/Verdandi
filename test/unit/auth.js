@@ -1,13 +1,15 @@
 'use strict';
 
-const auth = require('../../lib/auth');
 const assert = require('assert');
+const HttpError = require('@starefossen/http-error');
+
+const auth = require('../../lib/auth');
 const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
 const User = require('../../models/User');
 const secrets = require('../../lib/secrets');
 
-describe('auth', () => {
+describe('lib/auth', () => {
   describe('#getUserData()', () => {
     it('rejects invalid oauth token', done => {
       auth.getUserData('invalid').catch(error => process.nextTick(() => {
@@ -30,11 +32,33 @@ describe('auth', () => {
     });
   });
 
-  describe('#setOrUpdateUserData()', () => {
+  describe('#userVerify', () => {
+    it('authenticates user with valid token', done => {
+      const id = Number(secrets.OAUTH_USER_ID);
+
+      auth.userVerify(id, secrets.OAUTH_ACCESS_TOKEN)
+        .then(result => {
+          assert.equal(id, result._id);
+          done();
+        });
+    });
+
+    it('rejects user that does not match Sherpa user ID', done => {
+      const id = 'invalid';
+
+      auth.userVerify(id, secrets.OAUTH_ACCESS_TOKEN)
+        .catch(reason => {
+          assert(reason, `Invalid token for user ${id}`);
+          done();
+        });
+    });
+  });
+
+  describe('#saveUserData()', () => {
     it('creates user profile for new user', done => {
       const userData = dntUsers[0];
 
-      auth.setOrUpdateUserData(userData).then(user => {
+      auth.saveUserData(userData).then(user => {
         assert.equal(user._id, userData.sherpa_id);
         assert.equal(user.navn, `${userData.fornavn} ${userData.etternavn}`);
         assert.equal(user.epost, userData.epost);
@@ -50,7 +74,7 @@ describe('auth', () => {
       // Update the new user data with a new email address
       newUserData.epost = 'ole@olsen.com';
 
-      auth.setOrUpdateUserData(newUserData).then(() => {
+      auth.saveUserData(newUserData).then(() => {
         User.findOne({ _id: newUserData.sherpa_id })
           .then(user => {
             assert.equal(user._id, newUserData.sherpa_id);
@@ -63,129 +87,85 @@ describe('auth', () => {
     });
   });
 
-  describe('#requireAuth()', () => {
-    it('returns 401 error for missing x-user-id header', done => {
-      auth.requireAuth({ headers: {} }, {}, error => {
-        assert.equal(error.message, 'X-User-Id header is required');
-        assert.equal(error.code, 401);
-        done();
-      });
-    });
-
-    it('returns 401 error for missing x-user-token header', done => {
+  describe('#middleware()', () => {
+    it('passes HttpError 401 to next if missing X-User-Token header', done => {
       const req = { headers: { 'x-user-id': 1234 } };
-      auth.requireAuth(req, {}, error => {
-        assert.equal(error.message, 'X-User-Token header is required');
+      const res = {};
+      const next = err => {
+        assert.equal(err.code, 401);
+        assert.equal(err.message, 'X-User-Token header is required for user auth');
+        done();
+      };
+
+      auth.middleware(req, res, next);
+    });
+
+    it('passes HttpError 401 to next if missing X-User-Id header', done => {
+      const req = { headers: { 'x-user-token': 'abc123' } };
+      const res = {};
+      const next = err => {
+        assert(err instanceof HttpError);
+        assert.equal(err.code, 401);
+        assert.equal(err.message, 'X-User-Id header is required for user auth');
+        done();
+      };
+
+      auth.middleware(req, res, next);
+    });
+
+    it('passes HttpError 401 to next if invalid X-User-Token', done => {
+      const req = { headers: { 'x-user-id': 1234, 'x-user-token': 'invalid123' } };
+      const res = {};
+      const next = err => {
+        assert(err instanceof HttpError);
+        assert.equal(err.code, 401);
+        assert.equal(err.message, `Invalid token for user ${req.headers['x-user-id']}`);
+        done();
+      };
+
+      auth.middleware(req, res, next);
+    });
+
+    it('passes HttpError 401 to next if invalid X-Client-Token', done => {
+      const req = { headers: { 'x-client-token': 'invalid123' } };
+      const res = {};
+      const next = error => {
         assert.equal(error.code, 401);
+        assert.equal(error.message, 'Invalid client token');
+        done();
+      };
+
+      auth.middleware(req, res, next);
+    });
+
+    it('adds user to req when authenticated', done => {
+      const req = {
+        headers: {
+          'x-user-id': secrets.OAUTH_USER_ID,
+          'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
+        },
+      };
+      const res = {};
+      const next = err => {
+        assert.equal(typeof err, 'undefined');
+        assert.equal(req.authUser._id, secrets.OAUTH_USER_ID);
+        assert.equal(req.authUser.isAuthenticated, true);
+        done();
+      };
+
+      auth.middleware(req, res, next);
+    });
+
+    it('adds client to req when authenticated', done => {
+      const req = { headers: { 'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0] } };
+      const res = {};
+      const next = err => process.nextTick(() => {
+        assert.equal(typeof err, 'undefined');
+        assert.equal(req.authClient.isAuthenticated, true);
         done();
       });
-    });
 
-    it('returns 403 error for invalid user token', done => {
-      const req = { headers: { 'x-user-id': 1234, 'x-user-token': 'abcd' } };
-      auth.requireAuth(req, {}, error => {
-        assert.equal(error.message, 'User authentication failed');
-        assert.equal(error.code, 403);
-        done();
-      });
-    });
-
-    it('accepts valid user token', done => {
-      const req = { headers: {
-        'x-user-id': secrets.OAUTH_USER_ID,
-        'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
-      } };
-      auth.requireAuth(req, {}, error => process.nextTick(() => {
-        assert.ifError(error);
-        assert.equal(typeof req.user, 'object');
-        assert.equal(req.user.id, secrets.OAUTH_USER_ID);
-        done();
-      }));
-    });
-  });
-
-  describe('#optionalAuth()', () => {
-    it('returns 403 error for invalid user token', done => {
-      const req = { headers: { 'x-user-id': 1234, 'x-user-token': 'abcd' } };
-      auth.optionalAuth(req, {}, error => {
-        assert.equal(error.message, 'User authentication failed');
-        assert.equal(error.code, 403);
-        done();
-      });
-    });
-
-    it('accepts valid user token', done => {
-      const req = { headers: {
-        'x-user-id': secrets.OAUTH_USER_ID,
-        'x-user-token': secrets.OAUTH_ACCESS_TOKEN,
-      } };
-      auth.optionalAuth(req, {}, error => process.nextTick(() => {
-        assert.ifError(error);
-        assert.equal(typeof req.user, 'object');
-        assert.equal(req.user.id, secrets.OAUTH_USER_ID);
-        done();
-      }));
-    });
-  });
-
-  describe('#requireClientAuth()', () => {
-    it('returns 401 error for missing x-client-token header', done => {
-      auth.requireClientAuth({ headers: {} }, {}, error => {
-        assert.equal(error.message, 'X-Client-Token header is required');
-        assert.equal(error.code, 401);
-        done();
-      });
-    });
-
-    it('returns 403 error for invalid client token', done => {
-      const req = { headers: { 'x-client-token': 'aaa' } };
-      auth.requireClientAuth(req, {}, error => {
-        assert.equal(error.message, 'X-Client-Token is invalid');
-        assert.equal(error.code, 403);
-        done();
-      });
-    });
-
-    it('accepts valid client token', done => {
-      const req = { headers: {
-        'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0],
-      } };
-      auth.requireClientAuth(req, {}, error => process.nextTick(() => {
-        assert.ifError(error);
-        assert.equal(req.validAPIClient, true);
-        done();
-      }));
-    });
-  });
-
-  describe('#optionalClientAuth()', () => {
-    it('returns ok when omitting x-client-token header', done => {
-      const req = { headers: { } };
-      auth.optionalClientAuth(req, {}, error => {
-        assert.ifError(error);
-        assert.equal(req.validAPIClient, false);
-        done();
-      });
-    });
-
-    it('returns 403 error for invalid client token', done => {
-      const req = { headers: { 'x-client-token': 'aaa' } };
-      auth.optionalClientAuth(req, {}, error => {
-        assert.equal(error.message, 'X-Client-Token is invalid');
-        assert.equal(error.code, 403);
-        done();
-      });
-    });
-
-    it('accepts valid client token', done => {
-      const req = { headers: {
-        'x-client-token': secrets.API_CLIENT_TOKENS.split(',')[0],
-      } };
-      auth.optionalClientAuth(req, {}, error => process.nextTick(() => {
-        assert.ifError(error);
-        assert.equal(req.validAPIClient, true);
-        done();
-      }));
+      auth.middleware(req, res, next);
     });
   });
 });

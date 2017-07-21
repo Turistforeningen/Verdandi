@@ -3,6 +3,7 @@
 const { Schema } = require('../lib/db');
 const mongoose = require('../lib/db');
 const secrets = require('../lib/secrets');
+const { isClient, isUser } = require('../lib/auth');
 
 const fetch = require('node-fetch');
 const geoutil = require('geoutil');
@@ -141,6 +142,40 @@ checkinSchema.path('timestamp').validate({
   },
   message: `Checking in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds is not allowed`,
 });
+
+checkinSchema.methods.isReadAllowed = function isReadAllowed(req) {
+  if (this.public === true) {
+    return true;
+  } else if (isClient(req)) {
+    return true;
+  } else if (isUser(req)) {
+    return this.user._id === Number(req.headers['x-user-id']);
+  }
+
+  return false;
+};
+
+checkinSchema.methods.isWriteAllowed = function isWriteAllowed(req) {
+  if (isClient(req)) {
+    return true;
+  } else if (isUser(req)) {
+    return this.isOwner(req);
+  }
+
+  return false;
+};
+
+checkinSchema.methods.isOwner = function isOwner(req) {
+  const reqUserId = Number(req.headers['x-user-id']);
+
+  if (typeof this.user === 'number') {
+    return this.user === reqUserId;
+  } else if (this.user && typeof this.user._id === 'number') {
+    return this.user._id === reqUserId;
+  }
+
+  return false;
+};
 
 checkinSchema.index({ location: '2dsphere' });
 

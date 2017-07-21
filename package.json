@@ -49,6 +49,7 @@
     "compression": "^1.6.2",
     "express": "^4.13.4",
     "geoutil": "^1.2.0",
+    "ioredis": "^3.1.1",
     "md5": "^2.2.1",
     "mongo-querystring": "^4.1.1",
     "mongoose": "^4.4.13",

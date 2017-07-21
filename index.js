@@ -41,11 +41,11 @@ const MongoQS = require('mongo-querystring');
 const { Types: { ObjectId: objectId } } = require('./lib/db');
 
 const {
+  middleware: auth,
   requireAuth,
-  optionalAuth,
-  requireClientAuth,
-  optionalClientAuth,
-  hasWriteAccess,
+  requireClient,
+  requireUser,
+  isClient,
 } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
@@ -79,7 +79,7 @@ router.use(responseTime((req, res, time) => {
   statsd.logRequest(time, source);
 }));
 
-router.use(optionalAuth);
+router.use(auth);
 
 router.use((req, res, next) => {
   if (req.user) {
@@ -151,7 +151,7 @@ router.param('bruker', (req, res, next, bruker) => {
     .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
 
     // Attach user instance to request object
-    .then(user => { req.user = user; })
+    .then(user => { req.authUser = user; })
 
     .then(() => next())
 
@@ -220,7 +220,7 @@ router.get('/steder/:sted/stats', (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.get('/steder/:sted/logg', optionalClientAuth, (req, res, next) => {
+router.get('/steder/:sted/logg', (req, res, next) => {
   const where = {
     ntb_steder_id: req.params.sted,
   };
@@ -240,12 +240,12 @@ router.get('/steder/:sted/logg', optionalClientAuth, (req, res, next) => {
     .where(where)
     .populate('photo user')
     .sort({ timestamp: -1 })
-    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'], req.validAPIClient)))
+    .then(checkins => checkins.map(c => c.anonymize(req.headers['x-user-id'], isClient(req))))
     .then(data => res.json({ data }))
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.get('/steder/:sted/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
+router.get('/steder/:sted/brukere', requireClient, getNtbObject, (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
@@ -306,7 +306,7 @@ router.get('/steder/:sted/brukere', requireClientAuth, getNtbObject, (req, res, 
 // TODO(Håvard): May not need getNtbObject
 router.post(
   '/steder/:sted/besok',
-  requireAuth,
+  requireUser,
   getNtbObject,
   multer.single('photo'),
   s3uploader,
@@ -336,7 +336,7 @@ router.post(
         },
         public: !!req.body.public,
         ntb_steder_id: req.params.sted,
-        dnt_user_id: req.user.id,
+        dnt_user_id: req.authUser._id,
         timestamp: req.body.timestamp,
         comment: req.body.comment || null,
         photo: photo ? photo._id : null,
@@ -344,8 +344,8 @@ router.post(
     ))
     .then(checkin => {
       c = checkin;
-      req.user.innsjekkinger.push(checkin);
-      return req.user.save();
+      req.authUser.innsjekkinger.push(checkin);
+      return req.authUser.save();
     })
     .then(user => c)
     .then(checkin => checkin.populate('photo user').execPopulate())
@@ -376,18 +376,20 @@ router.post(
   }
 );
 
-router.get(['/besok/:checkin', '/steder/:sted/besok/:checkin'], optionalClientAuth, (req, res, next) => {
+router.get(['/besok/:checkin', '/steder/:sted/besok/:checkin'], (req, res, next) => {
   // @TODO redirect to correct cononical URL for checkin ID
   const promise = Checkin.findOne({ _id: req.params.checkin }).populate('user photo');
 
-  promise.then(checkin => {
-    if (!checkin) {
-      return next(new HttpError('Checkin not found', 404));
-    } else if (!req.validAPIClient && !checkin.public && (checkin.user._id !== Number(req.headers['x-user-id']))) {
-      return next(new HttpError('Checkin not public', 403));
-    }
-    return res.json({ data: checkin.anonymize(req.headers['x-user-id'], req.validAPIClient) });
-  }).catch(error => next(new HttpError('Internal server error', 500, error)));
+  promise
+    .then(checkin => {
+      if (!checkin) {
+        return next(new HttpError('Checkin not found', 404));
+      } else if (checkin.isReadAllowed(req) !== true) {
+        return next(new HttpError('Checkin not public', 403));
+      }
+      return res.json({ data: checkin.anonymize(req.headers['x-user-id'], isClient(req)) });
+    })
+    .catch(error => next(new HttpError('Internal server error', 500, error)));
 
   promise.catch(error => next(new HttpError('Database failure', 500, error)));
 });
@@ -399,7 +401,7 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
   promise.then(checkin => {
     if (checkin === null) {
       throw new HttpError('Checkin not found', 404);
-    } else if (((req.user) && (checkin.user !== req.user._id)) && (req.validAPIClient !== true)) {
+    } else if (checkin.isWriteAllowed(req) !== true) {
       throw new HttpError('Authorization failed', 403);
     }
     c = checkin;
@@ -461,7 +463,7 @@ router.delete('/steder/:sted/besok/:checkin', requireAuth, (req, res, next) => {
   promise.then(checkin => {
     if (checkin === null) {
       throw new HttpError('Checkin not found', 404);
-    } else if (hasWriteAccess(req, checkin) !== true) {
+    } else if (checkin.isWriteAllowed(req) !== true) {
       throw new HttpError('Authorization failed', 403);
     }
 
@@ -532,7 +534,7 @@ router.get('/lister/:liste/stats', getNtbObject, (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.get('/lister/:liste/brukere', requireClientAuth, getNtbObject, (req, res, next) => {
+router.get('/lister/:liste/brukere', requireClient, getNtbObject, (req, res, next) => {
   const steder = (req.ntbObject.steder || []).map(sted => objectId(sted));
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
@@ -630,8 +632,8 @@ router.get('/lister/:liste/logg', getNtbObject, (req, res, next) => {
     .catch(error => next(new HttpError('Database failure', 500, error)));
 });
 
-router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
-  const user = req.user;
+router.post('/lister/:liste/blimed', requireUser, (req, res, next) => {
+  const user = req.authUser;
   if (user.lister.indexOf(req.params.liste) === -1) {
     user.lister.push(req.params.liste);
   }
@@ -643,7 +645,7 @@ router.post('/lister/:liste/blimed', requireAuth, (req, res) => {
 });
 
 router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
-  const user = req.user;
+  const user = req.authUser;
   if (user.lister.indexOf(req.params.liste) > -1) {
     user.lister.splice(user.lister.indexOf(req.params.liste), 1);
   }
@@ -655,14 +657,14 @@ router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
 });
 
 router.get('/brukere/:bruker', (req, res) => {
-  res.json({ data: req.user });
+  res.json({ data: req.authUser });
 });
 
-router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
+router.get('/brukere/:bruker/stats', requireClient, (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
-    { user: req.user._id }
+    { user: req.authUser._id }
   );
 
   Checkin.find()
@@ -678,28 +680,26 @@ router.get('/brukere/:bruker/stats', requireClientAuth, (req, res, next) => {
       data.public = data.count - data.private;
 
       res.json({
-        lister: req.user.lister,
+        lister: req.authUser.lister,
         innsjekkinger: data,
-        bruker: req.user._id,
+        bruker: req.authUser._id,
       });
     })
     .catch(err => Promise.reject(err));
 });
 
-router.get('/brukere/:bruker/logg', optionalClientAuth, (req, res, next) => {
+router.get('/brukere/:bruker/logg', (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
-    { user: req.user._id }
+    { user: req.authUser._id }
   );
 
   Checkin.find()
     .where(where)
     .populate('photo')
     .then(checkins => {
-      const logg = req.validAPIClient
-        ? checkins
-        : checkins.filter(c => c.public);
+      const logg = isClient(req) ? checkins : checkins.filter(c => c.public);
       let steder = logg
         .map(checkin => checkin.ntb_steder_id);
       steder = steder

@@ -1,6 +1,7 @@
 'use strict';
 
 const mongo = require('../lib/db');
+const redis = require('../lib/redis');
 
 const User = require('../models/User');
 const Checkin = require('../models/Checkin');
@@ -9,10 +10,6 @@ const Photo = require('../models/Photo');
 const users = require('./fixtures/users');
 const checkins = require('./fixtures/checkins');
 const photos = require('./fixtures/photos');
-
-process.env.CHECKIN_MAX_DISTANCE = 200;
-process.env.CHECKIN_TIMEOUT = 86400;
-process.env.AWS_BUCKET_PATH = 'test/';
 
 // mongodb connect
 before(function before(done) {
@@ -32,6 +29,7 @@ after(() => {
 
 // mongodb clean
 beforeEach(() => mongo.connection.db.dropDatabase());
+beforeEach(() => redis.flushall());
 
 // mongodb insert
 beforeEach(() => Promise.all([

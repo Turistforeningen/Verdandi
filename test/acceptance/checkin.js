@@ -2,15 +2,15 @@
 'use strict';
 
 const assert = require('assert');
+const mockery = require('mockery');
 const request = require('supertest');
-const auth = require('../../lib/auth');
 
+const auth = require('../../lib/auth');
 const User = require('../../models/User');
 const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
 const checkins = require('../fixtures/checkins.js');
 const photos = require('../fixtures/photos.js');
-const mockery = require('mockery');
 
 const getUserData = auth.getUserData;
 
@@ -326,6 +326,12 @@ describe('PUT /steder/:sted/besok/:id', () => {
       .expect(404)
   ));
 
+  it('returns 401 for PUT if not authenticated', () => (
+    appMocked.put(`${url}/200000000000000000000002`)
+      .send()
+      .expect(401)
+  ));
+
   it('returns 403 for PUT to other users\' checkin', () => (
     appMocked.put(`${url}/200000000000000000000002`)
       .set('X-User-Id', '1234')
@@ -388,7 +394,7 @@ describe('DELETE /steder/:sted/besok/:id', () => {
     authMocked = require('../../lib/auth'); // eslint-disable-line global-require
 
     authMocked.getUserData = token => (
-      token === 'client123' ? Promise.resolve(dntUsers[1]) : Promise.reject()
+      token === 'abc123' ? Promise.resolve(dntUsers[1]) : Promise.reject()
     );
   });
 
@@ -420,12 +426,12 @@ describe('DELETE /steder/:sted/besok/:id', () => {
       .expect(403)
   ));
 
-  it('returns 403 for DELETE with invalid credentials', () => (
+  it('returns 401 for DELETE with invalid credentials', () => (
     appMocked.delete(`${url}/200000000000000000000000`)
       .set('X-User-Id', '1234')
       .set('X-User-Token', 'invalid')
       .send()
-      .expect(403)
+      .expect(401)
   ));
 
   it('returns 401 for DELETE with missing credentials', () => (
