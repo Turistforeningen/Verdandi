@@ -8,6 +8,7 @@ const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
 const User = require('../../models/User');
 const secrets = require('../../lib/secrets');
+const redis = require('../../lib/redis');
 
 describe('lib/auth', () => {
   describe('#getUserData()', () => {
@@ -39,6 +40,32 @@ describe('lib/auth', () => {
       auth.userVerify(id, secrets.OAUTH_ACCESS_TOKEN)
         .then(result => {
           assert.equal(id, result._id);
+          done();
+        });
+    });
+
+    it('caches authenticated user in redis', done => {
+      const id = Number(secrets.OAUTH_USER_ID);
+      const token = secrets.OAUTH_ACCESS_TOKEN;
+
+      auth.userVerify(id, token)
+        .then(user => (
+          redis.get(`user:${id}:${token}`)
+            .then(result => {
+              assert.equal(id, JSON.parse(result)._id);
+              done();
+            })
+        ));
+    });
+
+    it('sets the cached token to expire in 86400 seconds', done => {
+      const id = Number(secrets.OAUTH_USER_ID);
+      const token = secrets.OAUTH_ACCESS_TOKEN;
+
+      auth.userVerify(id, token)
+        .then(user => redis.ttl(`user:${id}:${token}`))
+        .then(ttl => {
+          assert.ok(ttl <= 86400);
           done();
         });
     });
