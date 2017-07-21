@@ -25,7 +25,6 @@ verdandi-node-v2:
     - '8080'
   image: 'turistforeningen/verdandi:v2'
   links:
-    - 'mongo.mongo:mongo'
     - 'mongo-01.mongo-rs:mongo-01'
     - 'mongo-02.mongo-rs:mongo-02'
     - 'mongo-03.mongo-rs:mongo-03'
@@ -61,7 +60,6 @@ verdandi-node-v3:
     - '8080'
   image: 'turistforeningen/verdandi:v3'
   links:
-    - 'mongo.mongo:mongo'
     - 'mongo-01.mongo-rs:mongo-01'
     - 'mongo-02.mongo-rs:mongo-02'
     - 'mongo-03.mongo-rs:mongo-03'
