@@ -64,13 +64,13 @@ verdandi-node-v3:
     - 'mongo-02.mongo-rs:mongo-02'
     - 'mongo-03.mongo-rs:mongo-03'
     - 'statsd.statsd-librato:statsd'
-    - 'urdr-redis:redis'
+    - 'verdandi-redis:redis'
   restart: always
   tags:
     - app
   volumes_from:
     - 'secrets:ro'
-urdr-redis:
+verdandi-redis:
   autoredeploy: true
   command: redis-server --appendonly yes
   image: 'redis:3.0'
