@@ -74,7 +74,9 @@ const healthCheck = require('@starefossen/express-health');
 
 // StatsD logging of request
 router.use(responseTime((req, res, time) => {
-  statsd.logRequest(time);
+  const source = req.headers['x-client-token'] ? 'client' : 'app';
+
+  statsd.logRequest(time, source);
 }));
 
 router.use(optionalAuth);
