@@ -87,9 +87,9 @@ router.use((req, res, next) => {
       name: req.user.navn,
     });
 
-    sentry.setTagsContext({client: 'app'});
+    sentry.setTagsContext({ client: 'app' });
   } else {
-    sentry.setTagsContext({client: 'admin'});
+    sentry.setTagsContext({ client: 'admin' });
   }
 });
 
