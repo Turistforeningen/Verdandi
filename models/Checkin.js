@@ -85,50 +85,62 @@ checkinSchema.methods.anonymize = function anonymize(user, validAPIClient) {
   return this;
 };
 
-checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
-  cb(new Date(value) < new Date());
-}, `Checkins from the future (timestamp greater than ${new Date().toISOString()}) not allowed`);
+checkinSchema.path('timestamp').validate({
+  isAsync: false,
+  validator: function validateTimestamp(value) { // eslint-disable-line prefer-arrow-callback
+    return new Date(value) < new Date();
+  },
+  message: `Checkins from the future (timestamp greater than ${new Date().toISOString()}) not allowed`, // eslint-disable-line max-length
+});
 
-checkinSchema.path('location.coordinates').validate(function validateCoordinates(value, cb) { // eslint-disable-line prefer-arrow-callback
-  const env = process.env.NTB_API_ENV || 'api';
-  const key = secrets.NTB_API_KEY;
+checkinSchema.path('location.coordinates').validate({
+  isAsync: true,
+  validator: function validateCoordinates(value, cb) { // eslint-disable-line prefer-arrow-callback
+    const env = process.env.NTB_API_ENV || 'api';
+    const key = secrets.NTB_API_KEY;
 
-  const headers = { Authorization: `Token ${key}` };
+    const headers = { Authorization: `Token ${key}` };
 
-  fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
-    .then(res => { // eslint-disable-line consistent-return
-      if (res.status !== 200) {
-        // throw new HttpError(`Status Code ${res.status}`, res.status);
-        cb(false);
-      } else {
-        return res;
-      }
-    })
-    .then(res => res.json())
-    .then(sted => {
-      const distance = geoutil.pointDistance(value, sted.geojson.coordinates, true);
-      cb(distance <= parseInt(process.env.CHECKIN_MAX_DISTANCE, 10));
-    });
-}, `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`);
+    fetch(`https://${env}.nasjonalturbase.no/steder/${this.ntb_steder_id}`, { headers })
+      .then(res => { // eslint-disable-line consistent-return
+        if (res.status !== 200) {
+          // throw new HttpError(`Status Code ${res.status}`, res.status);
+          cb(false);
+        } else {
+          return res;
+        }
+      })
+      .then(res => res.json())
+      .then(sted => {
+        const distance = geoutil.pointDistance(value, sted.geojson.coordinates, true);
+        cb(distance <= parseInt(process.env.CHECKIN_MAX_DISTANCE, 10));
+      });
+  },
+  message: `Checkin only within ${process.env.CHECKIN_MAX_DISTANCE} m. radius`,
+});
 
-checkinSchema.path('timestamp').validate(function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
-  const Checkin = mongoose.model('Checkin', checkinSchema);
-  const checkinQuarantine = new Date(value);
-  checkinQuarantine.setSeconds(
-    checkinQuarantine.getSeconds() - parseInt(process.env.CHECKIN_TIMEOUT, 10)
-  );
+checkinSchema.path('timestamp').validate({
+  isAsync: true,
+  validator: function validateTimestamp(value, cb) { // eslint-disable-line prefer-arrow-callback
+    const Checkin = mongoose.model('Checkin', checkinSchema);
+    const checkinQuarantine = new Date(value);
+    checkinQuarantine.setSeconds(
+      checkinQuarantine.getSeconds() - parseInt(process.env.CHECKIN_TIMEOUT, 10)
+    );
 
-  Checkin.find()
-    .where('dnt_user_id')
-    .equals(this.dnt_user_id)
-    .where('ntb_steder_id')
-    .equals(this.ntb_steder_id)
-    .where('timestamp')
-    .gt(checkinQuarantine)
-    .exec((err, result) => {
-      cb(!result.length);
-    });
-}, `User can not check in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds`);
+    Checkin.find()
+      .where('dnt_user_id')
+      .equals(this.dnt_user_id)
+      .where('ntb_steder_id')
+      .equals(this.ntb_steder_id)
+      .where('timestamp')
+      .gt(checkinQuarantine)
+      .exec((err, result) => {
+        cb(!result.length);
+      });
+  },
+  message: `Checking in to same place twice within ${process.env.CHECKIN_TIMEOUT} seconds is not allowed`,
+});
 
 checkinSchema.index({ location: '2dsphere' });
 
