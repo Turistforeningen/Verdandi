@@ -82,9 +82,9 @@ router.use(optionalAuth);
 router.use((req, res, next) => {
   if (req.user) {
     sentry.setUserContext({
-      id: user._id,
-      email: user.epost,
-      name: user.navn,
+      id: req.user._id,
+      email: req.user.epost,
+      name: req.user.navn,
     });
 
     sentry.setTagsContext({client: 'app'});
