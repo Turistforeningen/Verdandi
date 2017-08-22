@@ -156,13 +156,12 @@ describe('POST /steder/:sted/besok', () => {
       .send(checkinData);
 
     return Promise.all([checkin1, checkin2]).then(all => {
-      const stored = all.find(r => r.status === 200);
-      const rejected = all.find(r => r.status === 400);
+      const stored = all.filter(r => r.status === 200);
+      const rejected = all.filter(r => r.status === 400);
 
-      assert(all.length, 2);
-      assert(stored);
-      assert(rejected);
-      assert(rejected.body.errors.timestamp);
+      assert.equal(stored.length, 1);
+      assert.equal(rejected.length, 1);
+      assert(rejected[0].body.errors.timestamp);
     });
   });
 
