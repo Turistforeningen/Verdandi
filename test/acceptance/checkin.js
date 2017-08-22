@@ -124,6 +124,47 @@ describe('POST /steder/:sted/besok', () => {
       });
   });
 
+  it('returns error for duplicate checkin', () => {
+    const duplicateCheckin = JSON.parse(JSON.stringify(checkins[0]));
+    duplicateCheckin.lat = duplicateCheckin.location.coordinates[1];
+    duplicateCheckin.lon = duplicateCheckin.location.coordinates[0];
+
+    delete duplicateCheckin._id;
+    delete duplicateCheckin.location;
+
+    return appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(duplicateCheckin)
+      .expect(400)
+      .expect(res => {
+        assert.equal(typeof res.body.errors.timestamp, 'object');
+        assert.equal(res.body.code, 400);
+        assert.equal(res.body.message, 'Checkin validation failed');
+      });
+  });
+
+  it.skip('stores one and rejects one when two timestamped are posted at the same time', () => {
+    const checkin1 = appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(checkinData);
+
+    const checkin2 = appMocked.post(url)
+      .set('X-User-Id', '1234')
+      .set('X-User-Token', 'abc123')
+      .send(checkinData);
+
+    return Promise.all([checkin1, checkin2]).then(all => {
+      const stored = all.filter(r => r.status === 200);
+      const rejected = all.filter(r => r.status === 400);
+
+      assert.equal(stored.length, 1);
+      assert.equal(rejected.length, 1);
+      assert(rejected[0].body.errors.timestamp);
+    });
+  });
+
   it('stores new valid checkin to the database', () => (
     appMocked.post(url)
       .set('X-User-Id', '1234')
