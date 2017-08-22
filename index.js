@@ -79,6 +79,22 @@ router.use(responseTime((req, res, time) => {
 
 router.use(optionalAuth);
 
+router.use((req, res, next) => {
+  if (req.user) {
+    sentry.setUserContext({
+      id: req.user._id,
+      email: req.user.epost,
+      name: req.user.navn,
+    });
+
+    sentry.setTagsContext({ client: 'app' });
+  } else {
+    sentry.setTagsContext({ client: 'admin' });
+  }
+
+  next();
+});
+
 // Params
 router.param('checkin', (req, res, next) => {
   if (/^[a-f0-9]{24}$/.test(req.params.checkin) === false) {
