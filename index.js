@@ -91,6 +91,8 @@ router.use((req, res, next) => {
   } else {
     sentry.setTagsContext({ client: 'admin' });
   }
+
+  next();
 });
 
 // Params
