@@ -18,6 +18,7 @@
     "no-param-reassign": [2, { "props": false }],
     "no-underscore-dangle": [2, { "allow": ["_id", "_hasOpened", "__parent"] }],
     "no-unused-vars": ["error", { "args": "none" }],
-    "mocha/no-exclusive-tests": "error"
+    "mocha/no-exclusive-tests": "error",
+    "lines-around-directive": ["error", { "before": "never", "after": "always" }]
   }
 }
