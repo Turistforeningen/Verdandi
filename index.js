@@ -660,12 +660,14 @@ router.get('/brukere/:bruker', (req, res) => {
   res.json({ data: req.authUser });
 });
 
-router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => {
+router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => { // eslint-disable-line consistent-return
   const oldUserId = Number(req.params.bruker);
   const newUserId = req.body._id;
 
   if (typeof newUserId !== 'number') {
-    return res.status(400).json({errors: {_id: ['Invalid user ID. Must be a number']}});
+    return res.status(400).json({
+      errors: { _id: ['Invalid user ID. Must be a number'] },
+    });
   }
 
   let newUser;
@@ -677,17 +679,17 @@ router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => {
     { user: newUserId, dnt_user_id: newUserId },
     { multi: true }
   )
-    .then(checkins => {
+    .then(checkins => (
       // Find both old and new (if existing) user
-      return Promise.all([
+      Promise.all([
         User.findOne({ _id: oldUserId }),
         User.findOne({ _id: newUserId }),
-      ]);
-    })
+      ])
+    ))
     .then(users => {
       [oldUser, newUser] = users;
 
-      // If new user, merge lister and innsjekkinger with old user
+      // If new user, merge lister and innsjekkinger
       if (newUser) {
         return newUser.update({
           lister: [
@@ -695,28 +697,28 @@ router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => {
             ...(newUser.get('lister') || []).filter(id => (
               // Avoid duplicates
               oldUser.get('lister').indexOf(id) === -1
-            ))
+            )),
           ],
           innsjekkinger: [
             ...(oldUser.get('innsjekkinger') || []),
             ...(newUser.get('innsjekkinger') || []).filter(id => (
               // Avoid duplicates
               oldUser.get('innsjekkinger').indexOf(id) === -1
-            ))
+            )),
           ],
         });
-      } else {
-        // If no user was created for the new ID, create new user with data
-        return User.create(Object.assign(oldUser.toJSON(), { _id: newUserId }));
       }
+
+      // If no user was created for the new ID, create new user with data
+      return User.create(Object.assign(oldUser.toJSON(), { _id: newUserId }));
     })
-    .then(user => {
+    .then(user => (
       // Delete old user
-      return User.deleteOne({ _id: oldUserId });
-    })
-    .then(user => {
-      res.json({success: true});
-    })
+      User.deleteOne({ _id: oldUserId })
+    ))
+    .then(user => (
+      res.json({ _id: newUserId })
+    ));
 });
 
 router.get('/brukere/:bruker/stats', requireClient, (req, res, next) => {

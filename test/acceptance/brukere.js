@@ -52,14 +52,14 @@ describe('brukere', () => {
       ));
     });
 
-    describe.only('POST /brukere/:bruker/bytt-id', () => {
+    describe('POST /brukere/:bruker/bytt-id', () => {
       const oldUserId = 1234;
       const newUserId = 9999;
 
       it('returns stats for a user', () => (
         appMocked.post(`${url}/bytt-id`)
           .set('X-Client-Token', 'client123')
-          .send({_id: newUserId})
+          .send({ _id: newUserId })
           .then(res => {
             assert.equal(res.body._id, newUserId);
 
@@ -70,10 +70,10 @@ describe('brukere', () => {
             // Old user does not exist any more
             assert.equal(res.status, 404);
           })
-          .then(() => {
+          .then(() => (
             // Request new user stats
-            return appMocked.get(`${url.replace(oldUserId, newUserId)}/stats`).set('X-Client-Token', 'client123');
-          })
+            appMocked.get(`${url.replace(oldUserId, newUserId)}/stats`).set('X-Client-Token', 'client123')
+          ))
           .then(res => {
             // New user stats are received
             assert.equal(res.body.innsjekkinger.count, 3);
