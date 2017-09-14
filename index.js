@@ -660,6 +660,65 @@ router.get('/brukere/:bruker', (req, res) => {
   res.json({ data: req.authUser });
 });
 
+router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => {
+  const oldUserId = Number(req.params.bruker);
+  const newUserId = req.body._id;
+
+  if (typeof newUserId !== 'number') {
+    return res.status(400).json({errors: {_id: ['Invalid user ID. Must be a number']}});
+  }
+
+  let newUser;
+  let oldUser;
+
+  // Set new user ID to all checkins
+  Checkin.update(
+    { user: oldUserId },
+    { user: newUserId, dnt_user_id: newUserId },
+    { multi: true }
+  )
+    .then(checkins => {
+      // Find both old and new (if existing) user
+      return Promise.all([
+        User.findOne({ _id: oldUserId }),
+        User.findOne({ _id: newUserId }),
+      ]);
+    })
+    .then(users => {
+      [oldUser, newUser] = users;
+
+      // If new user, merge lister and innsjekkinger with old user
+      if (newUser) {
+        return newUser.update({
+          lister: [
+            ...(oldUser.get('lister') || []),
+            ...(newUser.get('lister') || []).filter(id => (
+              // Avoid duplicates
+              oldUser.get('lister').indexOf(id) === -1
+            ))
+          ],
+          innsjekkinger: [
+            ...(oldUser.get('innsjekkinger') || []),
+            ...(newUser.get('innsjekkinger') || []).filter(id => (
+              // Avoid duplicates
+              oldUser.get('innsjekkinger').indexOf(id) === -1
+            ))
+          ],
+        });
+      } else {
+        // If no user was created for the new ID, create new user with data
+        return User.create(Object.assign(oldUser.toJSON(), { _id: newUserId }));
+      }
+    })
+    .then(user => {
+      // Delete old user
+      return User.deleteOne({ _id: oldUserId });
+    })
+    .then(user => {
+      res.json({success: true});
+    })
+});
+
 router.get('/brukere/:bruker/stats', requireClient, (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
