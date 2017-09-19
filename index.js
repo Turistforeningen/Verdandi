@@ -703,7 +703,7 @@ router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => { // eslint
             ...(oldUser.get('innsjekkinger') || []),
             ...(newUser.get('innsjekkinger') || []).filter(id => (
               // Avoid duplicates
-              oldUser.get('innsjekkinger').indexOf(id) === -1
+              (oldUser.get('innsjekkinger') || []).indexOf(id) === -1
             )),
           ],
         });
