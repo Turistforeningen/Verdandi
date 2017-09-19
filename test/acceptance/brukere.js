@@ -52,6 +52,36 @@ describe('brukere', () => {
       ));
     });
 
+    describe('POST /brukere/:bruker/bytt-id', () => {
+      const oldUserId = 1234;
+      const newUserId = 9999;
+
+      it('returns stats for a user', () => (
+        appMocked.post(`${url}/bytt-id`)
+          .set('X-Client-Token', 'client123')
+          .send({ _id: newUserId })
+          .then(res => {
+            assert.equal(res.body._id, newUserId);
+
+            // Then request old user
+            return appMocked.get(`${url}/stats`).set('X-Client-Token', 'client123');
+          })
+          .then(res => {
+            // Old user does not exist any more
+            assert.equal(res.status, 404);
+          })
+          .then(() => (
+            // Request new user stats
+            appMocked.get(`${url.replace(oldUserId, newUserId)}/stats`).set('X-Client-Token', 'client123')
+          ))
+          .then(res => {
+            // New user stats are received
+            assert.equal(res.body.innsjekkinger.count, 3);
+            assert.equal(res.body.bruker, newUserId);
+          })
+      ));
+    });
+
     describe('GET /brukere/:bruker/logg', () => {
       it('returns a complete log for a user when valid client', () => (
         appMocked.get(`${url}/logg`)
