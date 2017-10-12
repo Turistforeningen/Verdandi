@@ -265,6 +265,7 @@ router.get('/steder/:sted/brukere', requireClient, getNtbObject, (req, res, next
           avatar: item.user.avatar,
           navn: item.user.navn,
           epost: item.user.epost,
+          fodselsdato: item.user.fodselsdato || null,
           innsjekkinger: {
             logg: [
               ...(
@@ -562,6 +563,7 @@ router.get('/lister/:liste/brukere', requireClient, getNtbObject, (req, res, nex
             avatar: item.user.avatar,
             navn: item.user.navn,
             epost: item.user.epost,
+            fodselsdato: item.user.fodselsdato || null,
             innsjekkinger: {
               logg: [
                 ...(
