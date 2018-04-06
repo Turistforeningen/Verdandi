@@ -8,7 +8,7 @@ const photoSchema = new Schema({
     type: Array,
     default: [],
   },
-});
+}, { usePushEach: true });
 
 // Fix for https://github.com/Automattic/mongoose/issues/1251
 try {

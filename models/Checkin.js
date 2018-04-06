@@ -57,7 +57,7 @@ const checkinSchema = new Schema({
     ref: 'Photo',
     default: null,
   },
-});
+}, { usePushEach: true });
 
 checkinSchema.pre('save', function preSave(next) {
   this.user = this.dnt_user_id;

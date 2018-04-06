@@ -12,7 +12,7 @@ const userSchema = new Schema({
   fodselsdato: Date,
   lister: [],
   innsjekkinger: [{ type: Schema.Types.ObjectId, ref: 'Checkin' }],
-});
+}, { usePushEach: true });
 
 userSchema.methods.filterCheckins = function filterCheckins(userId) {
   if (userId !== this._id) {
