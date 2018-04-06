@@ -3,7 +3,7 @@ box: node:6
 build:
   services:
     - name: mongo
-      id: mongo:2
+      id: mongo:3.4
     - name: redis
       id: redis:3
 
