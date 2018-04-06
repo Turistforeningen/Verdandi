@@ -50,6 +50,7 @@ describe('secrets', () => {
           AWS_ACCESS_KEY_ID: 'abc',
           AWS_SECRET_ACCESS_KEY: 'abc123',
           API_CLIENT_TOKENS: 'client123,client456',
+          MONGO_URI: 'mongodb://some.mongo.uri:12345/database-name',
         });
 
         return file;
@@ -67,6 +68,7 @@ describe('secrets', () => {
         AWS_ACCESS_KEY_ID: 'abc',
         AWS_SECRET_ACCESS_KEY: 'abc123',
         API_CLIENT_TOKENS: 'client123,client456',
+        MONGO_URI: 'mongodb://some.mongo.uri:12345/database-name',
       });
 
       done();
