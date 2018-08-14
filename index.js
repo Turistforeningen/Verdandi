@@ -46,6 +46,7 @@ const {
   requireClient,
   requireUser,
   isClient,
+  isUser,
 } = require('./lib/auth');
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
@@ -146,14 +147,21 @@ router.param('bruker', (req, res, next, bruker) => {
       return user;
     })
 
-    // Conditionally hide private user checkins
-    // @TODO authenticate X-User-ID header before use
-    .then(user => user.filterCheckins(parseInt(req.headers['x-user-id'], 10)))
+    // Conditionally hide private user data
+    .then(user => {
+      if (isClient(req)) {
+        return user;
+      } else if (isUser(req, brukerId)) {
+        return user;
+      } else {
+        return user.anonymize(parseInt(req.headers['x-user-id'], 10))
+      }
+    })
 
     // Attach user instance to request object
-    .then(user => { req.authUser = user; })
+    .then(user => { req.paramBruker = user; })
 
-    .then(() => next())
+    .then(() => { return next(); })
 
     .catch(error => {
       if (error instanceof HttpError) {
@@ -658,8 +666,8 @@ router.post('/lister/:liste/meldav', requireAuth, (req, res) => {
   });
 });
 
-router.get('/brukere/:bruker', (req, res) => {
-  res.json({ data: req.authUser });
+router.get('/brukere/:bruker', requireAuth, (req, res) => {
+  res.json({ data: req.paramBruker });
 });
 
 router.post('/brukere/:bruker/bytt-id', requireClient, (req, res) => { // eslint-disable-line consistent-return
@@ -727,7 +735,7 @@ router.get('/brukere/:bruker/stats', requireClient, (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
-    { user: req.authUser._id }
+    { user: req.paramBruker._id }
   );
 
   Checkin.find()
@@ -743,9 +751,9 @@ router.get('/brukere/:bruker/stats', requireClient, (req, res, next) => {
       data.public = data.count - data.private;
 
       res.json({
-        lister: req.authUser.lister,
+        lister: req.paramBruker.lister,
         innsjekkinger: data,
-        bruker: req.authUser._id,
+        bruker: req.paramBruker._id,
       });
     })
     .catch(err => Promise.reject(err));
@@ -755,7 +763,7 @@ router.get('/brukere/:bruker/logg', (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
   const where = Object.assign(
     qs.parse(req.query),
-    { user: req.authUser._id }
+    { user: req.paramBruker._id }
   );
 
   Checkin.find()

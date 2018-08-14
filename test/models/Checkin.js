@@ -43,6 +43,7 @@ describe('Checkin', () => {
     });
 
     it('saves checkin from position inside radius', done => {
+      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
       const checkinData = {
         dnt_user_id: 1234,
         ntb_steder_id: '400000000000000000000000',
@@ -59,6 +60,7 @@ describe('Checkin', () => {
     });
 
     it('rejects a second checkin before checkin timeout', done => {
+      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
       const checkinTimestamp = new Date(checkinsFixtures[0].timestamp);
       const invalidCheckinTimestamp = new Date(checkinTimestamp.setSeconds(
         checkinTimestamp.getSeconds() + parseInt(process.env.CHECKIN_TIMEOUT, 10) - 1 // eslint-disable-line no-mixed-operators, max-len
@@ -79,10 +81,30 @@ describe('Checkin', () => {
     });
 
     it('rejects a checkin from the future', done => {
+      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
       const checkinData = {
         dnt_user_id: 1234,
         ntb_steder_id: '400000000000000000000000',
         timestamp: new Date().setHours(new Date().getHours() + 24),
+        location: { coordinates: [8.312466144561768, 61.63644183145977] },
+      };
+      const checkin = new Checkin(checkinData);
+
+      checkin.save((err, doc) => {
+        assert.equal(typeof doc, 'undefined');
+        assert.equal(typeof err.errors.timestamp, 'object');
+        done();
+      });
+    });
+
+    it('rejects a duplicate checkin', done => {
+      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
+      const checkinTimestamp = new Date(checkinsFixtures[0].timestamp);
+      const invalidCheckinTimestamp = new Date(checkinTimestamp);
+      const checkinData = {
+        dnt_user_id: 1234,
+        ntb_steder_id: '400000000000000000000000',
+        timestamp: invalidCheckinTimestamp,
         location: { coordinates: [8.312466144561768, 61.63644183145977] },
       };
       const checkin = new Checkin(checkinData);

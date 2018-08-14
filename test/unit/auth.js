@@ -176,7 +176,7 @@ describe('lib/auth', () => {
       const next = err => {
         assert.equal(typeof err, 'undefined');
         assert.equal(req.authUser._id, secrets.OAUTH_USER_ID);
-        assert.equal(req.authUser.isAuthenticated, true);
+        assert.equal(req.isAuthenticatedUser, true);
         done();
       };
 
@@ -188,7 +188,7 @@ describe('lib/auth', () => {
       const res = {};
       const next = err => process.nextTick(() => {
         assert.equal(typeof err, 'undefined');
-        assert.equal(req.authClient.isAuthenticated, true);
+        assert.equal(req.isAuthenticatedClient, true);
         done();
       });
 

@@ -23,5 +23,6 @@ module.exports = [{
   lister: [],
   innsjekkinger: [
     objectId('200000000000000000000002'),
+    objectId('200000000000000000000004'),
   ],
 }];

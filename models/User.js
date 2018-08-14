@@ -22,6 +22,15 @@ userSchema.methods.filterCheckins = function filterCheckins(userId) {
   return this;
 };
 
+userSchema.methods.anonymize = function anonymize(userId) {
+  if (userId !== this._id) {
+    this.innsjekkinger = this.innsjekkinger.filter(i => !!i.public);
+    this.epost = undefined;
+  }
+
+  return this;
+};
+
 // Fix for https://github.com/Automattic/mongoose/issues/1251
 try {
   module.exports = mongoose.model('User');

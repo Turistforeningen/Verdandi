@@ -118,5 +118,17 @@ describe('GET /brukere/:bruker', () => {
         .expect(200)
         .expect({ data: user }, done);
     });
+
+    it('hides private data for other users', done => {
+      const user = JSON.parse(JSON.stringify(users[1]));
+      delete user.epost;
+      user.innsjekkinger = JSON.parse(JSON.stringify([checkins[4]]));
+
+      appMocked.get(`${url}/5678`)
+        .set('X-User-Id', '1234')
+        .set('X-User-Token', 'abc123')
+        .expect(200)
+        .expect({ data: user }, done);
+    });
   });
 });
