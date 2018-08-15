@@ -44,7 +44,7 @@ build:
     - internal/docker-push:
         username: $DOCKER_REGISTRY_USERNAME
         password: $DOCKER_REGISTRY_PASSWORD
-        repository: turistforeningen/urdr
+        repository: turistforeningen/verdandi
         registry: https://registry.hub.docker.com/v2
         tag: $BUILD_TAG
         working-dir: /pipeline/source
