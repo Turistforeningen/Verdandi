@@ -1,9 +1,10 @@
-box: node:6
+box: node:7.8.0
 
 build:
   services:
     - name: mongo
       id: mongo:2
+
     - name: redis
       id: redis:3
 
@@ -34,52 +35,19 @@ build:
         code: |
           npm run nsp
 
-  after-steps:
-    - turistforeningen/slack-notifier:
-        url: $SLACK_WEBHOOK_URL
-
-docker:
-  box: python:2
-  steps:
     - script:
-        name: docker stack update
+        name: create tag
         code: |
-          pip install docker-cloud
-          docker-cloud stack update $DOCKERCLOUD_STACK_NAME --sync
+            export BUILD_TAG=${WERCKER_GIT_COMMIT:0:9}
+            echo $BUILD_TAG > .build-tag
 
-    - script:
-        name: docker hub build
-        code: |
-          curl --verbose \
-            -H "Content-Type: application/json" \
-            -d "{\"source_type\": \"Branch\", \"source_name\": \"$WERCKER_GIT_BRANCH\"}" \
-            -X POST $DOCKER_TRIGGER_URL
-
-  after-steps:
-    - turistforeningen/slack-notifier:
-        url: $SLACK_WEBHOOK_URL
-
-npm:
-  steps:
-    # Rebuild node_modules to fix broken symlinks
-    # https://github.com/wercker/docs/issues/310
-    - script:
-        name: npm rebuild
-        code: npm rebuild
-
-    - script:
-        name: semantic release pre
-        code: npm run semantic-release -- pre
-
-    - turistforeningen/npm-publish
-
-    - script:
-        name: semantic release post
-        code: npm run semantic-release -- post
-
-    - script:
-        name: greenkeeper postpublish
-        code: npm run greenkeeper-postpublish
+    - internal/docker-push:
+        username: $DOCKER_REGISTRY_USERNAME
+        password: $DOCKER_REGISTRY_PASSWORD
+        repository: turistforeningen/urdr
+        registry: https://registry.hub.docker.com/v2
+        tag: $BUILD_TAG
+        working-dir: /pipeline/source
 
   after-steps:
     - turistforeningen/slack-notifier:
