@@ -420,6 +420,9 @@ router.put('/steder/:sted/besok/:checkin', requireAuth, multer.single('photo'), 
             etag: photo.etag,
           })),
       }));
+    } else if (checkin.photo && !req.body.photo) {
+      // Checkin had a photo, but is not posted in object. Delete.
+      resolve(Photo.deleteOne({ _id: checkin.photo }));
     } else {
       resolve();
     }
