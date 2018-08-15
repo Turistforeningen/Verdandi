@@ -54,7 +54,7 @@
     "mongo-querystring": "^4.1.1",
     "mongoose": "4.12.1",
     "multer": "^1.2.1",
-    "newrelic": "^1.28.0",
+    "newrelic": "^4.8.0",
     "node-fetch": "^1.6.0",
     "node-statsd": "^0.1.1",
     "raven": "^0.12.0",
