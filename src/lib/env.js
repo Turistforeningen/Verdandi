@@ -17,21 +17,11 @@ function getFromProcess() {
     }, {});
 }
 
-let environmentVariables;
-
-switch (process.env.NODE_ENV) {
-  case 'development':
-  case 'test':
-  case 'production':
-    environmentVariables = getFromProcess();
-    break;
-  default:
-    throw new Error('Environment variable "NODE_ENV" is undefined or invalid');
-}
+let environmentVariables = getFromProcess();
 
 variables
   .filter(
-    variable => variable.env ? variable.env.find( // eslint-disable-line no-confusing-arrow
+    variable => variable.env ? variable.env.find(
       env => (new RegExp(process.env.NODE_ENV).test(env))
     ) : true
   )

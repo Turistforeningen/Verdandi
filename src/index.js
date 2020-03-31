@@ -1,18 +1,6 @@
 'use strict';
 
-const secrets = require('./lib/secrets'); // eslint-disable-line global-require
-
-/* istanbul ignore if  */
-if (process.env.NODE_ENV === 'production') {
-  process.env.NEW_RELIC_LICENSE_KEY = secrets.NEW_RELIC_LICENSE_KEY;
-  /* eslint-disable no-console */
-  console.log('Starting newrelic application monitoring');
-  /* eslint-enable */
-  require('newrelic'); // eslint-disable-line global-require
-}
-
-const raven = require('raven');
-const sentry = require('./lib/sentry');
+const secrets = require('./lib/secrets');
 
 const User = require('./models/User');
 const Checkin = require('./models/Checkin');
@@ -50,10 +38,10 @@ const {
 const { middleware: getNtbObject } = require('./lib/ntb');
 const { middleware: s3uploader } = require('./lib/upload');
 
-const statsd = require('./lib/statsd');
-
 const app = module.exports = express();
 const router = new express.Router();
+
+const API_URL_PREFIX = process.env.API_URL_PREFIX || 'v3';
 
 app.set('json spaces', 2);
 app.set('x-powered-by', false);
@@ -69,33 +57,26 @@ router.use(require('./lib/express-full-url'));
 // Cors Headers
 router.use(require('@starefossen/express-cors').middleware);
 
-// Health Check
-const healthCheck = require('@starefossen/express-health');
+// Request logging
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.locals.requestStart = start;
+  console.info(`${req.method} ${req.url} - Start request`);
 
-// StatsD logging of request
-router.use(responseTime((req, res, time) => {
-  const source = req.headers['x-client-token'] ? 'client' : 'app';
-
-  statsd.logRequest(time, source);
-}));
-
-router.use(auth);
-
-router.use((req, res, next) => {
-  if (req.user) {
-    sentry.setUserContext({
-      id: req.user._id,
-      email: req.user.epost,
-      name: req.user.navn,
-    });
-
-    sentry.setTagsContext({ client: 'app' });
-  } else {
-    sentry.setTagsContext({ client: 'admin' });
+  const oldEnd = res.end;
+  res.end = function () {
+    const ms = Date.now() - res.locals.requestStart;
+    oldEnd.apply(res, arguments)
+    console.info(`${req.method} ${req.url} ${res.statusCode} - ${ms}ms`);
   }
 
   next();
 });
+
+// Health Check
+const healthCheck = require('@starefossen/express-health');
+
+router.use(auth);
 
 // Params
 router.param('checkin', (req, res, next) => {
@@ -190,13 +171,6 @@ router.get('/', (req, res) => {
     list_log: { url: `${req.fullUrl}/lister/{liste}/logg` },
   });
 });
-
-// TODO(Roar): This should be removed
-// eslint-disable-next-line
-const notImplementedYet = (req, res) => {
-  res.status(418);
-  res.json({ message: 'Not implemented yet, come back later' });
-};
 
 router.get('/steder/:sted/stats', (req, res, next) => {
   const qs = new MongoQS({ whitelist: { timestamp: true } });
@@ -359,8 +333,6 @@ router.post(
           versionKey: false,
         }),
       });
-
-      statsd.logCheckin();
     });
 
     promise.catch(error => {
@@ -778,13 +750,8 @@ router.get('/brukere/:bruker/logg', (req, res, next) => {
 // Not Found
 router.use((req, res, next) => next(new HttpError('Not Found', 404)));
 
-// Sentry Error Handling
-router.use(raven.middleware.express.requestHandler(sentry));
-router.use(raven.middleware.express.errorHandler(sentry));
-
 // Final Error Handling
-router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  /* eslint-disable no-console */
+router.use((err, req, res, next) => {
   if (err.code >= 500) {
     if (err.error) {
       console.error(err.error.message);
@@ -793,8 +760,10 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
       console.error(err.message);
       console.error(err.stack);
     }
+  } else if (err.message && err.stack) {
+    console.error(err.message);
+    console.error(err.stack);
   }
-  /* eslint-enable */
 
   if (err.code && (typeof err.toJSON === 'function')) {
     res.status(err.code).json(err.toJSON());
@@ -807,12 +776,12 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
 });
 
-app.use(process.env.VIRTUAL_PATH, router);
+app.use(`/api/${API_URL_PREFIX}`, router);
 
 /* istanbul ignore if */
 if (!module.parent) {
-  const port = process.env.VIRTUAL_PORT || 8080;
+  const port = process.env.PORT || 6078;
 
   app.listen(port);
-  console.log(`Server listening on port ${port}`); // eslint-disable-line no-console
+  console.log(`Server listening on port ${port}`);
 }

@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const md5 = require('md5');
 const User = require('../models/User');
 const secrets = require('./secrets');
-const redis = require('./redis');
+const cache = require('./cache');
 
 exports.getUserData = token => (
   fetch('https://www.dnt.no/api/oauth/medlemsdata/', { headers: {
@@ -55,7 +55,7 @@ exports.clientVerify = token => (
 );
 
 exports.userVerify = (id, token) => (
-  redis.get(`user:${id}:${token}`)
+  cache.get(`user:${id}:${token}`)
     .then(data => {
       if (data === null) {
         return exports.getUserData(token)
@@ -67,8 +67,8 @@ exports.userVerify = (id, token) => (
           })
           .then(exports.saveUserData)
           .then(user => (
-            redis.set(`user:${id}:${token}`, JSON.stringify(user))
-              .then(() => redis.expire(`user:${id}:${token}`, 86400).then(() => user))
+            cache.set(`user:${id}:${token}`, JSON.stringify(user))
+              .then(() => cache.ttl(`user:${id}:${token}`, 86400).then(() => user))
               .catch(reason => {
                 throw new Error('Could not save user');
               })

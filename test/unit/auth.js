@@ -3,12 +3,12 @@
 const assert = require('assert');
 const HttpError = require('@starefossen/http-error');
 
-const auth = require('../../lib/auth');
+const auth = require('../../src/lib/auth');
 const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
-const User = require('../../models/User');
-const secrets = require('../../lib/secrets');
-const redis = require('../../lib/redis');
+const User = require('../../src/models/User');
+const secrets = require('../../src/lib/secrets');
+const cache = require('../../src/lib/cache');
 
 describe('lib/auth', () => {
   describe('#getUserData()', () => {
@@ -44,13 +44,13 @@ describe('lib/auth', () => {
         });
     });
 
-    it('caches authenticated user in redis', done => {
+    it('caches authenticated user', done => {
       const id = Number(secrets.OAUTH_USER_ID);
       const token = secrets.OAUTH_ACCESS_TOKEN;
 
       auth.userVerify(id, token)
         .then(user => (
-          redis.get(`user:${id}:${token}`)
+          cache.get(`user:${id}:${token}`)
             .then(result => {
               assert.equal(id, JSON.parse(result)._id);
               done();
@@ -63,7 +63,7 @@ describe('lib/auth', () => {
       const token = secrets.OAUTH_ACCESS_TOKEN;
 
       auth.userVerify(id, token)
-        .then(user => redis.ttl(`user:${id}:${token}`))
+        .then(user => cache.ttl(`user:${id}:${token}`))
         .then(ttl => {
           assert.ok(ttl <= 86400);
           done();

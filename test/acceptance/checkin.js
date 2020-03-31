@@ -5,8 +5,8 @@ const assert = require('assert');
 const mockery = require('mockery');
 const request = require('supertest');
 
-const auth = require('../../lib/auth');
-const User = require('../../models/User');
+const auth = require('../../src/lib/auth');
+const User = require('../../src/models/User');
 const dntUsers = require('../fixtures/dnt-users');
 const users = require('../fixtures/users');
 const checkins = require('../fixtures/checkins.js');
@@ -39,11 +39,11 @@ describe('POST /steder/:sted/besok', () => {
   })));
 
   before(() => {
-    appMocked = request(require('../../index')); // eslint-disable-line global-require
+    appMocked = request(require('../../src/index'));
   });
 
   before(() => {
-    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+    authMocked = require('../../src/lib/auth');
 
     authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
   });
@@ -277,11 +277,11 @@ describe('PUT /steder/:sted/besok/:id', () => {
   })));
 
   before(() => {
-    appMocked = request(require('../../index')); // eslint-disable-line global-require
+    appMocked = request(require('../../src/index'));
   });
 
   before(() => {
-    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+    authMocked = require('../../src/lib/auth');
 
     authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
   });
@@ -387,11 +387,11 @@ describe('DELETE /steder/:sted/besok/:id', () => {
   }));
 
   before(() => {
-    appMocked = request(require('../../index')); // eslint-disable-line global-require
+    appMocked = request(require('../../src/index'));
   });
 
   before(() => {
-    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+    authMocked = require('../../src/lib/auth');
 
     authMocked.getUserData = token => (
       token === 'abc123' ? Promise.resolve(dntUsers[1]) : Promise.reject()
@@ -452,11 +452,11 @@ describe('Checkin', () => {
   }));
 
   before(() => {
-    appMocked = request(require('../../index')); // eslint-disable-line global-require
+    appMocked = request(require('../../src/index'));
   });
 
   before(() => {
-    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+    authMocked = require('../../src/lib/auth');
 
     authMocked.getUserData = () => Promise.resolve(dntUsers[1]);
   });

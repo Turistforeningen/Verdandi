@@ -4,7 +4,7 @@
 const assert = require('assert');
 const request = require('supertest');
 const mockery = require('mockery');
-const auth = require('../../lib/auth');
+const auth = require('../../src/lib/auth');
 
 const users = require('../fixtures/dnt-users');
 
@@ -33,7 +33,7 @@ describe('brukere', () => {
     }));
 
     before(() => {
-      appMocked = request(require('../../index')); // eslint-disable-line global-require
+      appMocked = request(require('../../src/index'));
     });
 
     after(() => mockery.disable());

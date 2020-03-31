@@ -1,46 +1,13 @@
 {
-  "name": "verdandi",
-  "version": null,
-  "description": "Verðandi; API backend for Sjekk UT mobile application",
-  "main": "index.js",
-  "files": [
-    "index.js",
-    "lib"
-  ],
+  "name": "sjekkut-api",
+  "version": "5.0.0",
+  "main": "src/index.js",
   "scripts": {
-    "codacy-coverage": "codacy-coverage",
-    "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- -t 10000 -r test/support/env -R spec test/*.js test/**/*.js",
-    "grunt:watch": "grunt watch",
-    "lint": "eslint *.js lib/ models/ test/",
-    "lint:watch": "esw --color --watch *.js lib/ models/ test/",
-    "nsp": "nsp check",
-    "semantic-release": "semantic-release",
-    "start": "supervisor -w index.js,lib -e js index.js",
-    "test": "mocha -b -c -t 10000 --check-leaks -R tap -r test/support/env test/*.js test/**/*.js",
-    "test:watch": "mocha -w -b -c -t 10000 --check-leaks -R progress -r test/support/env test/*.js test/**/*.js",
-    "greenkeeper-postpublish": "greenkeeper-postpublish"
+    "upgrade-interactive": "./node_modules/.bin/npm-check -u -E",
+    "start": "export $(grep \"^[^#;]\" .env | xargs) && nodemon -e js,json,env -w . --exec \"node --inspect=localhost:9458 src/index.js\"",
+    "test": "export $(grep \"^[^#;]\" .env | xargs) && mocha -b -c -t 10000 --check-leaks -R tap -r test/support/env test/*.js test/**/*.js",
+    "test:watch": "export $(grep \"^[^#;]\" .env | xargs) && mocha -w -b -c -t 10000 --check-leaks -R progress -r test/support/env test/*.js test/**/*.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Turistforeningen/Verdandi.git"
-  },
-  "keywords": [
-    "UT",
-    "UT.no",
-    "DNT",
-    "SjekkUT",
-    "Sjekk UT",
-    "backend",
-    "api",
-    "iOS",
-    "Andoid"
-  ],
-  "author": "Hans Kristian Flaatten <hans@starefossen.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Turistforeningen/Verdandi/issues"
-  },
-  "homepage": "https://github.com/Turistforeningen/Verdandi#readme",
   "dependencies": {
     "@starefossen/express-cors": "^1.0.0",
     "@starefossen/express-health": "^1.0.0",
@@ -49,36 +16,22 @@
     "compression": "^1.6.2",
     "express": "^4.13.4",
     "geoutil": "^1.2.0",
-    "ioredis": "^3.1.1",
     "md5": "^2.2.1",
     "mongo-querystring": "^4.1.1",
     "mongoose": "4.12.1",
     "multer": "^1.2.1",
-    "newrelic": "^4.8.0",
-    "node-fetch": "^1.6.0",
-    "node-statsd": "^0.1.1",
-    "raven": "^0.12.0",
+    "node-cache": "5.1.0",
+    "node-fetch": "2.6.0",
     "response-time": "^2.3.1",
     "s3-uploader": "^2.0.3",
-    "uuid": "^3.0.1"
+    "uuid": "7.0.2"
   },
   "devDependencies": {
-    "codacy-coverage": "^2.0.0",
-    "eslint": "^3.1.1",
-    "eslint-config-airbnb-base": "^9.0.0",
-    "eslint-plugin-import": "^2.0.0",
-    "eslint-plugin-mocha": "^4.5.1",
-    "eslint-watch": "^2.1.14",
-    "greenkeeper-postpublish": "^1.0.0",
     "istanbul": "^0.4.3",
-    "mocha": "^3.0.0",
+    "mocha": "7.1.1",
     "mockery": "^2.0.0",
-    "nsp": "^2.4.0",
-    "semantic-release": "^4.3.5",
-    "supertest": "^2.0.0",
-    "supervisor": "^0.11.0"
-  },
-  "engines": {
-    "node": ">=6.0.0"
+    "nodemon": "2.0.2",
+    "npm-check": "5.9.2",
+    "supertest": "4.0.2"
   }
 }

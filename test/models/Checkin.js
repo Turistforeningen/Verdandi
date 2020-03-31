@@ -28,7 +28,7 @@ describe('Checkin', () => {
     after(() => mockery.disable());
 
     it('rejects checkin from position outside radius', done => {
-      Checkin = require('../../models/Checkin'); // eslint-disable-line global-require
+      Checkin = require('../../src/models/Checkin');
 
       const checkin = new Checkin({
         dnt_user_id: 1234,

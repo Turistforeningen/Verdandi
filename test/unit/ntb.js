@@ -4,7 +4,7 @@
 const mockery = require('mockery');
 const assert = require('assert');
 
-let ntb = require('../../lib/ntb');
+let ntb = require('../../src/lib/ntb');
 
 describe('ntb', () => {
   describe('#getNtbObject()', () => {
@@ -23,7 +23,7 @@ describe('ntb', () => {
         json: () => ({ message: 'Not Found' }),
       }));
 
-      ntb = require('../../lib/ntb'); // eslint-disable-line global-require
+      ntb = require('../../src/lib/ntb');
 
       ntb.getNtbObject('900000000000000000000000')
         .then(result => process.nextTick(() => {
@@ -47,7 +47,7 @@ describe('ntb', () => {
         }),
       }));
 
-      ntb = require('../../lib/ntb'); // eslint-disable-line global-require
+      ntb = require('../../src/lib/ntb');
 
       ntb.getNtbObject('400000000000000000000000')
         .then(result => process.nextTick(() => {
@@ -74,7 +74,7 @@ describe('ntb', () => {
         json: () => ({ message: 'Not Found' }),
       }));
 
-      ntb = require('../../lib/ntb'); // eslint-disable-line global-require
+      ntb = require('../../src/lib/ntb');
 
       ntb.middleware({ params: { sted: '900000000000000000000000' } }, {}, err => {
         assert.equal(err.code, 404);
@@ -97,7 +97,7 @@ describe('ntb', () => {
         }),
       }));
 
-      ntb = require('../../lib/ntb'); // eslint-disable-line global-require
+      ntb = require('../../src/lib/ntb');
 
       const req = { params: { sted: '400000000000000000000000' } };
 

@@ -3,10 +3,10 @@
 
 const assert = require('assert');
 const request = require('supertest');
-const app = request(require('../../index'));
+const app = request(require('../../src/index'));
 const mockery = require('mockery');
 
-const auth = require('../../lib/auth');
+const auth = require('../../src/lib/auth');
 
 const getUserData = auth.getUserData;
 const dntUsers = require('../fixtures/dnt-users');
@@ -22,11 +22,11 @@ describe('GET /', () => {
   }));
 
   before(() => {
-    appMocked = request(require('../../index')); // eslint-disable-line global-require
+    appMocked = request(require('../../src/index'));
   });
 
   before(() => {
-    authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+    authMocked = require('../../src/lib/auth');
 
     authMocked.getUserData = () => (
       Promise.resolve(dntUsers.find(u => u.sherpa_id === 1234))

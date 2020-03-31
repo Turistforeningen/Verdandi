@@ -7,7 +7,7 @@ const path = require('path');
 
 describe('secrets', () => {
   beforeEach(done => {
-    const resolved = require.resolve(path.resolve(__dirname, '../../lib/secrets'));
+    const resolved = require.resolve(path.resolve(__dirname, '../../src/lib/secrets'));
     delete require.cache[resolved];
     done();
   });
@@ -15,7 +15,7 @@ describe('secrets', () => {
   describe('development', () => {
     it('gets secrets from process', done => {
       process.env.NODE_ENV = 'development';
-      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
+      const secrets = require('../../src/lib/secrets');
 
       assert(secrets.NTB_API_KEY, 'fake');
 
@@ -26,7 +26,7 @@ describe('secrets', () => {
   describe('test', () => {
     it('gets secrets from process', done => {
       process.env.NODE_ENV = 'test';
-      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
+      const secrets = require('../../src/lib/secrets');
 
       assert(secrets.NTB_API_KEY, 'fake');
 
@@ -46,7 +46,6 @@ describe('secrets', () => {
         const file = JSON.stringify({
           NTB_API_KEY: 'abc',
           NEW_RELIC_LICENSE_KEY: 'abc123',
-          SENTRY_DSN: '456',
           AWS_ACCESS_KEY_ID: 'abc',
           AWS_SECRET_ACCESS_KEY: 'abc123',
           API_CLIENT_TOKENS: 'client123,client456',
@@ -59,12 +58,11 @@ describe('secrets', () => {
 
     it('reads secrets.json in production', done => {
       process.env.NODE_ENV = 'production';
-      const secrets = require('../../lib/secrets'); // eslint-disable-line global-require
+      const secrets = require('../../src/lib/secrets');
 
       assert.deepEqual(secrets, {
         NTB_API_KEY: 'abc',
         NEW_RELIC_LICENSE_KEY: 'abc123',
-        SENTRY_DSN: '456',
         AWS_ACCESS_KEY_ID: 'abc',
         AWS_SECRET_ACCESS_KEY: 'abc123',
         API_CLIENT_TOKENS: 'client123,client456',

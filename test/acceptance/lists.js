@@ -4,8 +4,8 @@
 const assert = require('assert');
 const request = require('supertest');
 const mockery = require('mockery');
-const app = request(require('../../index'));
-const auth = require('../../lib/auth');
+const app = request(require('../../src/index'));
+const auth = require('../../src/lib/auth');
 
 const users = require('../fixtures/dnt-users');
 
@@ -101,11 +101,11 @@ describe('lister', () => {
     })));
 
     before(() => {
-      appMocked = request(require('../../index')); // eslint-disable-line global-require
+      appMocked = request(require('../../src/index'));
     });
 
     before(() => {
-      authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+      authMocked = require('../../src/lib/auth');
 
       authMocked.getUserData = () => Promise.resolve(users[1]);
     });
@@ -168,11 +168,11 @@ describe('lister', () => {
     })));
 
     before(() => {
-      appMocked = request(require('../../index')); // eslint-disable-line global-require
+      appMocked = request(require('../../src/index'));
     });
 
     before(() => {
-      authMocked = require('../../lib/auth'); // eslint-disable-line global-require
+      authMocked = require('../../src/lib/auth');
 
       authMocked.getUserData = () => Promise.resolve(users[1]);
     });

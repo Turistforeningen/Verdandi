@@ -1,11 +1,10 @@
 'use strict';
 
-const mongo = require('../lib/db');
-const redis = require('../lib/redis');
+const mongo = require('../src/lib/db');
 
-const User = require('../models/User');
-const Checkin = require('../models/Checkin');
-const Photo = require('../models/Photo');
+const User = require('../src/models/User');
+const Checkin = require('../src/models/Checkin');
+const Photo = require('../src/models/Photo');
 
 const users = require('./fixtures/users');
 const checkins = require('./fixtures/checkins');
@@ -29,7 +28,6 @@ after(() => {
 
 // mongodb clean
 beforeEach(() => mongo.connection.db.dropDatabase());
-beforeEach(() => redis.flushall());
 
 // mongodb insert
 beforeEach(() => Promise.all([

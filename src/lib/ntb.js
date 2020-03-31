@@ -5,12 +5,10 @@ const fetch = require('node-fetch');
 const secrets = require('./secrets');
 
 exports.getNtbObject = (endpoint, id) => {
-  const env = process.env.NTB_API_ENV || 'api';
   const key = secrets.NTB_API_KEY;
-
   const headers = { Authorization: `Token ${key}` };
 
-  return fetch(`https://${env}.nasjonalturbase.no/${endpoint}/${id}`, { headers })
+  return fetch(`${process.env.NTB_API_URL}/${endpoint}/${id}`, { headers })
     .then(result => result);
 };
 
