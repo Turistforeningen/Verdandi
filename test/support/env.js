@@ -1,5 +1,7 @@
 'use strict';
 
+process.env.TEST_RUNNER='1'
+
 process.env.MONGO_URI='mongodb://localhost:27017/test';
 
 process.env.NTB_API_KEY = 'fake';

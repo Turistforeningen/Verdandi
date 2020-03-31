@@ -61,13 +61,18 @@ router.use(require('@starefossen/express-cors').middleware);
 app.use((req, res, next) => {
   const start = Date.now();
   res.locals.requestStart = start;
-  console.info(`${req.method} ${req.url} - Start request`);
+  if (process.env.TEST_RUNNER !== '1') {
+    console.info(`${req.method} ${req.url} - Start request`);
+  }
 
   const oldEnd = res.end;
   res.end = function () {
     const ms = Date.now() - res.locals.requestStart;
     oldEnd.apply(res, arguments)
-    console.info(`${req.method} ${req.url} ${res.statusCode} - ${ms}ms`);
+
+    if (process.env.TEST_RUNNER !== '1') {
+      console.info(`${req.method} ${req.url} ${res.statusCode} - ${ms}ms`);
+    }
   }
 
   next();

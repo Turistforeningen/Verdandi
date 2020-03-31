@@ -1,5 +1,7 @@
 'use strict';
 
+const secrets = require('../../src/lib/secrets');
+
 const objectId = require('mongoose').Types.ObjectId;
 
 module.exports = [{
@@ -19,6 +21,15 @@ module.exports = [{
   _id: 5678,
   navn: 'Per Pettersen',
   epost: 'per.pettersen@example.com',
+  avatar: null,
+  lister: [],
+  innsjekkinger: [
+    objectId('200000000000000000000002'),
+  ],
+}, {
+  _id: +secrets.OAUTH_USER_ID,
+  navn: 'Janne Jansen',
+  epost: 'janne.jansen@example.com',
   avatar: null,
   lister: [],
   innsjekkinger: [

@@ -5,10 +5,13 @@ const fs = require('fs');
 const variables = [
   { name: 'NTB_API_URL' },
   { name: 'NTB_API_KEY' },
-  { name: 'MONGO_URI', env: ['production'] },
+  { name: 'MONGO_URI' },
   { name: 'AWS_ACCESS_KEY_ID' },
   { name: 'AWS_SECRET_ACCESS_KEY' },
   { name: 'API_CLIENT_TOKENS' },
+  { name: 'OAUTH_ACCESS_TOKEN', env: ['development', 'test'] },
+  { name: 'OAUTH_REFRESH_TOKEN', env: ['development', 'test'] },
+  { name: 'OAUTH_USER_ID', env: ['development', 'test'] },
 ];
 
 function getFromProcess() {
