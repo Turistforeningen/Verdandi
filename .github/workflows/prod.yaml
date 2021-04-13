@@ -99,6 +99,7 @@ jobs:
             --set-env-vars="CHECKIN_TIMEOUT=21600" \
             --set-env-vars="NODE_ENV=production" \
             --set-env-vars="NTB_API_ENV=api" \
+            --set-env-vars="NTB_API_URL=https://api.nasjonalturbase.no" \
 
             --set-env-vars="NTB_API_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__NTB_API_KEY" \
             --set-env-vars="SENTRY_DSN=sm://dnt-app-utno-app/VERDANDI__PROD__SENTRY_DSN" \
