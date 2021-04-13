@@ -21,7 +21,7 @@
     "mongoose": "4.12.1",
     "multer": "^1.2.1",
     "node-cache": "5.1.0",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.1",
     "response-time": "^2.3.1",
     "s3-uploader": "^2.0.3",
     "uuid": "7.0.2"
