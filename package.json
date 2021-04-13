@@ -18,7 +18,7 @@
     "geoutil": "^1.2.0",
     "md5": "^2.2.1",
     "mongo-querystring": "^4.1.1",
-    "mongoose": "4.12.1",
+    "mongoose": "5.7.5",
     "multer": "^1.2.1",
     "node-cache": "5.1.0",
     "node-fetch": "2.6.0",
