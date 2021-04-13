@@ -15,4 +15,4 @@ COPY src/. /app/
 COPY package.json /app/
 
 ENV NODE_ENV=production
-CMD exec /bin/berglas exec -- node /app/src/server.js
+CMD exec /bin/berglas exec -- node /app/src/index.js
