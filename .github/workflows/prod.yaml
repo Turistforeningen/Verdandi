@@ -3,7 +3,7 @@ name: Deploy to prod
 on:
   push:
     branches:
-      - feature/cloud-run
+      - cloud-run
 
 jobs:
   build:
@@ -90,7 +90,6 @@ jobs:
             --memory=1500 \
             --image=eu.gcr.io/dnt-app-utno-app/verdandi:v.${GITHUB_RUN_NUMBER} \
             --service-account=verdandi@dnt-app-utno-app.iam.gserviceaccount.com \
-
             --set-env-vars="AWS_BUCKET_NAME=sjekkut" \
             --set-env-vars="AWS_BUCKET_PATH=photos/" \
             --set-env-vars="AWS_BUCKET_REGION=eu-west-1" \
@@ -100,12 +99,12 @@ jobs:
             --set-env-vars="NODE_ENV=production" \
             --set-env-vars="NTB_API_ENV=api" \
             --set-env-vars="NTB_API_URL=https://api.nasjonalturbase.no" \
-
             --set-env-vars="NTB_API_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__NTB_API_KEY" \
             --set-env-vars="SENTRY_DSN=sm://dnt-app-utno-app/VERDANDI__PROD__SENTRY_DSN" \
             --set-env-vars="MONGO_URI=sm://dnt-app-utno-app/VERDANDI__PROD__MONGO_URI" \
             --set-env-vars="AWS_ACCESS_KEY_ID=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_ACCESS_KEY_ID" \
-            --set-env-vars="AWS_SECRET_ACCESS_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_SECRET_ACCESS_KEY"
+            --set-env-vars="AWS_SECRET_ACCESS_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_SECRET_ACCESS_KEY" \
+            --set-env-vars="API_CLIENT_TOKENS=_"
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
