@@ -10,8 +10,8 @@ WORKDIR /app
 COPY --from=gcr.io/berglas/berglas:latest /bin/berglas /bin/berglas
 
 # Copy application files
-COPY node_modules/. /app/
-COPY src/. /app/
+COPY node_modules/. /app/node_modules/
+COPY src/. /app/src/
 COPY package.json /app/
 
 ENV NODE_ENV=production
