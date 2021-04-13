@@ -9,8 +9,10 @@ WORKDIR /app
 # Add berglas
 COPY --from=gcr.io/berglas/berglas:latest /bin/berglas /bin/berglas
 
-# Copy applicaiton files
-COPY build/. /app/
+# Copy application files
+COPY node_modules/. /app/
+COPY src/. /app/
+COPY package.json /app/
 
 ENV NODE_ENV=production
 CMD exec /bin/berglas exec -- node /app/src/server.js

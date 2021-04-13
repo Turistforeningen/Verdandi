@@ -1,0 +1,128 @@
+name: Deploy to prod
+
+on:
+  push:
+    branches:
+      - feature/cloud-run
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Install dependencies
+      - name: Install npm dependencies
+        run: |
+          npm ci
+
+      # Setup gcloud CLI
+      - name: Set up Google Cloud SDK (gcloud)
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          export_default_credentials: true
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - name: Configure docker with gcloud
+        run: |
+          gcloud --quiet auth configure-docker
+
+      # Build the Docker image
+      - name: Docker build and push
+        run: |
+          docker build -t verdandi .
+          docker tag verdandi eu.gcr.io/dnt-app-utno-app/verdandi:v.$GITHUB_RUN_NUMBER
+          docker tag verdandi eu.gcr.io/dnt-app-utno-app/verdandi:git.$GITHUB_SHA
+          docker push eu.gcr.io/dnt-app-utno-app/verdandi:v.$GITHUB_RUN_NUMBER
+          docker push eu.gcr.io/dnt-app-utno-app/verdandi:git.$GITHUB_SHA
+
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: repo,message,workflow,job,took # selectable (default: repo,message)
+          # fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          custom_payload: |
+            {
+              icon_emoji: ':octocat:',
+              attachments: [
+                {
+                  fallback: `[${process.env.AS_REPO}][${process.env.AS_WORKFLOW}][${process.env.AS_JOB}] ${{ job.status }} (${process.env.AS_TOOK})`,
+                  color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                  title: `[${process.env.AS_REPO}][${process.env.AS_WORKFLOW}][${process.env.AS_JOB}] ${{ job.status }} (${process.env.AS_TOOK})`
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: [build]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Setup gcloud CLI
+      - name: Set up Google Cloud SDK (gcloud)
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          export_default_credentials: true
+
+      # Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        env:
+          GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+        run: |
+          gcloud run deploy verdandi \
+            --project=dnt-app-utno-app \
+            --platform=managed \
+            --region=europe-north1 \
+            --allow-unauthenticated \
+            --max-instances=5 \
+            --concurrency=100 \
+            --memory=1500 \
+            --image=eu.gcr.io/dnt-app-utno-app/verdandi:v.${GITHUB_RUN_NUMBER} \
+            --service-account=verdandi@dnt-app-utno-app.iam.gserviceaccount.com \
+
+            --set-env-vars="AWS_BUCKET_NAME=sjekkut" \
+            --set-env-vars="AWS_BUCKET_PATH=photos/" \
+            --set-env-vars="AWS_BUCKET_REGION=eu-west-1" \
+            --set-env-vars="AWS_BUCKET_URL=https://sjekkut.s3.amazonaws.com/" \
+            --set-env-vars="CHECKIN_MAX_DISTANCE=100" \
+            --set-env-vars="CHECKIN_TIMEOUT=21600" \
+            --set-env-vars="NODE_ENV=production" \
+            --set-env-vars="NTB_API_ENV=api" \
+
+            --set-env-vars="NTB_API_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__NTB_API_KEY" \
+            --set-env-vars="SENTRY_DSN=sm://dnt-app-utno-app/VERDANDI__PROD__SENTRY_DSN" \
+            --set-env-vars="MONGO_URI=sm://dnt-app-utno-app/VERDANDI__PROD__MONGO_URI" \
+            --set-env-vars="AWS_ACCESS_KEY_ID=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_ACCESS_KEY_ID" \
+            --set-env-vars="AWS_SECRET_ACCESS_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_SECRET_ACCESS_KEY"
+
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: repo,message,workflow,job,took # selectable (default: repo,message)
+          # fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          custom_payload: |
+            {
+              icon_emoji: ':octocat:',
+              attachments: [
+                {
+                  fallback: `[${process.env.AS_REPO}][${process.env.AS_WORKFLOW}][${process.env.AS_JOB}] ${{ job.status }} (${process.env.AS_TOOK})`,
+                  color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                  title: `[${process.env.AS_REPO}][${process.env.AS_WORKFLOW}][${process.env.AS_JOB}] ${{ job.status }} (${process.env.AS_TOOK})`
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
