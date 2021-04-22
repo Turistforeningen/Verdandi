@@ -783,6 +783,13 @@ router.use((err, req, res, next) => {
 
 app.use(`/api/${API_URL_PREFIX}`, router);
 
+// Redirect til admin
+const adminRouter = new express.Router();
+adminRouter.get('/*', (req, res, next) => {
+  res.redirect(301, 'https://sjekkut-admin.app.dnt.no' + req.path)
+});
+app.use('/', adminRouter);
+
 /* istanbul ignore if */
 if (!module.parent) {
   const port = process.env.PORT || 6078;
