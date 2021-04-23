@@ -104,7 +104,7 @@ jobs:
             --set-env-vars="MONGO_URI=sm://dnt-app-utno-app/VERDANDI__PROD__MONGO_URI" \
             --set-env-vars="AWS_ACCESS_KEY_ID=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_ACCESS_KEY_ID" \
             --set-env-vars="AWS_SECRET_ACCESS_KEY=sm://dnt-app-utno-app/VERDANDI__PROD__AWS_SECRET_ACCESS_KEY" \
-            --set-env-vars="API_CLIENT_TOKENS=_"
+            --set-env-vars="API_CLIENT_TOKENS=sm://dnt-app-utno-app/SJEKKUT_URDR__PROD__VERDANDI_CLIENT_TOKEN"
 
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
